@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desktop Interface</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Desktop Area -->
+    <div class="desktop">
+        <!-- Desktop Icons -->
+        <div class="desktop-icon" onclick="openWindow('aboutWindow')">
+            <img src="icons/about.png" alt="About Icon">
+            <p>About</p>
+        </div>
+        <div class="desktop-icon" onclick="openWindow('contactWindow')">
+            <img src="icons/contact.png" alt="Contact Icon">
+            <p>Contact</p>
+        </div>
+        <!-- Add more icons as needed -->
+    </div>
+
+    <!-- Windows -->
+    <div id="aboutWindow" class="window">
+        <div class="window-header">
+            <span>About</span>
+            <button onclick="closeWindow('aboutWindow')">X</button>
+        </div>
+        <div class="window-content">
+            <p>This is the About window. You can add more information here.</p>
+        </div>
+    </div>
+
+    <div id="contactWindow" class="window">
+        <div class="window-header">
+            <span>Contact</span>
+            <button onclick="closeWindow('contactWindow')">X</button>
+        </div>
+        <div class="window-content">
+            <p>This is the Contact window. Add your contact details here.</p>
+        </div>
+    </div>
+
+    <!-- Taskbar -->
+    <div class="taskbar">
+        <div class="taskbar-item">Start</div>
+        <div class="taskbar-item">Time: <span id="time"></span></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
