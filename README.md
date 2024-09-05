@@ -2,7 +2,6 @@
 
 My website WIP
 
-Go to the website at http://ravewyvern.me
+Go to the website at https://ravewyvern.me
 
 Reminders and todo
-- try and get a https certificate 
