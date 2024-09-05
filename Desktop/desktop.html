@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Desktop Interface</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 <body>
 
@@ -45,8 +46,24 @@
 
     <!-- Taskbar -->
     <div class="taskbar">
-        <div class="taskbar-item">Start</div>
-        <div class="taskbar-item">Time: <span id="time"></span></div>
+        <!-- Start Button -->
+        <div class="start-button taskbar-item" onclick="toggleStartMenu()">
+            <span class="material-symbols-outlined">apps</span>
+        </div>
+
+        <!-- Start Menu -->
+        <div id="start-menu" class="start-menu">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="Desktop/desktop.html">Desktop Interface</a></li>
+            </ul>
+        </div>
+
+        <div class="taskbar-item">
+            <span id="time"></span>
+        </div>
     </div>
 
     <script src="script.js"></script>
