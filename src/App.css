@@ -1,0 +1,46 @@
+/* App.css */
+
+.desktop {
+  height: 100vh;
+  background: url('https://example.com/path-to-your-background.jpg') no-repeat center center/cover;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.taskbar {
+  height: 40px;
+  background-color: #333;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.clock {
+  color: white;
+  font-size: 14px;
+  margin-left: auto;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.window {
+  border: 1px solid #ddd;
+  background-color: white;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  position: absolute;
+  z-index: 10;
+}
+
+.window-header {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.window-header button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
