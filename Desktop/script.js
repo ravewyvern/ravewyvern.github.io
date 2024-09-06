@@ -1,3 +1,4 @@
+// Function to open and close windows
 function openWindow(windowId) {
     document.getElementById(windowId).style.display = 'block';
 }
@@ -19,19 +20,22 @@ setInterval(updateTime, 1000);
 // Toggle the start menu
 function toggleStartMenu() {
     const startMenu = document.getElementById("start-menu");
-    if (startMenu.style.display === "block") {
-        startMenu.style.display = "none";
-    } else {
-        startMenu.style.display = "block";
-    }
+    startMenu.style.display = startMenu.style.display === "block" ? "none" : "block";
 }
 
-// Hide the start menu when clicked outside
-document.addEventListener('click', function(event) {
-    const startMenu = document.getElementById('start-menu');
-    const startButton = document.querySelector('.start-button');
+// Toggle calendar and notifications
+function toggleCalendar() {
+    const calendar = document.getElementById('calendar');
+    const notifications = document.getElementById('notifications');
+    calendar.style.display = calendar.style.display === 'block' ? 'none' : 'block';
+    notifications.style.display = notifications.style.display === 'block' ? 'none' : 'block';
+}
 
-    if (!startMenu.contains(event.target) && !startButton.contains(event.target)) {
-        startMenu.style.display = 'none';
+// Handle desktop icons
+const desktopIcons = document.getElementById('desktop-icons');
+desktopIcons.addEventListener('click', function(e) {
+    if (e.target.classList.contains('desktop-icon')) {
+        // Open a window or do something with clicked icon
+        console.log('Desktop icon clicked!');
     }
 });

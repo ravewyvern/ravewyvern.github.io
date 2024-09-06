@@ -34,6 +34,16 @@
         </div>
     </div>
 
+    <div id="postWindow" class="window">
+        <div class="window-header">
+            <span>Posts</span>
+            <button onclick="closeWindow('postWindow')">X</button>
+        </div>
+        <div class="window-content">
+            <p>This is where you can show posts/notifications.</p>
+        </div>
+    </div>
+
     <div id="contactWindow" class="window">
         <div class="window-header">
             <span>Contact</span>
@@ -43,13 +53,21 @@
             <p>This is the Contact window. Add your contact details here.</p>
         </div>
     </div>
-
     <!-- Taskbar -->
     <div class="taskbar">
         <!-- Start Button -->
         <div class="start-button taskbar-item" onclick="toggleStartMenu()">
             <span class="material-symbols-outlined">apps</span>
         </div>
+
+        <!-- Time & Date -->
+        <div class="taskbar-item" id="time-date" onclick="toggleCalendar()">
+            <span id="time"></span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
 
         <!-- Start Menu -->
 <div id="start-menu" class="start-menu">
@@ -60,10 +78,13 @@
     </ul>
 </div>
 
-        <div class="taskbar-item">
-            <span id="time"></span>
-        </div>
-    </div>
+<!-- Calendar and Notifications -->
+<div id="calendar" class="hidden">
+    <p>Calendar Section: Show date/time and any other info here</p>
+</div>
+<div id="notifications" class="hidden">
+    <p>Notification Section: Here you can list notifications</p>
+</div>
 
     <script src="script.js"></script>
 </body>
