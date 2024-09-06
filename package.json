@@ -1,0 +1,21 @@
+{
+  "name": "my-desktop-interface",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-scripts": "5.0.0",
+    "react-rnd": "^10.3.5"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "deploy": "gh-pages -d build",
+    "predeploy": "npm run build"
+  },
+  "homepage": "https://yourusername.github.io/my-desktop-interface",
+  "devDependencies": {
+    "gh-pages": "^4.0.0"
+  }
+}
