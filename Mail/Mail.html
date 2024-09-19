@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Interface</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            height: 100%;
+        }
+        .pane {
+            padding: 15px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+        .left-pane {
+            width: 20%;
+            background-color: #f4f4f4;
+            border-right: 1px solid #ccc;
+        }
+        .middle-pane {
+            width: 30%;
+            background-color: #fff;
+            border-right: 1px solid #ccc;
+        }
+        .right-pane {
+            flex-grow: 1;
+            background-color: #fafafa;
+        }
+        h2 {
+            font-size: 16px;
+            margin-top: 0;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+        ul li:hover {
+            background-color: #eee;
+        }
+        .email-list-item {
+            cursor: pointer;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .email-list-item:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Pane for Email Folders -->
+        <div class="pane left-pane">
+            <h2>Folders</h2>
+            <ul>
+                <li>Inbox</li>
+                <li>Sent</li>
+                <li>Drafts</li>
+                <li>Trash</li>
+            </ul>
+        </div>
+
+        <!-- Middle Pane for List of Emails -->
+        <div class="pane middle-pane">
+            <h2>Inbox</h2>
+            <div class="email-list-item" onclick="openEmail('Email 1')">
+                <strong>Email 1</strong>
+                <p>Preview of the first email...</p>
+            </div>
+            <div class="email-list-item" onclick="openEmail('Email 2')">
+                <strong>Email 2</strong>
+                <p>Preview of the second email...</p>
+            </div>
+        </div>
+
+        <!-- Right Pane for Email Content -->
+        <div class="pane right-pane" id="email-content">
+            <h2>Email Content</h2>
+            <p>Select an email to view its content.</p>
+        </div>
+    </div>
+
+    <script>
+        function openEmail(email) {
+            document.getElementById('email-content').innerHTML = `<h2>${email}</h2><p>This is the content of ${email}.</p>`;
+        }
+    </script>
+</body>
+</html>
