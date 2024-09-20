@@ -6,10 +6,17 @@
     <title>Email Interface</title>
     <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
     <style>
-        body {
+        * {
+            box-sizing: border-box;
+        }
+        html, body {
             margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden; /* Prevent scrolling */
+        }
+        body {
             font-family: Arial, sans-serif;
-            height: 100vh;
         }
         .container {
             display: flex;
@@ -29,13 +36,6 @@
             width: 30%;
             background-color: #fff;
             border-right: 1px solid #ccc;
-        }
-        .right-pane {
-            flex-grow: 1;
-            background-color: #fafafa;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
         }
         h2 {
             font-size: 16px;
@@ -81,6 +81,7 @@
             margin-right: 10px;
             border-radius: 3px;
             background-color: white;
+            max-width: 200px; /* Set a smaller width for the search bar */
         }
         .compose-btn {
             background-color: #007bff;
@@ -93,13 +94,7 @@
         .compose-btn:hover {
             background-color: #0056b3;
         }
-        .bottom-bar {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            border-top: 1px solid #ccc;
-            background-color: #f4f4f4;
-        }
+
         .bottom-bar button {
             background-color: transparent;
             border: none;
@@ -138,6 +133,27 @@
         }
         .close-btn:hover {
             background-color: #e60000;
+        }
+        .email-header {
+            display: flex;
+            align-items: center;
+        }
+        .email-header img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        .email-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .email-title {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .email-addresses {
+            font-size: 12px;
+            color: #666;
         }
     </style>
 </head>
@@ -178,15 +194,10 @@
     </div>
 
     <!-- Right Pane for Email Content -->
-    <div class="pane right-pane" id="email-content">
-        <h2>Email Content</h2>
-        <p>Select an email to view its content.</p>
-        <!-- Bottom Bar with Reply, Forward, Delete, More Buttons -->
-        <div class="bottom-bar">
-            <button><span class="material-icons">reply</span></button>
-            <button><span class="material-icons">forward</span></button>
-            <button><span class="material-icons">delete</span></button>
-            <button><span class="material-icons">more_vert</span></button>
+    <div class="pane right-pane">
+        <div class="email-body" id="email-content">
+            <h2>Email Content</h2>
+            <p>Select an email to view its content.</p>
         </div>
     </div>
 </div>
@@ -202,7 +213,15 @@
 
 <script>
     function openEmail(email) {
-        document.getElementById('email-content').innerHTML = `<h2>${email}</h2><p>This is the content of ${email}.</p>`;
+        document.getElementById('email-content').innerHTML = `
+            <div class="email-header">
+                <img src="../icons/user.png" alt="User Icon">
+                <div class="email-info">
+                    <span class="email-title">${email}</span>
+                    <span class="email-addresses">From: sender@example.com<br>To: receiver@example.com</span>
+                </div>
+            </div>
+            <p>This is the content of ${email}.</p>`;
     }
 
     function openCompose() {
