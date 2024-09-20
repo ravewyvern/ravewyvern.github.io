@@ -95,16 +95,6 @@
             background-color: #0056b3;
         }
 
-        .bottom-bar button {
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            color: #333;
-        }
-        .bottom-bar button:hover {
-            color: #007bff;
-        }
         .modal {
             position: fixed;
             top: 0;
@@ -155,6 +145,58 @@
             font-size: 12px;
             color: #666;
         }
+
+        /* Right Pane */
+        .pane.right-pane {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%; /* Ensure the pane takes full height */
+        }
+
+        /* Bottom Bar */
+        .bottom-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f4f4f4;
+            padding: 5px; /* Reduced padding for a smaller bar */
+            position: absolute; /* Keep it at the bottom of the right pane */
+            bottom: 0;
+            right: 0; /* Align to the right */
+            width: 65.8%; /* Ensure it takes full width */
+            box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1); /* Add a shadow for better visibility */
+        }
+
+        .email-body {
+            flex-grow: 1;
+            overflow-y: auto; /* Allow email content to scroll */
+            padding-bottom: 60px; /* Adjust as necessary for bottom bar height */
+        }
+
+        .bottom-bar button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 14px; /* Smaller text size */
+            color: #333;
+            text-align: center;
+            display: flex;
+            flex-direction: column; /* Stack icon and text */
+            align-items: center;
+            padding: 5px; /* Reduced padding for buttons */
+            width: 60px; /* Adjust button width if needed */
+        }
+
+        .bottom-bar button:hover {
+            color: #007bff;
+        }
+
+        .bottom-bar .material-icons {
+            font-size: 24px; /* Decrease icon size */
+            margin-bottom: 3px; /* Space between icon and text */
+        }
+
     </style>
 </head>
 <body>
@@ -194,10 +236,31 @@
     </div>
 
     <!-- Right Pane for Email Content -->
+    <!-- Right Pane for Email Content -->
     <div class="pane right-pane">
         <div class="email-body" id="email-content">
             <h2>Email Content</h2>
             <p>Select an email to view its content.</p>
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="bottom-bar">
+            <button>
+                <span class="material-icons">reply</span>
+                Reply
+            </button>
+            <button>
+                <span class="material-icons">forward</span>
+                Forward
+            </button>
+            <button>
+                <span class="material-icons">delete</span>
+                Delete
+            </button>
+            <button>
+                <span class="material-icons">more_vert</span>
+                More
+            </button>
         </div>
     </div>
 </div>
