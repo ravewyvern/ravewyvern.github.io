@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Email Interface</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -32,6 +33,9 @@
         .right-pane {
             flex-grow: 1;
             background-color: #fafafa;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         h2 {
             font-size: 16px;
@@ -45,9 +49,14 @@
             padding: 10px;
             border-bottom: 1px solid #ddd;
             cursor: pointer;
+            display: flex;
+            align-items: center;
         }
         ul li:hover {
             background-color: #eee;
+        }
+        ul li .material-icons {
+            margin-right: 10px;
         }
         .email-list-item {
             cursor: pointer;
@@ -57,45 +66,152 @@
         .email-list-item:hover {
             background-color: #f0f0f0;
         }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        .search-bar {
+            flex-grow: 1;
+            padding: 5px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+            border-radius: 3px;
+            background-color: white;
+        }
+        .compose-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .compose-btn:hover {
+            background-color: #0056b3;
+        }
+        .bottom-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-top: 1px solid #ccc;
+            background-color: #f4f4f4;
+        }
+        .bottom-bar button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #333;
+        }
+        .bottom-bar button:hover {
+            color: #007bff;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            width: 300px;
+        }
+        .close-btn {
+            background-color: #ff5c5c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            float: right;
+        }
+        .close-btn:hover {
+            background-color: #e60000;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Left Pane for Email Folders -->
-        <div class="pane left-pane">
-            <h2>Folders</h2>
-            <ul>
-                <li>Inbox</li>
-                <li>Sent</li>
-                <li>Drafts</li>
-                <li>Trash</li>
-            </ul>
-        </div>
+<!-- Top Bar with Logo, Search Bar, and Compose Button -->
+<div class="top-bar">
+    <img src="logo.png" alt="Logo" style="height: 40px;">
+    <input type="text" class="search-bar" placeholder="Search...">
+    <button class="compose-btn" onclick="openCompose()">Compose</button>
+</div>
 
-        <!-- Middle Pane for List of Emails -->
-        <div class="pane middle-pane">
-            <h2>Inbox</h2>
-            <div class="email-list-item" onclick="openEmail('Email 1')">
-                <strong>Email 1</strong>
-                <p>Preview of the first email...</p>
-            </div>
-            <div class="email-list-item" onclick="openEmail('Email 2')">
-                <strong>Email 2</strong>
-                <p>Preview of the second email...</p>
-            </div>
-        </div>
+<div class="container">
+    <!-- Left Pane for Email Folders -->
+    <div class="pane left-pane">
+        <h2>Folders</h2>
+        <ul>
+            <li><span class="material-icons">inbox</span>Inbox</li>
+            <li><span class="material-icons">drafts</span>Drafts</li>
+            <li><span class="material-icons">send</span>Sent</li>
+            <li><span class="material-icons">delete</span>Trash</li>
+            <li><span class="material-icons">report</span>Spam</li>
+            <li><span class="material-icons">outbox</span>Active Outbox</li>
+            <li><span class="material-icons">archive</span>Archive</li>
+        </ul>
+    </div>
 
-        <!-- Right Pane for Email Content -->
-        <div class="pane right-pane" id="email-content">
-            <h2>Email Content</h2>
-            <p>Select an email to view its content.</p>
+    <!-- Middle Pane for List of Emails -->
+    <div class="pane middle-pane">
+        <h2>Inbox</h2>
+        <div class="email-list-item" onclick="openEmail('Email 1')">
+            <strong>Email 1</strong>
+            <p>Preview of the first email...</p>
+        </div>
+        <div class="email-list-item" onclick="openEmail('Email 2')">
+            <strong>Email 2</strong>
+            <p>Preview of the second email...</p>
         </div>
     </div>
 
-    <script>
-        function openEmail(email) {
-            document.getElementById('email-content').innerHTML = `<h2>${email}</h2><p>This is the content of ${email}.</p>`;
-        }
-    </script>
+    <!-- Right Pane for Email Content -->
+    <div class="pane right-pane" id="email-content">
+        <h2>Email Content</h2>
+        <p>Select an email to view its content.</p>
+        <!-- Bottom Bar with Reply, Forward, Delete, More Buttons -->
+        <div class="bottom-bar">
+            <button><span class="material-icons">reply</span></button>
+            <button><span class="material-icons">forward</span></button>
+            <button><span class="material-icons">delete</span></button>
+            <button><span class="material-icons">more_vert</span></button>
+        </div>
+    </div>
+</div>
+
+<!-- Compose Modal -->
+<div class="modal" id="composeModal">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeCompose()">X</button>
+        <h2>Compose Email</h2>
+        <textarea placeholder="Type your message here..." style="width: 100%; height: 150px;"></textarea>
+    </div>
+</div>
+
+<script>
+    function openEmail(email) {
+        document.getElementById('email-content').innerHTML = `<h2>${email}</h2><p>This is the content of ${email}.</p>`;
+    }
+
+    function openCompose() {
+        document.getElementById('composeModal').style.display = 'flex';
+    }
+
+    function closeCompose() {
+        document.getElementById('composeModal').style.display = 'none';
+    }
+</script>
 </body>
 </html>
