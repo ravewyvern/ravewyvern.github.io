@@ -110,8 +110,54 @@
             background-color: white;
             padding: 20px;
             border-radius: 5px;
-            width: 300px;
+            width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
+
+        .modal-content form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-content input,
+        .modal-content textarea {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .dropdown-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        #cc-bcc-section {
+            display: none;
+        }
+
+        .send-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            align-self: flex-end;
+        }
+
+        .send-btn:hover {
+            background-color: #0056b3;
+        }
+
         .close-btn {
             background-color: #ff5c5c;
             color: white;
@@ -262,7 +308,36 @@
     <div class="modal-content">
         <button class="close-btn" onclick="closeCompose()">X</button>
         <h2>Compose Email</h2>
-        <textarea placeholder="Type your message here..." style="width: 100%; height: 150px;"></textarea>
+        <form id="composeForm">
+            <label for="to">To:</label>
+            <div style="position: relative;">
+                <input type="email" id="to" name="to" placeholder="Enter recipient email" required style="width: 100%; margin-bottom: 10px;">
+                <button type="button" class="dropdown-btn" onclick="toggleDropdown()">▼</button>
+            </div>
+
+            <!-- Hidden CC and BCC fields -->
+            <div id="cc-bcc-section" style="display: none; margin-bottom: 10px;">
+                <label for="cc">CC:</label>
+                <input type="email" id="cc" name="cc" placeholder="Enter CC" style="width: 100%; margin-bottom: 10px;">
+
+                <label for="bcc">BCC:</label>
+                <input type="email" id="bcc" name="bcc" placeholder="Enter BCC" style="width: 100%; margin-bottom: 10px;">
+            </div>
+
+            <label for="subject">Subject:</label>
+            <input type="text" id="subject" name="subject" placeholder="Enter subject" style="width: 100%; margin-bottom: 10px;">
+
+            <label for="message">Message:</label>
+            <textarea id="message" name="message" placeholder="Type your message here..." style="width: 100%; height: 200px;"></textarea>
+
+            <!-- Attachment Button -->
+            <div style="margin-bottom: 10px;">
+                <label for="attachment">Attachment:</label>
+                <input type="file" id="attachment" name="attachment">
+            </div>
+
+            <button type="submit" class="send-btn">Send</button>
+        </form>
     </div>
 </div>
 
@@ -279,7 +354,7 @@
 
     function displayEmailList() {
         const emailListContainer = document.querySelector('.middle-pane');
-        emailListContainer.innerHTML = "<h2>drafts</h2>";  // Clear the current content
+        emailListContainer.innerHTML = "<h2>Drafts</h2>";  // Clear the current content
 
         emails.forEach(email => {
             emailListContainer.innerHTML += `
@@ -313,6 +388,16 @@
     function closeCompose() {
         document.getElementById('composeModal').style.display = 'none';
     }
+
+    function toggleDropdown() {
+        const ccBccSection = document.getElementById('cc-bcc-section');
+        if (ccBccSection.style.display === 'none') {
+            ccBccSection.style.display = 'block';
+        } else {
+            ccBccSection.style.display = 'none';
+        }
+    }
+
 </script>
 </body>
 </html>
