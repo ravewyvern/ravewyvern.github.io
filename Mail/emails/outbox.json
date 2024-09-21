@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "title": "outboxed email 1",
+    "preview": "Preview of the first email...",
+    "content": "This is the content of the first email.",
+    "sender": "sender1@example.com",
+    "receiver": "receiver1@example.com",
+    "icon": "user.png"
+  }
+]

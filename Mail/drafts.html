@@ -224,7 +224,7 @@
 
     <!-- Middle Pane for List of Emails -->
     <div class="pane middle-pane">
-        <h2>Inbox</h2>
+        <h2>Drafts</h2>
     </div>
 
     <!-- Right Pane for Email Content -->
@@ -270,7 +270,7 @@
     let emails = [];
 
     // Fetch the email data from the JSON file
-    fetch('emails/inbox.json')
+    fetch('emails/drafts.json')
         .then(response => response.json())
         .then(data => {
             emails = data;
@@ -279,7 +279,7 @@
 
     function displayEmailList() {
         const emailListContainer = document.querySelector('.middle-pane');
-        emailListContainer.innerHTML = "<h2>Inbox</h2>";  // Clear the current content
+        emailListContainer.innerHTML = "<h2>drafts</h2>";  // Clear the current content
 
         emails.forEach(email => {
             emailListContainer.innerHTML += `
