@@ -10,7 +10,7 @@ nav {
     justify-content: space-between;
     align-items: center;
     background-color: #040506;
-    border-bottom: 2px solid red;
+    border-bottom: 2px solid #c50101;
     padding: 8px;
     position: relative;
 }
