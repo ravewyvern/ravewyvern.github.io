@@ -76,7 +76,7 @@ nav ul li a:hover {
 }
 
 /* Responsive design */
-@media (max-width: 700px) {
+@media (max-width: 850px) {
     #menu { /* Only hide the regular menu items */
         display: none;
     }
