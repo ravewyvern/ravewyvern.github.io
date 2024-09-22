@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "title": "Welcome to the Platform",
+    "sender": "support@example.com",
+    "receiver": "crafterdragon@icloud.com",
+    "preview": "Thank you for joining our platform...",
+    "content": "Dear User, Thank you for joining...",
+    "tag": "inbox",
+    "icon": "user.png"
+  },
+  {
+    "id": 2,
+    "title": "Your Draft is Ready",
+    "sender": "drafts@example.com",
+    "receiver": "crafterdragon@icloud.com",
+    "preview": "Your draft is saved and ready to be sent...",
+    "content": "Hello, Your draft is ready for review...",
+    "tag": "drafts",
+    "icon": "user.png"
+  }
+]

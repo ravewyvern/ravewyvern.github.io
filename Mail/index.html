@@ -258,13 +258,13 @@
     <div class="pane left-pane">
         <h2>Folders</h2>
         <ul>
-            <li><a href="index.html" style="color: black;"><span class="material-icons">inbox</span>Inbox</a></li>
-            <li><a href="drafts.html" style="color: black;"><span class="material-icons">drafts</span>Drafts</a></li>
-            <li><a href="sent.html" style="color: black;"><span class="material-icons">send</span>Sent</a></li>
-            <li><a href="trash.html" style="color: black;"><span class="material-icons">delete</span>Trash</a></li>
-            <li><a href="spam.html" style="color: black;"><span class="material-icons">report</span>Spam</a></li>
-            <li><a href="outbox.html" style="color: black;"><span class="material-icons">outbox</span>Active Outbox</a></li>
-            <li><a href="archive.html" style="color: black;"><span class="material-icons">archive</span>Archive</a></li>
+            <li onclick="showFolder('inbox')"><span class="material-icons">inbox</span>Inbox</li>
+            <li onclick="showFolder('drafts')"><span class="material-icons">drafts</span>Drafts</li>
+            <li onclick="showFolder('sent')"><span class="material-icons">send</span>Sent</li>
+            <li onclick="showFolder('trash')"><span class="material-icons">delete</span>Trash</li>
+            <li onclick="showFolder('spam')"><span class="material-icons">report</span>Spam</li>
+            <li onclick="showFolder('outbox')"><span class="material-icons">outbox</span>Outbox</li>
+            <li onclick="showFolder('archive')"><span class="material-icons">archive</span>Archive</li>
         </ul>
     </div>
 
@@ -343,20 +343,24 @@
 
 <script>
     let emails = [];
+    let folderTag = "inbox";  // Default folder tag to "sent"
 
-    // Fetch the email data from the JSON file
-    fetch('emails/inbox.json')
+    // Fetch emails from the JSON file
+    fetch('emails/emails.json')
         .then(response => response.json())
         .then(data => {
             emails = data;
-            displayEmailList();  // Call function to populate the email list
+            displayEmailList();  // Display emails when the page loads
         });
 
+    // Display the list of emails based on the selected folder's tag
     function displayEmailList() {
         const emailListContainer = document.querySelector('.middle-pane');
-        emailListContainer.innerHTML = "<h2>Inbox</h2>";  // Clear the current content
+        emailListContainer.innerHTML = `<h2>${folderTag.charAt(0).toUpperCase() + folderTag.slice(1)}</h2>`;  // Clear current content
 
-        emails.forEach(email => {
+        const folderEmails = emails.filter(email => email.tag === folderTag);  // Filter emails by folder tag
+
+        folderEmails.forEach(email => {
             emailListContainer.innerHTML += `
                 <div class="email-list-item" onclick="openEmail(${email.id})">
                     <strong>${email.title}</strong>
@@ -365,6 +369,7 @@
         });
     }
 
+    // Open and display the content of the selected email
     function openEmail(id) {
         const selectedEmail = emails.find(email => email.id === id);
 
@@ -377,8 +382,90 @@
                         <span class="email-addresses">From: ${selectedEmail.sender}<br>To: ${selectedEmail.receiver}</span>
                     </div>
                 </div>
-                <p>${selectedEmail.content}</p>`;
+                <p>${selectedEmail.content}</p>
+                <button onclick="deleteEmail(${id})">Delete</button>`;
         }
+    }
+
+    // Send email function: Adds a new email with "sent" tag
+    document.getElementById('composeForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const newEmail = {
+            id: emails.length + 1,
+            title: document.getElementById('subject').value,
+            preview: document.getElementById('message').value.substring(0, 30) + '...',
+            content: document.getElementById('message').value,
+            sender: "crafterdragon@icloud.com",
+            receiver: document.getElementById('to').value,
+            icon: "user.png",
+            tag: "sent"
+        };
+
+        emails.push(newEmail);
+        saveEmails();  // Save to local storage
+        displayEmailList();  // Refresh the email list
+        closeCompose();
+    });
+
+    // Delete or move email to trash
+    function deleteEmail(id) {
+        const selectedEmail = emails.find(email => email.id === id);
+
+        if (selectedEmail.tag === "trash") {
+            // Permanently delete email if it's already in trash
+            emails = emails.filter(email => email.id !== id);
+        } else {
+            // Move email to trash by changing its tag
+            selectedEmail.tag = "trash";
+        }
+        saveEmails();  // Save the updated email list
+        displayEmailList();  // Refresh the email list
+    }
+
+    // Save emails to local storage for persistence
+    function saveEmails() {
+        localStorage.setItem('emails', JSON.stringify(emails));
+    }
+
+    // Load emails from local storage on page load
+    function loadEmails() {
+        const storedEmails = JSON.parse(localStorage.getItem('emails'));
+        if (storedEmails) {
+            emails = storedEmails;
+        }
+    }
+
+    loadEmails();  // Load the emails when the page is loaded
+
+    // Handle folder clicks to change the displayed folder
+    document.querySelectorAll('.left-pane ul li a').forEach(folderLink => {
+        folderLink.addEventListener('click', function(event) {
+            event.preventDefault();
+            folderTag = this.textContent.toLowerCase();  // Use the folder name as the tag
+            displayEmailList();
+        });
+    });
+    function showFolder(folderTag) {
+        // Update the title of the middle pane
+        const emailListContainer = document.querySelector('.middle-pane');
+        emailListContainer.innerHTML = `<h2>${capitalize(folderTag)}</h2>`;  // Capitalize folder name
+
+        // Filter the emails based on the selected tag
+        const filteredEmails = emails.filter(email => email.tag === folderTag);
+
+        // Display the filtered emails
+        filteredEmails.forEach(email => {
+            emailListContainer.innerHTML += `
+            <div class="email-list-item" onclick="openEmail(${email.id})">
+                <strong>${email.title}</strong>
+                <p>${email.preview}</p>
+            </div>`;
+        });
+    }
+
+    // Helper function to capitalize the first letter of the folder name
+    function capitalize(word) {
+        return word.charAt(0).toUpperCase() + word.slice(1);
     }
 
     function openCompose() {
