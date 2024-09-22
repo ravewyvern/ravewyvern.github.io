@@ -343,17 +343,25 @@
 
 <script>
     let emails = [];
-    let folderTag = "inbox";  // Default folder tag to "sent"
+    let folderTag = "inbox";  // Default folder tag
 
-    // Fetch emails from the JSON file
-    fetch('emails/emails.json')
-        .then(response => response.json())
-        .then(data => {
-            emails = data;
-            displayEmailList();  // Display emails when the page loads
-        });
+    // Load emails from localStorage when the page loads
+    function loadEmails() {
+        const storedEmails = JSON.parse(localStorage.getItem('emails'));
+        if (storedEmails) {
+            emails = storedEmails;
+        } else {
+            // Fallback to fetching from emails.json if no data is in localStorage
+            fetch('emails/emails.json')
+                .then(response => response.json())
+                .then(data => {
+                    emails = data;
+                    saveEmails();  // Save the fetched emails to localStorage
+                });
+        }
+    }
 
-    // Display the list of emails based on the selected folder's tag
+    // Display the email list based on the folder's tag
     function displayEmailList() {
         const emailListContainer = document.querySelector('.middle-pane');
         emailListContainer.innerHTML = `<h2>${folderTag.charAt(0).toUpperCase() + folderTag.slice(1)}</h2>`;  // Clear current content
@@ -362,12 +370,17 @@
 
         folderEmails.forEach(email => {
             emailListContainer.innerHTML += `
-                <div class="email-list-item" onclick="openEmail(${email.id})">
-                    <strong>${email.title}</strong>
-                    <p>${email.preview}</p>
-                </div>`;
+            <div class="email-list-item" onclick="openEmail(${email.id})">
+                <strong>${email.title}</strong>
+                <p>${email.preview}</p>
+            </div>`;
         });
     }
+
+    // Ensure emails are loaded before displaying the email list
+    loadEmails();  // Load from localStorage first
+    displayEmailList();  // Display the list after loading emails
+
 
     // Open and display the content of the selected email
     function openEmail(id) {
@@ -428,14 +441,9 @@
     }
 
     // Load emails from local storage on page load
-    function loadEmails() {
-        const storedEmails = JSON.parse(localStorage.getItem('emails'));
-        if (storedEmails) {
-            emails = storedEmails;
-        }
-    }
 
-    loadEmails();  // Load the emails when the page is loaded
+    loadEmails();  // Call this when the page is loaded
+
 
     // Handle folder clicks to change the displayed folder
     document.querySelectorAll('.left-pane ul li a').forEach(folderLink => {
