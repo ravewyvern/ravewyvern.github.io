@@ -401,6 +401,7 @@
     }
 
     // Send email function: Adds a new email with "sent" tag
+    // Update your email sending logic to include a 'new' property
     document.getElementById('composeForm').addEventListener('submit', function(event) {
         event.preventDefault();
         const newEmail = {
@@ -411,21 +412,22 @@
             sender: "crafterdragon@icloud.com",
             receiver: document.getElementById('to').value,
             icon: "user.png",
-            tag: "sent"
+            tag: "sent",
+            isNew: true  // Add a property to identify new emails
         };
 
         emails.push(newEmail);
-        saveEmails();  // Save to local storage
-        displayEmailList();  // Refresh the email list
+        saveEmails();
+        displayEmailList();
         closeCompose();
     });
 
-    // Delete or move email to trash
+    // Modify the delete function
     function deleteEmail(id) {
         const selectedEmail = emails.find(email => email.id === id);
 
-        if (selectedEmail.tag === "trash") {
-            // Permanently delete email if it's already in trash
+        if (selectedEmail.isNew) {
+            // Permanently delete email if it's new
             emails = emails.filter(email => email.id !== id);
         } else {
             // Move email to trash by changing its tag
