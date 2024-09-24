@@ -427,15 +427,19 @@
         const selectedEmail = emails.find(email => email.id === id);
 
         if (selectedEmail.isNew) {
-            // Permanently delete email if it's new
+            // Permanently delete the email if it's new
             emails = emails.filter(email => email.id !== id);
         } else {
-            // Move email to trash by changing its tag
+            // Move the email to trash by changing its tag
             selectedEmail.tag = "trash";
         }
+
         saveEmails();  // Save the updated email list
-        displayEmailList();  // Refresh the email list
+        displayEmailList();  // Refresh the email list with the current folder
+        document.getElementById('email-content').innerHTML = `<h2>Email Content</h2><p>Select an email to view its content.</p>`;  // Clear the right pane
     }
+
+
 
     // Save emails to local storage for persistence
     function saveEmails() {
