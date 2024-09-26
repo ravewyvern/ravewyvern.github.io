@@ -6,11 +6,34 @@
     <title>Rave's Official Website</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Style for the fake reCAPTCHA */
+        .fake-recaptcha-container {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-width: 300px;
+            margin-top: 20px;
+        }
+
+        .fake-recaptcha-container input {
+            margin-right: 10px;
+        }
+
+        .fake-recaptcha-label {
+            background: white url('icons/logocap.png') no-repeat center right;
+            background-size: 20px;
+            padding-right: 50px;
+        }
+    </style>
 </head>
 <body>
 <nav>
     <ul id="home-button">
-        <li><a href=""><span class="material-symbols-outlined">home</span> Home</a></li>
+        <li><a href="home.html"><span class="material-symbols-outlined">home</span> Home</a></li>
     </ul>
     <ul id="menu">
         <li><a href="about.html"><span class="material-symbols-outlined">person</span> About</a></li>
@@ -29,7 +52,6 @@
     </ul>
 </nav>
 
-
 <h1>Welcome to My Website :3</h1>
 <p>This website I'm still working on, anyway welcome.</p>
 
@@ -37,6 +59,20 @@
 <img src="https://64.media.tumblr.com/f17d723612c1a3b597c8eabc2b024cfd/7163a3514e00ddcb-e2/s250x400/9d9a5819fbe1d1dc5d2929a2666f26a0cce6397d.gifv"
      alt="Enjoy spinny shark for now" style="max-width:100%; height:auto;">
 <p>Enjoy spinny shark for now</p>
+
+<!-- Fake reCAPTCHA -->
+<div class="fake-recaptcha-container">
+    <input type="checkbox" id="fake-recaptcha">
+    <label for="fake-recaptcha" class="fake-recaptcha-label">I'm not a robot</label>
+</div>
+
+<script>
+    document.getElementById("fake-recaptcha").addEventListener("click", function() {
+        if (this.checked) {
+            window.location.href = "home.html";
+        }
+    });
+</script>
 
 <script src="script.js"></script>
 </body>
