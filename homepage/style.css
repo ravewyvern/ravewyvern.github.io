@@ -78,6 +78,13 @@
     --darkColor-dark: #505050;
     --textColorDark-dark: #FFFFFF;
 
+    /* White theme */
+    --bg-color-white: #ffffff;
+    --accentLightTint-white: #d7d7d7;
+    --darkerColor-white: #000000;
+    --darkColor-white: #afafaf;
+    --textColorDark-white: #000000;
+
     --gap: 30px;
     --round: 30px;
 }
