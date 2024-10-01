@@ -55,6 +55,27 @@ nav ul li a:hover {
     margin-left: auto;
 }
 
+.fake-recaptcha-container {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    max-width: 300px;
+    margin-top: 20px;
+}
+
+.fake-recaptcha-container input {
+    margin-right: 10px;
+}
+
+.fake-recaptcha-label {
+    background: white url('icons/logocap.png') no-repeat center right;
+    background-size: 20px;
+    padding-right: 50px;
+}
+
 #hamburger-menu {
     display: none;
     flex-direction: column;
