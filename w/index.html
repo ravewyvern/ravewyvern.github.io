@@ -125,12 +125,6 @@
 </div>
 
 <script>
-    document.getElementById("fake-recaptcha").addEventListener("click", function() {
-        if (this.checked) {
-            window.location.href = "../home.html";
-        }
-    });
-
     const pullTab = document.getElementById('pull-tab');
     const pullTabContent = document.getElementById('pull-tab-content');
 
@@ -138,10 +132,10 @@
 
     pullTab.addEventListener('click', function() {
         if (menuOpen) {
-            pullTabContent.style.bottom = '-100%'; // Close the menu
+            pullTabContent.classList.remove('open'); // Close the menu
             pullTab.textContent = '▲ Pull up for Menu';
         } else {
-            pullTabContent.style.bottom = '0'; // Open the menu
+            pullTabContent.classList.add('open'); // Open the menu
             pullTab.textContent = '▼ Pull down to Close';
         }
         menuOpen = !menuOpen; // Toggle the menu state
