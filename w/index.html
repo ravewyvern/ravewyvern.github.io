@@ -8,96 +8,109 @@
     <link rel="stylesheet" href="styles.css">
     <style>
         body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            font-size: 14px;
-            background-color: #000;
-            color: #fff;
-            height: 100vh;
-        }
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    font-size: 5vw; /* Use viewport width to auto-resize text */
+    background-color: #000;
+    color: #fff;
+    height: 100vh;
+}
 
-        img {
-            border-radius: 50%; /* Circular for the watch screen */
-            max-width: 80%;
-            height: auto;
-        }
+h1, p {
+    margin: 5vw; /* Responsive margins */
+}
 
-        .fake-recaptcha-container {
-            margin-top: 20px;
-        }
+img {
+    border-radius: 50%; /* Circular for the watch screen */
+    max-width: 80%;
+    height: auto;
+}
 
-        .fake-recaptcha-label {
-            font-size: 12px;
-        }
+.fake-recaptcha-container {
+    margin-top: 5vw; /* Make margins responsive */
+}
 
-        /* Pull Tab styles */
-        .pull-tab {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: #222;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            border-radius: 20px 20px 0 0;
-            cursor: pointer;
-        }
+.fake-recaptcha-label {
+    font-size: 3.5vw; /* Make the label responsive */
+}
 
-        .pull-tab-content {
-            position: fixed;
-            bottom: -100%;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #111;
-            transition: bottom 0.5s ease;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
+/* Close Button styles */
+.close-btn {
+    position: absolute;
+    top: 2vw; /* Top for circular displays */
+    right: 2vw;
+    font-size: 6vw; /* Scale button size */
+    color: white;
+    cursor: pointer;
+}
 
-        .pull-tab-content.open {
-            bottom: 0;
-        }
+/* Adjust the pull tab styles */
+.pull-tab {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #222;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    border-radius: 20px 20px 0 0;
+    cursor: pointer;
+}
 
-        /* Close Button styles */
-        .close-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 24px;
-            color: white;
-            cursor: pointer;
-        }
+.pull-tab-content {
+    position: fixed;
+    bottom: -100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #111;
+    transition: bottom 0.5s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
 
-        nav ul {
-            list-style-type: none;
-            padding: 0;
-        }
+.pull-tab-content.open {
+    bottom: 0;
+}
 
-        nav li {
-            margin: 20px 0;
-        }
+nav ul {
+    list-style-type: none;
+    padding: 0;
+}
 
-        nav a {
-            text-decoration: none;
-            color: white;
-            font-size: 18px;
-        }
+nav li {
+    margin: 10vw 0; /* Responsive margin for circular display */
+}
 
-        nav a span {
-            font-size: 32px; /* Icons larger for touch input */
-            display: block;
-        }
+nav a {
+    text-decoration: none;
+    color: white;
+    font-size: 5vw; /* Responsive font size */
+}
 
+nav a span {
+    font-size: 8vw; /* Larger icons for touch input */
+    display: block;
+}
+
+/* Add media queries for smaller round screens */
+@media (max-width: 400px) {
+    h1, p {
+        font-size: 4vw; /* Scale down text for small screens */
+    }
+    
+    .close-btn {
+        font-size: 5vw;
+    }
     </style>
 </head>
 <body>
