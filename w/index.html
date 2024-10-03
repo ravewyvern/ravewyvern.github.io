@@ -39,15 +39,6 @@
             font-size: 3.5vw;
         }
 
-        .close-btn {
-            position: absolute;
-            top: 2vw;
-            right: 2vw;
-            font-size: 6vw;
-            color: white;
-            cursor: pointer;
-        }
-
         .pull-tab {
             position: fixed;
             bottom: 0;
@@ -110,7 +101,7 @@
 <body>
 
 <h1>Welcome to</h1>
-<h2>My Website :3</h2>
+<h1>My Website :3</h1>
 <p>This website I'm still working on, anyway welcome.</p>
 
 <img src="https://64.media.tumblr.com/f17d723612c1a3b597c8eabc2b024cfd/7163a3514e00ddcb-e2/s250x400/9d9a5819fbe1d1dc5d2929a2666f26a0cce6397d.gifv"
@@ -143,14 +134,17 @@
     const pullTab = document.getElementById('pull-tab');
     const pullTabContent = document.getElementById('pull-tab-content');
 
+    let menuOpen = false;
+
     pullTab.addEventListener('click', function() {
-        if (pullTabContent.classList.contains('open')) {
-            pullTabContent.classList.remove('open');
+        if (menuOpen) {
+            pullTabContent.style.bottom = '-100%'; // Close the menu
             pullTab.textContent = '▲ Pull up for Menu';
         } else {
-            pullTabContent.classList.add('open');
+            pullTabContent.style.bottom = '0'; // Open the menu
             pullTab.textContent = '▼ Pull down to Close';
         }
+        menuOpen = !menuOpen; // Toggle the menu state
     });
 </script>
 
