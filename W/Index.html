@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rave's WearOS Version</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            font-size: 14px;
+            background-color: #000;
+            color: #fff;
+            height: 100vh;
+        }
+
+        img {
+            border-radius: 50%; /* Circular for the watch screen */
+            max-width: 80%;
+            height: auto;
+        }
+
+        .fake-recaptcha-container {
+            margin-top: 20px;
+        }
+
+        .fake-recaptcha-label {
+            font-size: 12px;
+        }
+
+        /* Pull Tab styles */
+        .pull-tab {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #222;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            border-radius: 20px 20px 0 0;
+            cursor: pointer;
+        }
+
+        .pull-tab-content {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            background-color: #111;
+            transition: bottom 0.5s ease;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+        }
+
+        .pull-tab-content.open {
+            bottom: 0;
+        }
+
+        nav {
+            padding: 20px;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        nav li {
+            margin: 15px 0;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: white;
+        }
+
+        nav a span {
+            font-size: 28px; /* Icons larger for touch input */
+        }
+
+    </style>
+</head>
+<body>
+
+<h1>Welcome!</h1>
+<p>Spinny shark is still here.</p>
+
+<img src="https://64.media.tumblr.com/f17d723612c1a3b597c8eabc2b024cfd/7163a3514e00ddcb-e2/s250x400/9d9a5819fbe1d1dc5d2929a2666f26a0cce6397d.gifv" alt="Spinny shark">
+
+<div class="fake-recaptcha-container">
+    <input type="checkbox" id="fake-recaptcha">
+    <label for="fake-recaptcha" class="fake-recaptcha-label">I'm not a robot</label>
+</div>
+
+<!-- Pull Tab for Navigation -->
+<div class="pull-tab" id="pull-tab">▲ Pull up for Menu</div>
+<div class="pull-tab-content" id="pull-tab-content">
+    <nav>
+        <ul id="menu">
+            <li><a href="home.html"><span class="material-symbols-outlined">home</span><br>Home</a></li>
+            <li><a href="about.html"><span class="material-symbols-outlined">person</span><br>About</a></li>
+            <li><a href="contact.html"><span class="material-symbols-outlined">mail</span><br>Contact</a></li>
+            <li><a href="Desktop/"><span class="material-symbols-outlined">desktop_windows</span><br>Desktop</a></li>
+        </ul>
+    </nav>
+</div>
+
+<script>
+    // Fake reCAPTCHA
+    document.getElementById("fake-recaptcha").addEventListener("click", function() {
+        if (this.checked) {
+            window.location.href = "home.html";
+        }
+    });
+
+    // Pull Tab functionality
+    const pullTab = document.getElementById('pull-tab');
+    const pullTabContent = document.getElementById('pull-tab-content');
+
+    pullTab.addEventListener('click', function() {
+        if (pullTabContent.classList.contains('open')) {
+            pullTabContent.classList.remove('open');
+            pullTab.textContent = '▲ Pull up for Menu';
+        } else {
+            pullTabContent.classList.add('open');
+            pullTab.textContent = '▼ Pull down to Close';
+        }
+    });
+</script>
+
+</body>
+</html>
