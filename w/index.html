@@ -107,15 +107,12 @@ nav a span {
     h1, p {
         font-size: 4vw; /* Scale down text for small screens */
     }
-    
-    .close-btn {
-        font-size: 5vw;
-    }
     </style>
 </head>
 <body>
 
-<h1>Welcome to My Website :3</h1>
+<h1>Welcome to</h1>
+<h1>My Website :3</h1>
 <p>This website I'm still working on, anyway welcome.</p>
 
 <!-- Add the GIF from the external URL here -->
@@ -132,18 +129,15 @@ nav a span {
 <!-- Pull Tab for Navigation -->
 <div class="pull-tab" id="pull-tab">▲ Pull up for Menu</div>
 <div class="pull-tab-content" id="pull-tab-content">
-    <!-- Close Button -->
-    <span class="close-btn" id="close-btn">&times;</span>
 
     <nav>
         <ul id="menu">
-            <li><a href="index.html"><span class="material-symbols-outlined">home</span>Home</a></li>
+            <li><a href="home.html"><span class="material-symbols-outlined">home</span>Home</a></li>
             <li><a href="about.html"><span class="material-symbols-outlined">person</span>About</a></li>
             <li><a href="contact.html"><span class="material-symbols-outlined">mail</span>Contact</a></li>
         </ul>
     </nav>
 </div>
-
 <script>
     // Fake reCAPTCHA
     document.getElementById("fake-recaptcha").addEventListener("click", function() {
@@ -155,16 +149,18 @@ nav a span {
     // Pull Tab functionality
     const pullTab = document.getElementById('pull-tab');
     const pullTabContent = document.getElementById('pull-tab-content');
-    const closeBtn = document.getElementById('close-btn');
 
     pullTab.addEventListener('click', function() {
-        pullTabContent.classList.add('open');
-        pullTab.textContent = '▼ Pull down to Close';
-    });
-
-    closeBtn.addEventListener('click', function() {
-        pullTabContent.classList.remove('open');
-        pullTab.textContent = '▲ Pull up for Menu';
+        // Check if the menu is already open
+        if (pullTabContent.classList.contains('open')) {
+            // Close the menu
+            pullTabContent.classList.remove('open');
+            pullTab.textContent = '▲ Pull up for Menu';
+        } else {
+            // Open the menu
+            pullTabContent.classList.add('open');
+            pullTab.textContent = '▼ Pull down to Close';
+        }
     });
 </script>
 
