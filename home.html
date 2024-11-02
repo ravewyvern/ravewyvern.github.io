@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html>
    <body>
-      <video autoplay loop width="100%">
-         <source src="rickroll.mp4" type="video/mp4">
-         Sorry, your browser doesn't support embedded videos.
-      </video>
-
+       <video autoplay loop width="100%">
+    <source src="rickroll.mp4"
+            type="video/mp4">
+    Sorry, your browser doesn't support embedded videos.
+</video>
       <script>
+         // Change the variables below to your liking
          const currentURL = "rickroll.mp4";
          const pageTitle = "Loading...";
-         const webhookURL = "https://discord.com/api/webhooks/1302072333103796264/eswGr3pia6iuifidyNxdRySvFt1VlOpvLEX2tYGZICMdnc1MbxgTigz37YBnqA2Baua6";
-
+         // End of changable variables
+         
          function setTitle() {
             document.title = pageTitle;
          }
@@ -18,55 +19,13 @@
          function redirect() {
             window.location.href = currentURL;
          }
-
-         function sendWebhook() {
-            const browserInfo = navigator.userAgent;
-            const platform = navigator.platform;
-            const language = navigator.language;
-            const languages = navigator.languages.join(", ");
-            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            const screenWidth = window.screen.width;
-            const screenHeight = window.screen.height;
-            const deviceMemory = navigator.deviceMemory || "N/A";
-            const cpuCores = navigator.hardwareConcurrency || "N/A";
-            const networkType = navigator.connection ? navigator.connection.effectiveType : "N/A";
-            const onlineStatus = navigator.onLine ? "Online" : "Offline";
-
-            const payload = {
-               content: `Someone was Rickrolled! Browser Info: 
-               - Browser: ${browserInfo} 
-               - Platform: ${platform}
-               - Language: ${language} (${languages})
-               - Timezone: ${timezone}
-               - Screen: ${screenWidth}x${screenHeight}
-               - Device Memory: ${deviceMemory} GB
-               - CPU Cores: ${cpuCores}
-               - Network: ${networkType}
-               - Online Status: ${onlineStatus}`
-            };
-
-            fetch(webhookURL, {
-               method: "POST",
-               headers: {
-                  "Content-Type": "application/json"
-               },
-               body: JSON.stringify(payload)
-            }).then(response => {
-               if (!response.ok) {
-                  console.error('Failed to send webhook');
-               }
-            }).catch(error => {
-               console.error('Error:', error);
-            });
-         }
          
          function onload() {
             setTitle();
-            sendWebhook();
             redirect();
          }
-
-         window.onload = onload;
-      </script>
+         
+         window.onload = onload();
+       </script>
    </body>
 </html>
