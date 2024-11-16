@@ -1,262 +1,347 @@
-@import url('https://fonts.googleapis.com/css?family=Poppins:400,500,700');
+/* styles.css */
+:root {
+    /* Blue theme (default) */
+    --bg-color-blue: #BBD6FD;
+    --accentLightTint-blue: #E2EEFF;
+    --darkerColor-blue: #3569b2;
+    --darkColor-blue: #4382EC;
+    --textColorDark-blue: #1b3041;
 
-html, body{
-    height: 100%;
-    width: 100%;
-    font-family: 'Poppins', sans-serif;
-    color:#222;
+    /* Red theme */
+    --bg-color-red: #FDBDBD;
+    --accentLightTint-red: #ffe7e7;
+    --darkerColor-red: #B23535;
+    --darkColor-red: #EC4343;
+    --textColorDark-red: #411B1B;
+
+    /* Yellow theme */
+    --bg-color-yellow: #edea8c;
+    --accentLightTint-yellow: #fff2c2;
+    --darkerColor-yellow: #CCA243;
+    --darkColor-yellow: #f4d837;
+    --textColorDark-yellow: #5B5428;
+
+    /* Green theme */
+    --bg-color-green: #C7E4C7;
+    --accentLightTint-green: #E1F1E1;
+    --darkerColor-green: #458245;
+    --darkColor-green: #5CBA5C;
+    --textColorDark-green: #1B411B;
+
+    /* Cyan theme */
+    --bg-color-cyan: #9bffff;
+    --accentLightTint-cyan: #d5ffff;
+    --darkerColor-cyan: #5E9CA0;
+    --darkColor-cyan: #00CED1;
+    --textColorDark-cyan: #08354B;
+
+    /* Pink theme */
+    --bg-color-pink: #F9C8D6;
+    --accentLightTint-pink: #FFEBF2;
+    --darkerColor-pink: #B24B64;
+    --darkColor-pink: #EC5E78;
+    --textColorDark-pink: #411B28;
+
+    /* Orange theme */
+    --bg-color-orange: #FFD8B2;
+    --accentLightTint-orange: #FFEDD5;
+    --darkerColor-orange: #B26D3E;
+    --darkColor-orange: #EC844D;
+    --textColorDark-orange: #412B1E;
+
+    /* Purple theme */
+    --bg-color-purple: #DAC2E8;
+    --accentLightTint-purple: #E9E2F3;
+    --darkerColor-purple: #724B8F;
+    --darkColor-purple: #9563B5;
+    --textColorDark-purple: #2D1B3E;
+
+    /* Dark theme */
+    --bg-color-dark: #000000;
+    --accentLightTint-dark: #323232;
+    --darkerColor-dark: #1f1f1f;
+    --darkColor-dark: #505050;
+    --textColorDark-dark: #FFFFFF;
+
+    /* White theme */
+    --bg-color-white: #ffffff;
+    --accentLightTint-white: #d7d7d7;
+    --darkerColor-white: #888888;
+    --darkColor-white: #afafaf;
+    --textColorDark-white: #000000;
+
+    body {
+        font-family: Arial, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--textColorDark);
+        margin: 0;
+        padding: 0;
+    }
+
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        background-color: var(--darkerColor);
+    }
+
+    .home-button, .theme-button {
+        background: none;
+        border: none;
+        color: var(--textColorDark);
+        cursor: pointer;
+        font-size: 18px;
+    }
+
+    .main-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 10px;
+        padding: 20px;
+    }
+
+    .section {
+        background-color: var(--darkColor);
+        border-radius: 10px;
+        padding: 20px;
+    }
+
+    .section1 {
+        grid-column: 1 / 2;
+        grid-row: 1 / 2;
+        text-align: center;
+    }
+
+    .profile-pic {
+        border-radius: 50%;
+        width: 100px;
+        height: 100px;
+    }
+
+    .section2, .section3, .section4, .section5 {
+        /* Adjust each section size and position */
+    }
+
+    .skills {
+        display: flex;
+        gap: 10px;
+    }
+
+    .skill {
+        position: relative;
+    }
+
+    .skill img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+    }
+
+    .tooltip {
+        display: none;
+        position: absolute;
+        bottom: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: var(--darkColor);
+        color: var(--textColorDark);
+        padding: 5px;
+        border-radius: 5px;
+    }
+
+    .skill:hover .tooltip {
+        display: block;
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .posts li {
+        list-style: none;
+        margin-bottom: 10px;
+    }
+
+    /* Theme Menu */
+
+    .theme-menu {
+        display: none;
+        position: absolute;
+        top: 50px;
+        left: 60px;
+        background-color: var(--darkColor);
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
+
+    .theme-option {
+        display: block;
+        background-color: transparent;
+        border: none;
+        color: var(--textColorDark);
+        padding: 10px;
+        cursor: pointer;
+        text-align: left;
+        width: 100%;
+    }
+
+    .theme-option:hover {
+        background-color: var(--accentLightTint);
+    }
+
+    /* Theme-specific color schemes */
+
+    body[data-theme="blue"] {
+        --bg-color: var(--bg-color-blue);
+        --accentLightTint: var(--accentLightTint-blue);
+        --darkerColor: var(--darkerColor-blue);
+        --darkColor: var(--darkColor-blue);
+        --textColorDark: var(--textColorDark-blue);
+    }
+
+    body[data-theme="red"] {
+        --bg-color: var(--bg-color-red);
+        --accentLightTint: var(--accentLightTint-red);
+        --darkerColor: var(--darkerColor-red);
+        --darkColor: var(--darkColor-red);
+        --textColorDark: var(--textColorDark-red);
+    }
+
+    /* Add similar rules for other themes */
+
+    body[data-theme="yellow"] {
+        --bg-color: var(--bg-color-yellow);
+        --accentLightTint: var(--accentLightTint-yellow);
+        --darkerColor: var(--darkerColor-yellow);
+        --darkColor: var(--darkColor-yellow);
+        --textColorDark: var(--textColorDark-yellow);
+    }
+
+    body[data-theme="green"] {
+        --bg-color: var(--bg-color-green);
+        --accentLightTint: var(--accentLightTint-green);
+        --darkerColor: var(--darkerColor-green);
+        --darkColor: var(--darkColor-green);
+        --textColorDark: var(--textColorDark-green);
+    }
+
+    body[data-theme="cyan"] {
+        --bg-color: var(--bg-color-cyan);
+        --accentLightTint: var(--accentLightTint-cyan);
+        --darkerColor: var(--darkerColor-cyan);
+        --darkColor: var(--darkColor-cyan);
+        --textColorDark: var(--textColorDark-cyan);
+    }
+
+    body[data-theme="pink"] {
+        --bg-color: var(--bg-color-pink);
+        --accentLightTint: var(--accentLightTint-pink);
+        --darkerColor: var(--darkerColor-pink);
+        --darkColor: var(--darkColor-pink);
+        --textColorDark: var(--textColorDark-pink);
+    }
+
+    body[data-theme="orange"] {
+        --bg-color: var(--bg-color-orange);
+        --accentLightTint: var(--accentLightTint-orange);
+        --darkerColor: var(--darkerColor-orange);
+        --darkColor: var(--darkColor-orange);
+        --textColorDark: var(--textColorDark-orange);
+    }
+
+    body[data-theme="purple"] {
+        --bg-color: var(--bg-color-purple);
+        --accentLightTint: var(--accentLightTint-purple);
+        --darkerColor: var(--darkerColor-purple);
+        --darkColor: var(--darkColor-purple);
+        --textColorDark: var(--textColorDark-purple);
+    }
+
+    body[data-theme="dark"] {
+        --bg-color: var(--bg-color-dark);
+        --accentLightTint: var(--accentLightTint-dark);
+        --darkerColor: var(--darkerColor-dark);
+        --darkColor: var(--darkColor-dark);
+        --textColorDark: var(--textColorDark-dark);
+    }
+
+    body[data-theme="white"] {
+        --bg-color: var(--bg-color-white);
+        --accentLightTint: var(--accentLightTint-white);
+        --darkerColor: var(--darkerColor-white);
+        --darkColor: var(--darkColor-white);
+        --textColorDark: var(--textColorDark-white);
+    }
 }
-.navbar{
-    padding: .8rem;
-}
-.navbar-brand img{
-    width: 150px;
-    height: 70px;
-}
-.navbar-nav li{
-    padding-right: 20px;
-}
-.nav-link{
-    font-size: 1.1em !important;
-}
-.carousel-inner img{
-    width: 100%;
-}
-.carousel-caption {
+
+
+#hamburger-menu {
+    display: none;
+    flex-direction: column;
+    background-color: var(--darkColor);
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-}
-.carousel-caption h1 {
-    font-size: 500%;
-    text-transform: uppercase;
-    text-shadow: 1px 1px 10px #000;
-}
-.carousel-caption h3 {
-    font-size: 200%;
-    font-weight: 500;
-    text-shadow: 1px 1px 10px #000;
-    padding-bottom: 1rem;
-}
-.btn-primary {
-    background-color: #6648b1;
-    border: 1px solid #564d7c;
-}
-.btn-primary:hover {
-    background-color: #563d7c;
-    border: 1px solid #563d7c;
-}
-.jumbotron {
-    padding: 1rem;
-    border-radius: 0;
-}
-.padding {
-    padding-bottom: 2rem;
-}
-.welcome {
-    width: 75%;
-    margin: 0 auto;
-    padding-top: 2rem;
-}
-.welcome hr {
-    border-top: 2px solid #b4b4b4;
-    width: 95%;
-    margin-top: .3rem;
-    margin-bottom: 1rem;
-}
-.fa-code {
-    color: #e54d26;
-}
-.fa-bold {
-    color: #563d7c;
-}
-.fa-css3 {
-    color: #2a63af;
-}
-.fa-code, .fa-bold, .fa-css3 {
-    font-size: 4em;
-    margin: 1rem;
-}
-.fun{
-    width: 100%;
-    margin-bottom: 2rem;
-}
-.gif {
-    max-width: 100%;
-}
-.social a {
-    font-size: 4.5em;
-    padding: 3rem;
-}
-.fa-facebook {
-    color: #3b5998;
-}
-.fa-twitter {
-    color: #00aced;
-}
-.fa-google-plus-g {
-    color: #dd4b39;
-}
-.fa-instagram {
-    color: #517fa8;
-}
-.fa-youtube {
-    color: #bb0000;
-}
-
-.fa-facebook:hover,
-.fa-twitter:hover,
-.fa-google-plus-g:hover,
-.fa-instagram:hover,
-.fa-youtube:hover {
-    color: #d5d5d5;
-}
-footer {
-    background-color: #3f3f3f;
-    color: #d5d5d5;
-    padding-top: 2rem;
-}
-hr.light {
-    border-top: 1px solid #d5d5d5;
-    width: 75%;
-    margin-top: .8rem;
-    margin-bottom: 1rem;
-}
-footer a {
-    color: #d5d5d5;
-}
-hr.light-100 {
-    border-top: 1px solid #d5d5d5;
-    width: 100%;
-    margin-top: .8rem;
-    margin-bottom: 1rem;
-}
-.footer-image img{
+    top: 60px;
+    right: 10px;
     width: 150px;
-    height: 60px;
+    padding: 10px;
 }
 
-
-/*---Media Queries --*/
-@media (max-width: 1500px){
-    .carousel-inner img{
-        width: 100%;
-        height: 550px;
-    }
+#hamburger-menu li {
+    margin-bottom: 10px;
 }
 
-@media (max-width: 992px) {
-    .social a{
-        font-size: 4em;
-        padding: 2rem;
-    }
-    .carousel-inner img{
-        width: 100%;
-        height: 400px;
-    }
+#home-button {
+    margin-right: auto; /* Keep the home button on the left */
+    display: flex;
 }
-@media (max-width: 768px) {
-    .carousel-caption {
-        top: 45%;
-    }
-    .carousel-caption h1 {
-        font-size: 350%;
-    }
-    .carousel-caption h3 {
-        font-size: 140%;
-        font-weight: 400;
-        padding-bottom: 0.2rem;
-    }
-    .carousel-caption .btn {
-        font-size: 95%;
-        padding: 8px 14px;
-    }
-    .display-4 {
-        font-size: 200%;
-    }
-    .display-4 {
-        font-size: 200%;
-    }
-    .social a{
-        font-size: 2.5em;
-        padding: 1.2rem;
-    }
-    .carousel-inner img{
-        width: 100%;
-        height: 100%;
-    }
-}
-@media (max-width: 576px) {
-    carousel-caption {
-        top: 40%;
-    }
-    .carousel-caption h1 {
-        font-size: 250%;
-    }
-    .carousel-caption h3 {
-        font-size: 110%;
-    }
-    .carousel-caption .btn {
-        font-size: 90%;
-        padding: 4px 8px;
-    }
-    .carousel-indicators {
+
+/* Responsive design */
+@media (max-width: 700px) {
+    #menu { /* Only hide the regular menu items */
         display: none;
     }
-    .display-4 {
-        font-size: 160%;
-    }
-    .social a{
-        font-size: 2em;
-        padding: 1.7rem;
-    }
-    .carousel-inner img{
-        width: 100%;
-        height: 100%;
+
+    .hamburger {
+        display: block; /* Show the hamburger icon */
     }
 }
 
-
-
-/*---Firefox Bug Fix --*/
-.carousel-item {
-    transition: -webkit-transform 0.5s ease;
-    transition: transform 0.5s ease;
-    transition: transform 0.5s ease, -webkit-transform 0.5s ease;
-    -webkit-backface-visibility: visible;
-    backface-visibility: visible;
+.hamburger {
+    background: none;
+    border: none;
+    color: var(--textColorDark);
+    font-size: 24px;
+    cursor: pointer;
+    display: none;
+    margin-left: auto;
 }
 
-/*--- Bootstrap Padding Fix --*/
-[class*="col-"] {
-    padding: 1rem;
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--darkerColor);
+    padding: 10px;
+    position: relative;
 }
 
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
 
+nav ul li {
+    margin-right: 20px;
+}
 
-
-
-/*
-Extra small (xs) devices (portrait phones, less than 576px)
-No media query since this is the default in Bootstrap
-
-Small (sm) devices (landscape phones, 576px and up)
-@media (min-width: 576px) { ... }
-
-Medium (md) devices (tablets, 768px and up)
-@media (min-width: 768px) { ... }
-
-Large (lg) devices (desktops, 992px and up)
-@media (min-width: 992px) { ... }
-
-Extra (xl) large devices (large desktops, 1200px and up)
-@media (min-width: 1200px) { ... }
-*/
-
-
-
-
-
-
-
-
+nav ul li a {
+    color: var(--textColorDark);
+    text-decoration: none;
+    padding: 10px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+}
