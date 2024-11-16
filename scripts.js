@@ -1,7 +1,17 @@
-// Theme switching functionality
+// Theme switching functionality with localStorage
 const themeButton = document.querySelector('.theme-button');
 const themeMenu = document.getElementById('themeMenu');
 const themeOptions = document.querySelectorAll('.theme-option');
+
+// Save theme to localStorage and apply it
+function setTheme(theme) {
+    document.body.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+}
+
+// Get saved theme from localStorage or default to dark
+const savedTheme = localStorage.getItem('theme') || 'dark';
+setTheme(savedTheme);
 
 // Toggle the theme menu
 themeButton.addEventListener('click', () => {
@@ -12,19 +22,17 @@ themeButton.addEventListener('click', () => {
 themeOptions.forEach(option => {
     option.addEventListener('click', (e) => {
         const selectedTheme = e.target.getAttribute('data-theme');
-        document.body.setAttribute('data-theme', selectedTheme);
+        setTheme(selectedTheme);
 
         // Hide theme menu after selection
         themeMenu.style.display = 'none';
     });
 });
 
-document.querySelector('.hamburger').addEventListener('click', function() {
-    const menu = document.getElementById('hamburger-menu');
-    if (menu.style.display === "flex") {
-        menu.style.display = "none";
-    } else {
-        menu.style.display = "flex";
-    }
-});
+// Hamburger menu toggle
+const hamburger = document.querySelector('.hamburger');
+const hamburgerMenu = document.getElementById('hamburger-menu');
 
+hamburger.addEventListener('click', () => {
+    hamburgerMenu.classList.toggle('hidden');
+});

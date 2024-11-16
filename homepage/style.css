@@ -74,14 +74,14 @@
     /* Dark Kaala */
     --bg-color-dark: #000000;
     --accentLightTint-dark: #323232;
-    --darkerColor-dark: #ffffff;
-    --darkColor-dark: #505050;
-    --textColorDark-dark: #FFFFFF;
+    --darkerColor-dark: #1f1f1f;
+    --darkColor-dark: #3f3f3f;
+    --textColorDark-dark: #b9b9b9;
 
     /* White theme */
     --bg-color-white: #ffffff;
     --accentLightTint-white: #d7d7d7;
-    --darkerColor-white: #000000;
+    --darkerColor-white: #888888;
     --darkColor-white: #afafaf;
     --textColorDark-white: #000000;
 
