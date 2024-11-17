@@ -7,7 +7,7 @@
     --darkColor-blue: #4382EC;
     --textColorDark-blue: #1b3041;
     --secondaryTextColor-blue: #30466b;
-    --popUpColor-blue: #1e4993;
+    --popUpColor-blue: #345a9b;
 
     /* Red theme */
     --bg-color-red: #FDBDBD;
@@ -88,7 +88,7 @@
     --darkColor-white: #afafaf;
     --textColorDark-white: #000000;
     --secondaryTextColor-white: #383838;
-    --popUpColor-white: #5c5c5c;
+    --popUpColor-white: #888888;
 
     body {
         font-family: Arial, sans-serif;
@@ -170,7 +170,7 @@
         bottom: 60px;
         left: 50%;
         transform: translateX(-50%);
-        background-color: var(--darkColor);
+        background-color: var(--popUpColor);
         color: var(--textColorDark);
         padding: 5px;
         border-radius: 5px;
@@ -193,7 +193,7 @@
         position: absolute;
         top: 50px;
         left: 60px;
-        background-color: var(--darkColor);
+        background-color: var(--popUpColor);
         border-radius: 10px;
         padding: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -356,7 +356,7 @@
     #hamburger-menu {
         display: none; /* Hidden by default */
         flex-direction: column;
-        background-color: var(--darkColor);
+        background-color: var(--popUpColor);
         position: absolute;
         top: 60px;
         right: 10px;
