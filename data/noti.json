@@ -1,0 +1,20 @@
+[
+  {
+    "platform": "Twitter",
+    "title": "Check out my latest tweet!",
+    "icon": "icons/java.svg",
+    "link": "https://github.com/ravewyvern/ravewyvern.github.io"
+  },
+  {
+    "platform": "LinkedIn",
+    "title": "New LinkedIn Post",
+    "icon": "icons/java.svg",
+    "link": "https://github.com/ravewyvern/ravewyvern.github.io"
+  },
+  {
+    "platform": "GitHub",
+    "title": "New GitHub Repo",
+    "icon": "icons/java.svg",
+    "link": "https://github.com/ravewyvern/ravewyvern.github.io"
+  }
+]

@@ -118,7 +118,7 @@
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         grid-template-rows: 1fr 1fr;
-        gap: 10px;
+        gap: 15px;
         padding: 20px;
         margin-top: 80px; /* Adjust this based on the height of the nav */
     }
@@ -130,19 +130,43 @@
     }
 
     .section1 {
-        grid-column: 1 / 2;
-        grid-row: 1 / 2;
-        text-align: center;
+        grid-column: 1;
+        grid-row: 1;
+        height: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
+
 
     .profile-pic {
-        border-radius: 50%;
-        width: 100px;
-        height: 100px;
+        border-radius: 70%;
+        width: 200px;
+        height: 200px;
     }
 
-    .section2, .section3, .section4, .section5 {
-        /* Adjust each section size and position */
+    .section5 { /* this is the blog posts section */
+        grid-column: 3;
+        grid-row: span 2;
+        height: 455px;
+    }
+
+    .section4 { /* this is the skills section */
+        grid-column: span 2;
+        grid-row: 2;
+        height: 200px;
+    }
+
+    .section3 { /* this is the social media links section */
+        grid-column: 1;
+        grid-row: 3;
+        height: 300px;
+    }
+
+    .section6 { /* this is the project section */
+        grid-column: span 2;
+        grid-row: 3;
+        height: 300px;
     }
 
     .skills {
@@ -153,6 +177,26 @@
     .skill {
         position: relative;
     }
+
+    @media (max-width: 768px) {
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: auto;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .section1, .section2, .section3, .section4, .section5, .section6 {
+            grid-column: 1 / -1;
+            height: auto;
+        }
+
+        .section3 {
+            grid-row: auto;
+        }
+    }
+
 
     .skill img {
         background-color: white;
@@ -424,4 +468,41 @@ nav ul li a {
     font-size: 18px;
     display: flex;
     align-items: center;
+}
+
+.posts {
+    list-style: none;
+    padding: 0;
+}
+
+.post-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: var(--bg-color); /* Or use a different theme variable */
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.post-item:hover {
+    background-color: var(--darkColor); /* Darker variant for hover */
+}
+
+.post-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: contain;
+}
+
+.post-platform {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.post-title {
+    color: var(--secondaryTextColor); /* Adjust for the current theme */
 }
