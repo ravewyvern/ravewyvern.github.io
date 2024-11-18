@@ -124,7 +124,7 @@
     }
 
     .section {
-        background-color: var(--darkColor);
+        background-color: var(--accentLightTint);
         border-radius: 10px;
         padding: 20px;
     }
@@ -505,4 +505,12 @@ nav ul li a {
 
 .post-title {
     color: var(--secondaryTextColor); /* Adjust for the current theme */
+}
+a {
+    color: var(--secondaryTextColor);
+    text-decoration: none; /* Optional: remove underline from links */
+}
+
+a:hover {
+    text-decoration: underline; /* Optional: underline on hover */
 }
