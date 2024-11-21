@@ -51,13 +51,18 @@
 
 <!-- Main Container for all Sections -->
 <div class="main-container">
+  <!-- Profile pic panel -->
   <div class="section section1">
     <img src="profile.png" alt="Profile Picture" class="profile-pic">
   </div>
+  <!-- about me panel -->
   <div class="section section2">
     <h2>About Me</h2>
     <p>This is where the about me text will go.</p>
+    <p>line2.</p>
+    <p>line3.</p>
   </div>
+  <!-- social media links panel -->
   <div class="section section3">
     <h2>Social Media Links</h2>
     <ul>
@@ -66,23 +71,27 @@
       <li><a href="#">GitHub</a></li>
     </ul>
   </div>
+  <!-- skills panel -->
   <div class="section section4">
     <h2>Skills</h2>
     <div class="skills">
       <!-- Skills will be dynamically added here from the JSON -->
     </div>
   </div>
+  <!-- recent posts panel -->
   <div class="section section5">
     <h2>Recent Posts</h2>
     <ul class="posts" id="recent-posts"></ul>
   </div>
+  <!-- projects panel -->
   <div class="section section6">
     <h2>Projects</h2>
-    <!-- This will be dynamic content from social media -->
-    <ul class="posts">
-      <li>Github project 1</li>
-      <li>Github project 2</li>
-    </ul>
+    <div id="projects-container">
+      <!-- Projects will be dynamically loaded here -->
+    </div>
+    <div id="pagination">
+      <!-- Pagination controls will be dynamically created here -->
+    </div>
   </div>
 </div>
 

@@ -74,8 +74,11 @@ document.addEventListener('DOMContentLoaded', function() {
     fetch('data/noti.json')
         .then(response => response.json())
         .then(data => {
-            // Loop through the data and create notification elements
-            data.forEach(post => {
+            // To change the number of posts displayed, change the second argument of the slice method (which is currently set to 5)
+            const limitedPosts = data.slice(0, 5);
+
+            // Loop through the limited posts and create notification elements
+            limitedPosts.forEach(post => {
                 const li = document.createElement('li');
                 li.classList.add('post-item');
 
@@ -112,6 +115,53 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => console.error('Error fetching notifications:', error));
 });
 
+
+document.addEventListener('DOMContentLoaded', () => {
+    let currentPage = 1;
+    const pageSize = 5; // Number of projects per page
+    let projects = [];
+
+    // Fetch the projects from the JSON file
+    fetch('data/projects.json')
+        .then(response => response.json())
+        .then(data => {
+            projects = data;
+            loadProjects();
+            createPagination();
+        })
+        .catch(error => console.error('Error loading projects:', error));
+
+    function loadProjects() {
+        const projectsContainer = document.getElementById('projects-container');
+        projectsContainer.innerHTML = ''; // Clear previous projects
+
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        const paginatedProjects = projects.slice(startIndex, endIndex);
+
+        paginatedProjects.forEach(project => {
+            const projectDiv = document.createElement('div');
+            projectDiv.classList.add('project');
+
+            const title = document.createElement('h3');
+            title.textContent = project.title;
+
+            const description = document.createElement('p');
+            description.textContent = project.description;
+
+            const link = document.createElement('a');
+            link.href = project.link;
+            link.textContent = "View Project";
+            link.target = '_blank'; // Open the link in a new tab
+
+            projectDiv.appendChild(title);
+            projectDiv.appendChild(description);
+            projectDiv.appendChild(link);
+
+            projectsContainer.appendChild(projectDiv);
+        });
+    }
+});
 
 
 
