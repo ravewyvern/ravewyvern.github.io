@@ -185,8 +185,13 @@
             grid-template-columns: 1fr; /* Switch to single column */
         }
 
-        .section1, .section2, .section3, .section4, .section5, .section6 {
+        .section1, .section2, .section4, .section5, .section6 {
             grid-column: 1;
+        }
+
+        .section3 {
+            display: block; /* Ensure it's displayed */
+            visibility: visible; /* Ensure it's visible if visibility is being controlled */
         }
     }
 
@@ -560,4 +565,49 @@ a:hover {
     background-color: var(--darkColor);
 }
 
+/* Social media links styling */
+#social-media-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
 
+#social-media-links li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    background-color: var(--popUpColor);
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#social-media-links li:hover {
+    background-color: var(--darkerColor); /* Hover effect */
+}
+
+#social-media-links .social-icon {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+    background-color: var(--darkColor); /* Icon background color */
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#social-media-links .username {
+    font-weight: bold;
+    color: var(--secondaryTextColor); /* Adjust for current theme */
+}
+
+#social-media-links a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
+}

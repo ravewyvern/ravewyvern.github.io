@@ -163,6 +163,51 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    fetch('data/socials.json')
+        .then(response => response.json())
+        .then(data => {
+            const socialMediaLinks = document.getElementById('social-media-links');
+            data.socials.forEach(social => {
+                // Create a list item
+                const li = document.createElement('li');
+
+                // Create the anchor tag
+                const a = document.createElement('a');
+                a.href = social.link;
+                a.target = "_blank"; // Opens in a new tab
+
+                // Create the icon container
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'social-icon';
+
+                // Add the icon (assuming it's an image file)
+                const img = document.createElement('img');
+                img.src = social.icon;
+                img.alt = social.platform;
+                img.width = 24; // Set a fixed width for consistency
+                iconDiv.appendChild(img);
+
+                // Create the username span
+                const usernameSpan = document.createElement('span');
+                usernameSpan.className = 'username';
+                usernameSpan.textContent = social.username;
+
+                // Append icon and username to the anchor tag
+                a.appendChild(iconDiv);
+                a.appendChild(usernameSpan);
+
+                // Append anchor to the list item
+                li.appendChild(a);
+
+                // Append list item to the UL
+                socialMediaLinks.appendChild(li);
+            });
+        })
+        .catch(error => console.error('Error loading social media links:', error));
+});
+
+
 
 
 
