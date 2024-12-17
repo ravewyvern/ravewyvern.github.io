@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Tab</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="icon" href="../../icons/tor.svg" type="image/svg+xml">
+</head>
+<style>
+  body {
+    background-color: #2c0449;
+    font-family: Arial, sans-serif;
+    color: white;
+    margin: 0;
+    padding: 0;
+  }
+  .search-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    flex-direction: column;
+    position: relative;
+  }
+  .search-container input {
+    width: 650px; /* Adjust search bar width */
+    padding: 10px; /* Adjust padding to resize */
+    border-radius: 10px;
+    border: none;
+    font-size: 16px; /* Adjust font size */
+    outline: none;
+    background-color: white;
+    color: #93929a; /* Change text color */
+    padding-left: 40px;
+    background-image: url("../../icons/dax-logo.svg");
+    background-size: 24px 24px; /* Set the size of the image */
+    background-position: 10px center;
+    background-repeat: no-repeat;
+    height: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  .search-container input::placeholder {
+    color: #93929a; /* Placeholder text color */
+    font-weight: normal; /* Remove bold */
+  }
+  .logo {
+    font-size: 2.8em;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo img {
+    width: 90px; /* Resize the Zen logo here */
+    height: auto;
+  }
+  .idea-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 5px solid yellow;
+    animation: blink 0.2s step-end infinite;
+    padding: 15px; /* Adjust padding to resize */
+    margin: 10px;
+    border-radius: 10px;
+    width: 470px; /* Adjust width */
+    height: 200px;
+    background: #e0e0e0;
+  }
+  @keyframes blink {
+    50% { border-color: transparent; }
+  }
+  .small-text {
+    font-size: 0.9em; /* Adjust font size as needed */
+    color: #ffffff; /* Adjust text color as needed */
+    margin: 10px 0; /* Adjust margin as needed */
+    text-align: center; /* Center the text */
+  }
+  .idea-box img {
+    max-width: 200px; /* Resize idea image */
+    margin-right: 15px;
+  }
+  .idea-content {
+    flex-grow: 1;
+  }
+  .idea-title {
+    font-size: 1.7em;
+    color: black;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  .idea-description {
+    font-size: 1.5em;
+    color: black;
+  }
+</style>
+</head>
+<body>
+<div class="search-container">
+  <div class="logo">
+    <img src="../../icons/tor.svg" alt="Logo" style="vertical-align: middle;"> <b>Explore. Privately.</b>
+  </div>
+  <input type="text" id="search-input" placeholder="Search with DuckDuckGo">
+  <div class="small-text">You’re ready for the world’s most private browsing experience.</div> <!-- Added small text -->
+  <div id="idea-container" class="idea-box" style="position:relative;">
+    <!-- Correctly position the X button within the idea box -->
+    <span class="material-symbols-outlined" id="close-button" style="cursor:pointer; position:absolute; top:10px; right:10px; color: white;">close</span>
+    <img id="idea-image" src="" alt="Idea Image">
+    <div class="idea-content">
+      <div id="idea-title" class="idea-title">Title goes here</div>
+      <div id="idea-description" class="idea-description">Description goes here</div>
+    </div>
+  </div>
+  <!-- Dots container for navigation -->
+  <div id="navigation-dots" style="text-align:center; margin-top:10px;"></div>
+</div>
+
+</div>
+<script>
+  let ideas = [];
+  let currentIndex = 0;
+  let switchInterval;
+
+  // Function to load JSON data from ../../data/ideas.json
+  async function loadIdeas() {
+    try {
+      const response = await fetch('../../data/ideas.json');
+      const data = await response.json();
+
+      // Filter out items that should remain hidden
+      ideas = data.filter(idea => !isItemHidden(idea.id));
+
+      if (ideas.length > 0) {
+        displayIdea(currentIndex);
+        createNavigationDots();
+        startAutoSwitch();
+      } else {
+        document.getElementById('idea-container').style.display = 'none'; // Hide if no ideas
+      }
+    } catch (error) {
+      console.error('Error loading the JSON data:', error);
+    }
+  }
+
+  // Check if an item is hidden by comparing current time and the stored hide timestamp
+  function isItemHidden(ideaId) {
+    const hideUntil = localStorage.getItem(`hide-idea-${ideaId}`);
+    return hideUntil && Date.now() < hideUntil;
+  }
+
+  // Display the current idea
+  function displayIdea(index) {
+    const idea = ideas[index];
+    document.getElementById('idea-image').src = idea.image;
+    document.getElementById('idea-title').textContent = idea.title;
+    document.getElementById('idea-description').textContent = idea.description;
+    updateNavigationDots(index);
+  }
+
+  // Automatically switch between ideas every 10 seconds
+  function startAutoSwitch() {
+    switchInterval = setInterval(() => {
+      currentIndex = (currentIndex + 1) % ideas.length;
+      displayIdea(currentIndex);
+    }, 10000);
+  }
+
+  // Create navigation dots based on the number of ideas
+  function createNavigationDots() {
+    const navigationDots = document.getElementById('navigation-dots');
+    navigationDots.innerHTML = ideas.map((_, idx) => `<span class="dot" onclick="manualSwitch(${idx})" style="cursor:pointer; padding:5px; color:gray;">&#9679;</span>`).join('');
+  }
+
+  // Update navigation dots to show the active one
+  function updateNavigationDots(activeIndex) {
+    const dots = document.getElementsByClassName('dot');
+    for (let i = 0; i < dots.length; i++) {
+      dots[i].style.color = i === activeIndex ? 'white' : 'gray';
+    }
+  }
+
+  // Manually switch to a specific idea by clicking a dot
+  function manualSwitch(index) {
+    clearInterval(switchInterval);
+    currentIndex = index;
+    displayIdea(index);
+    startAutoSwitch();
+  }
+
+  // Remove item on X button click and store its removal in localStorage with a timestamp
+  document.getElementById('close-button').addEventListener('click', () => {
+    const idea = ideas[currentIndex];
+    const hideUntil = Date.now() + (idea.hideDuration * 60 * 1000);  // hideDuration in minutes from ideas.json
+    localStorage.setItem(`hide-idea-${idea.id}`, hideUntil);
+
+    // Update ideas list and switch to the next idea
+    switchToNextIdea();
+
+    // Update navigation dots after item removal
+    updateNavigationDots(currentIndex);
+  });
+
+  // Switch to the next idea after removing the current one
+  function switchToNextIdea() {
+    ideas.splice(currentIndex, 1);
+    if (ideas.length === 0) {
+      document.getElementById('idea-container').style.display = 'none'; // Hide idea box if no more ideas
+      clearInterval(switchInterval);
+    } else {
+      currentIndex = currentIndex % ideas.length;
+      displayIdea(currentIndex);
+    }
+  }
+
+  // Recheck localStorage to bring back hidden items when the hide duration is over
+  function checkForReappearance() {
+    const reappearedIdeas = [];
+    ideas.forEach((idea, idx) => {
+      const hideUntil = localStorage.getItem(`hide-idea-${idea.id}`);
+      if (hideUntil && Date.now() > hideUntil) {
+        reappearedIdeas.push(idea);
+        localStorage.removeItem(`hide-idea-${idea.id}`); // Remove item from localStorage after it reappears
+      }
+    });
+
+    if (reappearedIdeas.length > 0) {
+      ideas = [...ideas, ...reappearedIdeas];
+      createNavigationDots(); // Rebuild navigation dots after reappearance
+      if (document.getElementById('idea-container').style.display === 'none') {
+        document.getElementById('idea-container').style.display = 'block'; // Show idea box again if it was hidden
+      }
+    }
+  }
+
+  // Call the function to load the ideas on page load
+  window.onload = () => {
+    loadIdeas();
+    setInterval(checkForReappearance, 5000); // Periodically check for reappearing items
+  };
+
+  // Search functionality for Startpage
+  document.getElementById('search-input').addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+      const query = event.target.value;
+      window.location.href = `https://duckduckgo.com/?t=h_&q=${encodeURIComponent(query)}`;
+    }
+  });
+
+</script>
+
+</body>
+</html>
