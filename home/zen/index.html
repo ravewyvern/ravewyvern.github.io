@@ -170,35 +170,140 @@
         <img src="../../icons/about-logo.svg" alt="Logo" style="vertical-align: middle;"> <b>Zen</b>
     </div>
     <input type="text" id="search-input" placeholder="Search or enter address">
-    <div id="idea-container" class="idea-box">
+    <div id="idea-container" class="idea-box" style="position:relative;">
+        <!-- Correctly position the X button within the idea box -->
+        <span class="material-symbols-outlined" id="close-button" style="cursor:pointer; position:absolute; top:10px; right:10px; color: white;">close</span>
         <img id="idea-image" src="" alt="Idea Image">
         <div class="idea-content">
             <div id="idea-title" class="idea-title">Title goes here</div>
             <div id="idea-description" class="idea-description">Description goes here</div>
         </div>
     </div>
+    <!-- Dots container for navigation -->
+    <div id="navigation-dots" style="text-align:center; margin-top:10px;"></div>
+
 </div>
 <script>
+    let ideas = [];
+    let currentIndex = 0;
+    let switchInterval;
+
     // Function to load JSON data from ../../data/ideas.json
-    async function loadIdea() {
+    async function loadIdeas() {
         try {
             const response = await fetch('../../data/ideas.json');
             const data = await response.json();
 
-            // Assuming the JSON has an array of ideas and you want to load the first one
-            const idea = data[0];
+            // Filter out items that should remain hidden
+            ideas = data.filter(idea => !isItemHidden(idea.id));
 
-            // Set the image, title, and description in the idea box
-            document.getElementById('idea-image').src = idea.image;
-            document.getElementById('idea-title').textContent = idea.title;
-            document.getElementById('idea-description').textContent = idea.description;
+            if (ideas.length > 0) {
+                displayIdea(currentIndex);
+                createNavigationDots();
+                startAutoSwitch();
+            } else {
+                document.getElementById('idea-container').style.display = 'none'; // Hide if no ideas
+            }
         } catch (error) {
             console.error('Error loading the JSON data:', error);
         }
     }
 
-    // Call the function to load the idea on page load
-    window.onload = loadIdea;
+    // Check if an item is hidden by comparing current time and the stored hide timestamp
+    function isItemHidden(ideaId) {
+        const hideUntil = localStorage.getItem(`hide-idea-${ideaId}`);
+        return hideUntil && Date.now() < hideUntil;
+    }
+
+    // Display the current idea
+    function displayIdea(index) {
+        const idea = ideas[index];
+        document.getElementById('idea-image').src = idea.image;
+        document.getElementById('idea-title').textContent = idea.title;
+        document.getElementById('idea-description').textContent = idea.description;
+        updateNavigationDots(index);
+    }
+
+    // Automatically switch between ideas every 10 seconds
+    function startAutoSwitch() {
+        switchInterval = setInterval(() => {
+            currentIndex = (currentIndex + 1) % ideas.length;
+            displayIdea(currentIndex);
+        }, 10000);
+    }
+
+    // Create navigation dots based on the number of ideas
+    function createNavigationDots() {
+        const navigationDots = document.getElementById('navigation-dots');
+        navigationDots.innerHTML = ideas.map((_, idx) => `<span class="dot" onclick="manualSwitch(${idx})" style="cursor:pointer; padding:5px; color:gray;">&#9679;</span>`).join('');
+    }
+
+    // Update navigation dots to show the active one
+    function updateNavigationDots(activeIndex) {
+        const dots = document.getElementsByClassName('dot');
+        for (let i = 0; i < dots.length; i++) {
+            dots[i].style.color = i === activeIndex ? 'white' : 'gray';
+        }
+    }
+
+    // Manually switch to a specific idea by clicking a dot
+    function manualSwitch(index) {
+        clearInterval(switchInterval);
+        currentIndex = index;
+        displayIdea(index);
+        startAutoSwitch();
+    }
+
+    // Remove item on X button click and store its removal in localStorage with a timestamp
+    document.getElementById('close-button').addEventListener('click', () => {
+        const idea = ideas[currentIndex];
+        const hideUntil = Date.now() + (idea.hideDuration * 60 * 1000);  // hideDuration in minutes from ideas.json
+        localStorage.setItem(`hide-idea-${idea.id}`, hideUntil);
+
+        // Update ideas list and switch to the next idea
+        switchToNextIdea();
+
+        // Update navigation dots after item removal
+        updateNavigationDots(currentIndex);
+    });
+
+    // Switch to the next idea after removing the current one
+    function switchToNextIdea() {
+        ideas.splice(currentIndex, 1);
+        if (ideas.length === 0) {
+            document.getElementById('idea-container').style.display = 'none'; // Hide idea box if no more ideas
+            clearInterval(switchInterval);
+        } else {
+            currentIndex = currentIndex % ideas.length;
+            displayIdea(currentIndex);
+        }
+    }
+
+    // Recheck localStorage to bring back hidden items when the hide duration is over
+    function checkForReappearance() {
+        const reappearedIdeas = [];
+        ideas.forEach((idea, idx) => {
+            const hideUntil = localStorage.getItem(`hide-idea-${idea.id}`);
+            if (hideUntil && Date.now() > hideUntil) {
+                reappearedIdeas.push(idea);
+                localStorage.removeItem(`hide-idea-${idea.id}`); // Remove item from localStorage after it reappears
+            }
+        });
+
+        if (reappearedIdeas.length > 0) {
+            ideas = [...ideas, ...reappearedIdeas];
+            createNavigationDots(); // Rebuild navigation dots after reappearance
+            if (document.getElementById('idea-container').style.display === 'none') {
+                document.getElementById('idea-container').style.display = 'block'; // Show idea box again if it was hidden
+            }
+        }
+    }
+
+    // Call the function to load the ideas on page load
+    window.onload = () => {
+        loadIdeas();
+        setInterval(checkForReappearance, 5000); // Periodically check for reappearing items
+    };
 
     // Search functionality for Startpage
     document.getElementById('search-input').addEventListener('keydown', function(event) {
@@ -207,6 +312,8 @@
             window.location.href = `https://www.startpage.com/do/search?q=${encodeURIComponent(query)}`;
         }
     });
+
 </script>
+
 </body>
 </html>

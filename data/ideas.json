@@ -1,7 +1,16 @@
 [
   {
+    "id": 1,
     "image": "../../icons/bauldersgate.png",
     "title": "Buy Baulders Gate For Ian",
-    "description": "can you please buy baulders gate for me :D"
+    "description": "can you please let me buy it :D",
+    "hideDuration": 10
+  },
+  {
+    "id": 2,
+    "image": "../../icons/simcard.webp",
+    "title": "Give Ian the Sim Card",
+    "description": "can you please give it back",
+    "hideDuration": 20
   }
 ]
