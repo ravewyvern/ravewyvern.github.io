@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Tab</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="icon" href="../../icons/tab.png" type="image/svg+xml">
+</head>
+<style>
+    body {
+        background-color: #2b2a33;
+        font-family: Arial, sans-serif;
+        color: white;
+        margin: 0;
+        padding: 0;
+    }
+    .search-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 80vh;
+        flex-direction: column;
+        position: relative;
+    }
+    .search-container input {
+        width: 40%; /* Adjust search bar width */
+        padding: 10px; /* Adjust padding to resize */
+        border-radius: 5px;
+        border: none;
+        font-size: 16px; /* Adjust font size */
+        outline: none;
+        background-color: #42414d;
+        color: #93929a; /* Change text color */
+        padding-left: 40px;
+        background-image: url('https://fonts.gstatic.com/s/i/materialiconsoutlined/search/v6/24px.svg');
+        background-position: 10px center;
+        background-repeat: no-repeat;
+        height: 30px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .search-container input::placeholder {
+        color: #93929a; /* Placeholder text color */
+        font-weight: normal; /* Remove bold */
+    }
+    .logo {
+        font-size: 4em;
+        margin-bottom: 20px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .logo img {
+        width: 70px; /* Resize the Zen logo here */
+        height: auto;
+    }
+    .weather {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        font-size: 1.2em;
+        color: #b0b0b0;
+    }
+    .settings-icon {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 2em;
+        color: white;
+        z-index: 1000; /* Ensure it's on top */
+    }
+    .idea-box {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 2px solid yellow;
+        animation: blink 0.5s step-end infinite;
+        padding: 15px; /* Adjust padding to resize */
+        margin: 10px;
+        border-radius: 10px;
+        width: 30%; /* Adjust width */
+        height: 20%;
+    }
+    @keyframes blink {
+        50% { border-color: transparent; }
+    }
+    .idea-box img {
+        max-width: 200px; /* Resize idea image */
+        margin-right: 15px;
+    }
+    .idea-content {
+        flex-grow: 1;
+    }
+    .idea-title {
+        font-size: 1.7em;
+        color: white;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    .idea-description {
+        font-size: 1.5em;
+        color: white;
+    }
+</style>
+</head>
+<body>
+<div class="weather">58°F<br>San Diego</div>
+<a href="#" class="settings-icon" id="settings-icon">
+    <span class="material-symbols-outlined">settings</span>
+</a>
+<div class="search-container">
+    <div class="logo">
+        <img src="../../icons/about-logo.svg" alt="Logo" style="vertical-align: middle;"> <b>Zen</b>
+    </div>
+    <input type="text" id="search-input" placeholder="Search or enter address">
+    <div id="idea-container" class="idea-box">
+        <img id="idea-image" src="" alt="Idea Image">
+        <div class="idea-content">
+            <div id="idea-title" class="idea-title">Title goes here</div>
+            <div id="idea-description" class="idea-description">Description goes here</div>
+        </div>
+    </div>
+</div>
+<script>
+    // Function to load JSON data from ../../data/ideas.json
+    async function loadIdea() {
+        try {
+            const response = await fetch('../../data/ideas.json');
+            const data = await response.json();
+
+            // Assuming the JSON has an array of ideas and you want to load the first one
+            const idea = data[0];
+
+            // Set the image, title, and description in the idea box
+            document.getElementById('idea-image').src = idea.image;
+            document.getElementById('idea-title').textContent = idea.title;
+            document.getElementById('idea-description').textContent = idea.description;
+        } catch (error) {
+            console.error('Error loading the JSON data:', error);
+        }
+    }
+
+    // Call the function to load the idea on page load
+    window.onload = loadIdea;
+
+    // Search functionality for Startpage
+    document.getElementById('search-input').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            const query = event.target.value;
+            window.location.href = `https://www.startpage.com/do/search?q=${encodeURIComponent(query)}`;
+        }
+    });
+</script>
+</body>
+</html>
