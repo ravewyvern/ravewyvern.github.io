@@ -12,13 +12,13 @@ body {
     justify-content: center;
     align-items: flex-start;
     min-height: 100vh;
-    padding: 5px; /* Keep navbar visible on very small screens */
+    padding: 10px; /* Keep navbar visible on very small screens */
 }
 /* Ensure there's always at least 20px around the navbar */
 .navbar-container {
     margin: 0px;
     width: 100%;
-    max-width: 800px; /* By default, 600px wide if screen allows */
+    max-width: 800px; /* By default, 700px wide if screen allows */
     position: relative; /* For absolutely positioned menus */
 }
 
@@ -32,8 +32,9 @@ body {
     background: rgba(0, 0, 0, 0.4);  /* Transparent black with slight blur */
     backdrop-filter: blur(6px);      /* Creates the blurred backdrop */
     border-radius: 12px;            /* Rounded corners */
-    padding: 8px 16px;
     transition: background 0.3s, color 0.3s;
+    padding: 16px 32px; /* Increase padding to make the navbar taller */
+    line-height: 24px; /* Adjust line-height if needed */
 }
 
 .navbar a,
@@ -55,6 +56,8 @@ body {
 .navbar a:hover,
 .navbar button:hover {
     color: #ffffff; /* Hover turns white (dark theme default) */
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
 }
 
 /* Left Section: HOME button */
@@ -67,7 +70,7 @@ body {
 .nav-center {
     display: flex;
     align-items: center;
-    gap: 12px; /* Default gap for screens <= 600px; adjusted by MQ below */
+    gap: 12px; /* Default gap for screens <= 700px; adjusted by MQ below */
 }
 /* Right Section: CUSTOMIZE button + hamburger */
 .nav-right {
@@ -85,7 +88,7 @@ body {
 /* Customize dropdown (desktop) */
 .customize-dropdown {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 20px);
     right: 0;
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(6px);
@@ -94,7 +97,7 @@ body {
     display: none;
     flex-direction: column;
     gap: 4px;
-    padding: 8px;
+    padding: 4px;
     animation: slide-down 0.4s ease forwards;
     width: 120px;
     z-index: 999;
@@ -118,15 +121,15 @@ body {
         position: relative;
     }
 
-    @media (min-width: 401px) {
+    @media (min-width: 536px) {
         .hamburger-button {
             display: none !important;
         }
     }
 
-    @media (max-width: 400px) {
+    @media (max-width: 535px) {
         .hamburger-button {
-            display: flex; /* Show hamburger menu icon only below 400px */
+            display: flex; /* Show hamburger menu icon only below 535px */
         }
     }
 
@@ -140,14 +143,14 @@ body {
     display: none;
 }
 
-    @media (max-width: 400px) {
+    @media (max-width: 535px) {
         .nav-center,
         .nav-customize-button {
             display: none !important; /* Ensure complete hide below 300px */
         }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 700px) {
         .customize-text {
             display: none; /* Hide the text, keep the palette icon */
         }
@@ -182,6 +185,7 @@ body {
 .hamburger-dropdown a:hover {
     color: #ffffff;
     background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
 }
 .hamburger-dropdown hr {
     border: none;
@@ -207,6 +211,7 @@ body {
 .hamburger-customize-button:hover {
     color: #ffffff;
     background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
 }
 
 /* The dropdown inside the hamburger menu for customization */
@@ -232,32 +237,33 @@ body {
 .hamburger-customize-dropdown button:hover {
     color: #ffffff;
     background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
 }
 
 /* 3. RESPONSIVE DESIGN QUERIES */
-/* Larger than 600px: ensure at least 10px between sections */
-@media (min-width: 601px) {
+/* Larger than 700px: ensure at least 10px between sections */
+@media (min-width: 701px) {
     .nav-left,
     .nav-center,
     .nav-right {
     }
 }
 
-/* Between 400px and 600px: scale gap proportionally with width */
-@media (min-width: 400px) and (max-width: 600px) {
+/* Between 535px and 700px: scale gap proportionally with width */
+@media (min-width: 535px) and (max-width: 700px) {
     .nav-center,
     .nav-right {
     }
 }
 
-/* Below 600px: hide "Home" text */
-@media (max-width: 600px) {
+/* Below 700px: hide "Home" text */
+@media (max-width: 700px) {
     .home-text {
         display: none;
     }
 }
-/* Below 400px: show only hamburger (and restore Home text) */
-@media (max-width: 400px) {
+/* Below 535px: show only hamburger (and restore Home text) */
+@media (max-width: 535px) {
     .nav-center,
     .nav-customize-button {
         display: none;
@@ -265,7 +271,7 @@ body {
     .hamburger-button {
         display: flex; /* Show hamburger menu icon */
     }
-    /* Re-display "Home" text below 400px */
+    /* Re-display "Home" text below 535px */
     .home-text {
         display: inline;
     }
