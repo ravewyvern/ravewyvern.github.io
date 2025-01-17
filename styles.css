@@ -1,108 +1,332 @@
-/* Overall body and nav styles */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #040506;
-    color: #c7c7c7;
-}
 
-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #16191b;
-    padding: 10px;
-    position: relative;
-}
-
-nav ul {
-    list-style-type: none;
-    padding: 0;
+    /* 1. GENERAL RESETS AND BASE STYLES */
+* {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    font-family: sans-serif;
+    background: #222; /* Just for demo; change as needed */
     display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 5px; /* Keep navbar visible on very small screens */
+}
+/* Ensure there's always at least 20px around the navbar */
+.navbar-container {
+    margin: 0px;
+    width: 100%;
+    max-width: 800px; /* By default, 600px wide if screen allows */
+    position: relative; /* For absolutely positioned menus */
 }
 
-nav ul li {
-    margin-right: 20px;
-}
-
-nav ul li a {
-    color: #c7c7c7;
-    text-decoration: none;
-    padding: 10px;
-    font-size: 18px;
+/* 2. NAVBAR BASE STYLES */
+.navbar {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    /* Slightly darker border color */
+    border: 1px solid #444;
+    background: rgba(0, 0, 0, 0.4);  /* Transparent black with slight blur */
+    backdrop-filter: blur(6px);      /* Creates the blurred backdrop */
+    border-radius: 12px;            /* Rounded corners */
+    padding: 8px 16px;
+    transition: background 0.3s, color 0.3s;
 }
 
-nav ul li a:hover {
-    background-color: #31363a;
-}
-
-.material-symbols-outlined {
-    font-size: 24px;
-    margin-right: 8px;
-    vertical-align: middle;
-}
-
-/* Hamburger menu styles */
-.hamburger {
+.navbar a,
+.navbar button {
     background: none;
     border: none;
-    color: #c7c7c7;
-    font-size: 24px;
+    color: #bbbbbb; /* Default text/icon color (dark theme) */
     cursor: pointer;
-    display: none;
-    margin-left: auto;
-}
-
-.fake-recaptcha-container {
     display: flex;
     align-items: center;
-    background-color: white;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    max-width: 300px;
-    margin-top: 20px;
+    gap: 4px;
+    font-size: 16px;
+    text-decoration: none;
+    transition: color 0.3s;
+    border-radius: 6px;
+    padding: 4px 8px;
 }
 
-.fake-recaptcha-container input {
-    margin-right: 10px;
+.navbar a:hover,
+.navbar button:hover {
+    color: #ffffff; /* Hover turns white (dark theme default) */
 }
 
-.fake-recaptcha-label {
-    background: white url('icons/logocap.png') no-repeat center right;
-    background-size: 20px;
-    padding-right: 50px;
+/* Left Section: HOME button */
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 0; /* We'll handle spacing via media queries */
+}
+/* Center Section: PROJECTS, ABOUT, CONTACT */
+.nav-center {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Default gap for screens <= 600px; adjusted by MQ below */
+}
+/* Right Section: CUSTOMIZE button + hamburger */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative; /* For dropdown positioning */
 }
 
-#hamburger-menu {
+.material-icons {
+    font-size: 20px;
+    line-height: 1;
+}
+
+/* Customize dropdown (desktop) */
+.customize-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(6px);
+    border: 1px solid #444; /* match navbar border */
+    border-radius: 8px;
     display: none;
     flex-direction: column;
-    background-color: #16191b;
+    gap: 4px;
+    padding: 8px;
+    animation: slide-down 0.4s ease forwards;
+    width: 120px;
+    z-index: 999;
+}
+.customize-dropdown button {
+    width: 100%;
+    text-align: left;
+    color: #bbbbbb;
+    border-radius: 6px;
+    padding: 6px;
+}
+.customize-dropdown button:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Hamburger button */
+    .hamburger-button {
+        display: none;
+        border-radius: 50%;
+        position: relative;
+    }
+
+    @media (min-width: 401px) {
+        .hamburger-button {
+            display: none !important;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .hamburger-button {
+            display: flex; /* Show hamburger menu icon only below 400px */
+        }
+    }
+
+.hamburger-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+.hamburger-button .menu-icon {
+    display: inline-block;
+}
+.hamburger-button .close-icon {
+    display: none;
+}
+
+    @media (max-width: 400px) {
+        .nav-center,
+        .nav-customize-button {
+            display: none !important; /* Ensure complete hide below 300px */
+        }
+    }
+
+    @media (max-width: 600px) {
+        .customize-text {
+            display: none; /* Hide the text, keep the palette icon */
+        }
+    }
+
+    /* Hamburger dropdown (mobile) */
+.hamburger-dropdown {
+    display: none; /* Hidden by default */
     position: absolute;
-    top: 60px;
-    right: 10px;
+    top: calc(100% + 8px);
+    right: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(6px);
+    border: 1px solid #444;
+    border-radius: 8px;
     width: 150px;
-    padding: 10px;
+    flex-direction: column;
+    padding: 8px;
+    gap: 8px;
+    animation: slide-down 0.4s ease forwards;
+    z-index: 999;
 }
-
-#hamburger-menu li {
-    margin-bottom: 10px;
-}
-
-#home-button {
-    margin-right: auto; /* Keep the home button on the left */
+.hamburger-dropdown a {
     display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #bbbbbb;
+    text-decoration: none;
+    border-radius: 6px;
+    padding: 4px;
+}
+.hamburger-dropdown a:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+}
+.hamburger-dropdown hr {
+    border: none;
+    border-top: 1px solid #444;
+    margin: 4px 0;
+}
+.hamburger-customize {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.hamburger-customize-button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #bbbbbb;
+    border-radius: 6px;
+    padding: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.hamburger-customize-button:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
 }
 
-/* Responsive design */
-@media (max-width: 700px) {
-    #menu { /* Only hide the regular menu items */
+/* The dropdown inside the hamburger menu for customization */
+.hamburger-customize-dropdown {
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    gap: 4px;
+    border: 1px solid #444;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(6px);
+    padding: 6px;
+    animation: slide-down 0.4s ease forwards;
+}
+.hamburger-customize-dropdown button {
+    border: none;
+    background: none;
+    color: #bbbbbb;
+    text-align: left;
+    padding: 4px;
+    border-radius: 6px;
+}
+.hamburger-customize-dropdown button:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* 3. RESPONSIVE DESIGN QUERIES */
+/* Larger than 600px: ensure at least 10px between sections */
+@media (min-width: 601px) {
+    .nav-left,
+    .nav-center,
+    .nav-right {
+    }
+}
+
+/* Between 400px and 600px: scale gap proportionally with width */
+@media (min-width: 400px) and (max-width: 600px) {
+    .nav-center,
+    .nav-right {
+    }
+}
+
+/* Below 600px: hide "Home" text */
+@media (max-width: 600px) {
+    .home-text {
         display: none;
     }
-
-    .hamburger {
-        display: block; /* Show the hamburger icon */
+}
+/* Below 400px: show only hamburger (and restore Home text) */
+@media (max-width: 400px) {
+    .nav-center,
+    .nav-customize-button {
+        display: none;
     }
+    .hamburger-button {
+        display: flex; /* Show hamburger menu icon */
+    }
+    /* Re-display "Home" text below 400px */
+    .home-text {
+        display: inline;
+    }
+}
+
+/* 4. ANIMATIONS */
+@keyframes slide-down {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 5. THEME CLASSES (JS will switch these) */
+/* Dark theme (default) */
+.dark-theme {
+    --bg-color: rgba(0, 0, 0, 0.4);
+    --border-color: #444;
+    --text-color: #bbbbbb;
+    --text-hover-color: #ffffff;
+}
+/* Light theme */
+.light-theme {
+    --bg-color: rgba(255, 255, 255, 0.6);
+    --border-color: #cccccc;
+    --text-color: #333333;
+    --text-hover-color: #000000;
+}
+/* Purple theme */
+.purple-theme {
+    --bg-color: rgba(64, 0, 128, 0.3);
+    --border-color: #800080;
+    --text-color: #dda0dd;
+    --text-hover-color: #ffffff;
+}
+
+/* Use CSS variables for dynamic color changes */
+.navbar,
+.customize-dropdown,
+.hamburger-dropdown,
+.hamburger-customize-dropdown {
+    background: var(--bg-color);
+    border-color: var(--border-color);
+}
+.navbar a,
+.navbar button,
+.customize-dropdown button,
+.hamburger-dropdown a,
+.hamburger-customize-button,
+.hamburger-customize-dropdown button {
+    color: var(--text-color);
+}
+.navbar a:hover,
+.navbar button:hover,
+.customize-dropdown button:hover,
+.hamburger-dropdown a:hover,
+.hamburger-customize-button:hover,
+.hamburger-customize-dropdown button:hover {
+    color: var(--text-hover-color);
 }

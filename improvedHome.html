@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rave's Profile</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="icons/mypfp.png" type="image/svg+xml">
+  <!-- Google Icons (Material Icons) -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+
+</head>
+<body class="dark-theme">
+<div class="navbar-container">
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <!-- LEFT: HOME BUTTON -->
+    <div class="nav-left">
+      <button class="nav-home-button" onclick="window.location.href = 'home.html';">
+        <span class="material-icons">home</span>
+        <span class="home-text">Home</span>
+      </button>
+    </div>
+
+    <!-- CENTER: PROJECTS, ABOUT, CONTACT -->
+    <div class="nav-center">
+      <a href="home.html" class="nav-tab">
+        <span class="material-icons">folder</span>
+        <span class="tab-text">Projects</span>
+      </a>
+      <a href="home.html" class="nav-tab">
+        <span class="material-icons">person</span>
+        <span class="tab-text">About</span>
+      </a>
+      <a href="home.html" class="nav-tab">
+        <span class="material-icons">mail</span>
+        <span class="tab-text">Contact</span>
+      </a>
+    </div>
+
+    <!-- RIGHT: CUSTOMIZE BUTTON + HAMBURGER -->
+    <div class="nav-right">
+      <!-- Customize button (visible >= 400px) -->
+      <button class="nav-customize-button">
+        <span class="material-icons">palette</span>
+        <span class="customize-text">Customize</span>
+      </button>
+
+      <!-- Customize dropdown menu -->
+      <div class="customize-dropdown">
+        <button class="dark-theme-option">Dark theme</button>
+        <button class="light-theme-option">Light theme</button>
+        <button class="purple-theme-option">Purple theme</button>
+      </div>
+
+      <!-- Hamburger button (visible < 400px) -->
+      <button class="hamburger-button">
+        <span class="material-icons menu-icon">menu</span>
+        <span class="material-icons close-icon">close</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- HAMBURGER DROPDOWN (visible < 400px) -->
+  <div class="hamburger-dropdown">
+    <a href="home.html">
+      <span class="material-icons">folder</span>
+      <span>Projects</span>
+    </a>
+    <a href="home.html">
+      <span class="material-icons">person</span>
+      <span>About</span>
+    </a>
+    <a href="home.html">
+      <span class="material-icons">mail</span>
+      <span>Contact</span>
+    </a>
+    <hr />
+    <div class="hamburger-customize">
+      <button class="hamburger-customize-button">
+        <span class="material-icons">palette</span>
+        <span>Customize</span>
+      </button>
+      <div class="hamburger-customize-dropdown">
+        <button class="dark-theme-option">Dark theme</button>
+        <button class="light-theme-option">Light theme</button>
+        <button class="purple-theme-option">Purple theme</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="navScripts.js"></script>
+</body>
+</html>
