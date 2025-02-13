@@ -16,7 +16,7 @@ body {
 }
 /* Ensure there's always at least 20px around the navbar */
 .navbar-container {
-    margin: 0px;
+    margin: 0;
     width: 100%;
     max-width: 800px; /* By default, 700px wide if screen allows */
     position: relative; /* For absolutely positioned menus */
@@ -31,7 +31,7 @@ body {
     border: 1px solid #444;
     background: rgba(0, 0, 0, 0.4);  /* Transparent black with slight blur */
     backdrop-filter: blur(6px);      /* Creates the blurred backdrop */
-    border-radius: 12px;            /* Rounded corners */
+    border-radius: 40px;            /* Rounded corners */
     transition: background 0.3s, color 0.3s;
     padding: 16px 32px; /* Increase padding to make the navbar taller */
     line-height: 24px; /* Adjust line-height if needed */
