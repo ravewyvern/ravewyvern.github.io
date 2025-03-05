@@ -1,0 +1,163 @@
+* {
+    box-sizing: border-box;
+}
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden; /* Prevent scrolling */
+}
+body {
+    font-family: Arial, sans-serif;
+    background: white;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+ul li {
+    padding: 4px;
+    cursor: pointer;
+    align-items: center;
+}
+ul li:hover {
+    background-color: #202a30;
+}
+ul li .material-icons {
+    margin-right: 10px;
+}
+
+.left-pane {
+    width: 60px;
+    background-color: #2D3B45;
+    box-sizing: border-box;
+    overflow-y: auto;
+    height: 100%;
+    position: absolute; /* Change to absolute positioning */
+    top: 0; /* Align to the top */
+    left: 0; /* Align to the left */
+    z-index: 2; /* Ensure it has a higher z-index */
+    text-align: center;
+}
+
+.top-bar {
+    width: calc(100% - 60px); /* Adjust width to account for the sidebar */
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f4f4f4;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    position: relative;
+    left: 60px; /* Push it to the right by the width of the sidebar */
+    z-index: 1; /* Lower z-index */
+}
+
+.Profile {
+    border-radius: 50%;
+    width: 35px;
+    border: 2px solid white;
+}
+
+.colored-svg {
+    fill: white; /* Change the color to red */
+    width: 35px;
+}
+
+.bottom {
+    position: absolute;
+    bottom: 10px; /* Adjust the distance from the bottom as needed */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%; /* Adjust the width as needed */
+    cursor: pointer;
+}
+
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-button {
+    background-color: white;
+    border: 1px solid #ccc;
+    color: black;
+    padding: 10px 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 250px;
+    border-radius: 3px;
+}
+
+.arrow {
+    transition: transform 0.3s;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 250px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+.dropdown.open .dropdown-content {
+    display: block;
+}
+
+.dropdown.open .arrow {
+    transform: rotate(180deg);
+}
+
+.search-container {
+    position: relative;
+    display: inline-block;
+    width: 250px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 40px 10px 20px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 16px;
+}
+
+.search-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+/* set up in html */
+.email-button {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 10px 40px 10px 20px;
+    fill: black;
+}
