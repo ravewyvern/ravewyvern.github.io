@@ -1,0 +1,18 @@
+[
+  {
+    "date": "2025-05-01",
+    "title": "Meeting Reminder",
+    "sender": "egg Doe",
+    "className": "ENGL 101",
+    "pfp": "../assets/img_1.png",
+    "bodyPath": "emailtexts/email1.txt"
+  },
+  {
+    "date": "2025-05-02",
+    "title": "Project Updates",
+    "sender": "Jane Smith",
+    "className": "ARTF 150A",
+    "pfp": "../assets/img_1.png",
+    "bodyPath": "emailtexts/email2.txt"
+  }
+]

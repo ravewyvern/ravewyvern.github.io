@@ -152,12 +152,112 @@ body {
     cursor: pointer;
 }
 
-/* set up in html */
 .email-button {
-    width: 20px;
-    height: 20px;
     border: 1px solid #ccc;
+    color: black;
+    padding: 15px 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 39px;
     border-radius: 3px;
-    padding: 10px 40px 10px 20px;
-    fill: black;
+    height: 39px;
+}
+
+
+
+/* Panel layout */
+.container {
+    display: flex;
+}
+/* Adjust panel widths */
+.panel {
+    padding: 10px;
+    box-sizing: border-box;
+    border-right: 1px solid #ccc;
+    height: 90vh;
+    overflow-y: auto;
+}
+.panel:first-child {
+    width: 30%;
+}
+.panel:last-child {
+    width: 70%;
+    border-right: none;
+}
+
+/* Email list items */
+.email-item {
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    padding: 5px;
+    background-color: white;
+    cursor: pointer;
+    width: 80%;
+    margin-left: 60px;
+    margin-right: 120px;
+}
+.email-item.selected {
+    background-color: #e6f2ff; /* light blue */
+}
+.row1, .row2, .row3, .row4 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 5px 0;
+}
+.row3 span, .row4 span.preview {
+    max-width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+.circle-toggle, .star-toggle {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    margin-right: 5px;
+}
+.circle-toggle.filled, .star-toggle.filled {
+    background-color: #ffc107;
+}
+.badge {
+    background-color: #2196F3;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+/* Email content view */
+.email-subject {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+.divider {
+    border-bottom: 1px solid #ccc;
+    margin: 10px 0;
+}
+.email-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+/* Make profile pic larger */
+.pfp {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.email-body {
+    white-space: pre-wrap;
+}
+/* Stack sender, className, and date vertically */
+.email-meta-text {
+    display: flex;
+    flex-direction: column;
 }
