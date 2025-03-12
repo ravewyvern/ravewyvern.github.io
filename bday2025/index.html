@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ian's 15th Birthday Invitation</title>
+    <link rel="icon" href="birthday-cake-emoji-2048x2048-cc86vi1k.png" type="image/x-icon">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f8ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 800px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 2.5rem;
+            color: #ff6f61;
+        }
+        p {
+            font-size: 1.2rem;
+            margin: 10px 0;
+        }
+        .form-container {
+            margin-top: 20px;
+        }
+        iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+        }
+        .more-info {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .share {
+            margin-top: 20px;
+        }
+        .share button {
+            background-color: #ff6f61;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .share button:hover {
+            background-color: #e65c52;
+        }
+        /* Popup styles */
+        .popup {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 1000;
+        }
+        .popup img {
+            max-width: 200px;
+            margin-bottom: 10px;
+        }
+        .popup p {
+            font-size: 1rem;
+            color: #333;
+        }
+        .popup button:hover {
+            background-color: #e65c52;
+        }
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+        .calendar-popup {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 1000;
+        }
+        .calendar-popup img {
+            max-width: 200px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        .calendar-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .calendar-icon-container {
+            text-align: center;
+        }
+        .calendar-icon-container img {
+            width: 50px;
+            height: 50px;
+        }
+        .calendar-icon-container p {
+            margin-top: 10px;
+            font-size: 1rem;
+            color: #333;
+        }
+
+        button {
+            margin-top: 10px;
+            background-color: #ff6f61;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>You're Invited!</h1>
+    <p>Join us to celebrate Ian's 15th birthday!</p>
+    <p>Date: March 22nd</p>
+    <p>Time: TBD</p>
+    <p>Location: Giant Paintball/Airsoft</p>
+    <p>Address: 1800 Wildcat Canyon Road, Lakeside, CA 92040</p>
+    <div class="more-info">
+        <h2>Important Details</h2>
+        <ul>
+            <li>We can shuttle the kids if needed</li>
+            <li>Birthday snacks will be provided</li>
+            <li>There will be 10 total kids</li>
+            <li>!!! KIDS MUST BE OVER 10 !!!</li>
+            <li>Every kid can bring a sibling/friend</li>
+            <li>For more about the location, <a href="https://www.scvillage.com/pages/lakeside">click here</a></li>
+        </ul>
+        <p>Please fill out the RSVP form below</p>
+
+    </div>
+    <div class="form-container">
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdfm5eFQ04loAEVeDqzc__Ucho4_IuVkyV2fiFGFd6fnK64lQ/viewform?embedded=true" width="640" height="915" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+    </div>
+    <div class="share">
+        <button onclick="shareInvite()">Share Invitation</button>
+        <button onclick="addToCalendar()">Add to Calendar</button>
+    </div>
+</div>
+
+<!-- Popup structure -->
+<div class="popup-overlay" id="popup-overlay"></div>
+<div class="popup" id="popup">
+    <img src="./qrcode.png" alt="QR Code">
+    <p>Link copied to clipboard!</p>
+    <button onclick="closePopup()">Close</button>
+</div>
+
+<!-- Calendar Popup structure -->
+<div class="calendar-popup" id="calendar-popup">
+    <h2>Add to Calendar</h2>
+    <div class="calendar-icons">
+        <div class="calendar-icon-container">
+            <a href="https://calendar.google.com/calendar/r/eventedit?text=Ian%27s+15th+birthday+party&dates=20250322T160000Z/20250322T230000Z&details=Ian%27s+15th+birthday+which+will+have+loads+of+fun+with+airsoft+see+more+here%3A+https%3A%2F%2Fravewyvern.me%2Fbday2025&location=1800+Wildcat+Canyon+Road%2C+Lakeside%2C+CA+92040" target="_blank">
+                <img src="./New-Google-Calendar.png" alt="Google Calendar">
+                <p>Google Calendar</p>
+            </a>
+        </div>
+        <div class="calendar-icon-container">
+            <a href="./ians-birthday-party.ics" download>
+                <img src="./1838871109573_71ad0844bfc452d4fb6e_512.png" alt="Outlook Calendar">
+                <p>Outlook Calendar</p>
+            </a>
+        </div>
+        <div class="calendar-icon-container">
+            <a href="./ians-birthday-party.ics" download>
+                <img src="./941b3852f089696217cabe420c7a459f.png" alt="Apple Calendar">
+                <p>Apple Calendar</p>
+            </a>
+        </div>
+    </div>
+    <button onclick="closeCalendarPopup()">Close</button>
+</div>
+
+<script>
+    function shareInvite() {
+        const shareData = {
+            title: 'Birthday Invitation',
+            text: "You're invited to a birthday!",
+            url: window.location.href
+        };
+
+        // Copy link to clipboard
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            // Show the popup
+            document.getElementById('popup').style.display = 'block';
+            document.getElementById('popup-overlay').style.display = 'block';
+        }).catch((err) => {
+            console.error('Failed to copy:', err);
+        });
+    }
+
+    function closePopup() {
+        document.getElementById('popup').style.display = 'none';
+        document.getElementById('popup-overlay').style.display = 'none';
+    }
+
+    function addToCalendar() {
+        document.getElementById('calendar-popup').style.display = 'block';
+        document.getElementById('popup-overlay').style.display = 'block';
+    }
+
+    function closeCalendarPopup() {
+        document.getElementById('calendar-popup').style.display = 'none';
+        document.getElementById('popup-overlay').style.display = 'none';
+    }
+</script>
+</body>
+</html>

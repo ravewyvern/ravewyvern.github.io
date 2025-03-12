@@ -1,0 +1,13 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//YourSite//NONSGML v1.0//EN
+BEGIN:VEVENT
+UID:ians-birthday-2025@example.com
+DTSTAMP:20250301T120000Z
+DTSTART:20250322T160000Z
+DTEND:20250323T230000Z
+SUMMARY:Ian's 15th birthday party
+DESCRIPTION:Ian's 15th birthday which will have loads of fun with airsoft see more here: https://ravewyvern.me/bday2025
+LOCATION:1800 Wildcat Canyon Road, Lakeside, CA 92040
+END:VEVENT
+END:VCALENDAR
