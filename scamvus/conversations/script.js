@@ -103,3 +103,12 @@ function showEmailContent(email) {
           `;
         });
 }
+
+// Open the compose modal
+function openCompose() {
+    document.getElementById('composeModal').style.display = 'flex';
+}
+// Close the compose modal
+function closeCompose() {
+    document.getElementById('composeModal').style.display = 'none';
+}
