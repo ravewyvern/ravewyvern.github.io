@@ -330,3 +330,49 @@ body {
     display: flex;
     gap: 10px;
 }
+
+.dropdown-courses {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-button-courses {
+    background-color: white;
+    border: 1px solid #ccc;
+    color: black;
+    padding: 10px 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 250px;
+    border-radius: 3px;
+}
+
+.dropdown-content-courses {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 250px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.dropdown-content-courses a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content-courses a:hover {
+    background-color: #ddd;
+}
+
+.dropdown-courses.open .dropdown-content-courses {
+    display: block;
+}
+
+.dropdown-courses.open .arrow {
+    transform: rotate(180deg);
+}

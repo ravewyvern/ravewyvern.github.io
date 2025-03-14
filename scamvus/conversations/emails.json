@@ -1,11 +1,12 @@
 [
   {
-    "date": "2025-05-01",
-    "title": "Meeting Reminder",
-    "sender": "egg Doe",
-    "className": "ENGL 101",
-    "pfp": "../assets/img_1.png",
-    "bodyPath": "emailtexts/email1.txt"
+    "date": "Mar 13, 2025",
+    "title": "Correction to My Name in Class (please read before 3-14 class)",
+    "sender": "Georgia Laris",
+    "className": "ARTF 150A",
+    "pfp": "../assets/art.png",
+    "bodyPath": "emailtexts/email1.txt",
+    "tag": "inbox"
   },
   {
     "date": "2025-05-02",
@@ -13,6 +14,7 @@
     "sender": "Jane Smith",
     "className": "ARTF 150A",
     "pfp": "../assets/img_1.png",
-    "bodyPath": "emailtexts/email2.txt"
+    "bodyPath": "emailtexts/email2.txt",
+    "tag": "inbox"
   }
 ]
