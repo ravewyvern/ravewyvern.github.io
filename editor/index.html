@@ -3,24 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JS IDE</title>
+    <title>JS IDE (CodeMirror 6)</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" data-name="vs/editor/editor.main" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.47.0/min/vs/editor/editor.main.min.css">
-</head>
+    </head>
 <body>
     <div class="top-bar">
         <button id="run-button">Run ▶</button>
         <button id="download-button">Download 💾</button>
     </div>
     <div class="container">
-        <div id="editor-container"></div>
-        <div class="resizer" id="resizer"></div>
+        <div id="editor-container"></div> <div class="resizer" id="resizer"></div>
         <div id="console-container">
             <pre id="console-output"></pre>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.47.0/min/vs/loader.min.js"></script>
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
