@@ -42,12 +42,15 @@ body {
 }
 
 #editor-container {
-    background-color: #1e1e1e; /* Editor background */
+    /* CodeMirror will manage its own background with its theme */
+    /* background-color: #1e1e1e; */ /* Remove or keep, CM6 theme will override */
     border-radius: 8px;
-    overflow: hidden; /* Important for Monaco editor */
+    overflow: hidden; /* Important for CodeMirror editor */
     flex-grow: 3; /* Initial size ratio */
     min-height: 100px; /* Minimum height */
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    /* CodeMirror needs its parent to have a defined height or be flex-grow */
+    display: flex; /* Helps CM6 fill the container */
 }
 
 .resizer {
@@ -78,7 +81,20 @@ body {
     word-break: break-all;
 }
 
-/* Basic styling for Monaco editor itself to fit dark theme */
-.monaco-editor {
-    border-radius: 8px;
+/* CodeMirror 6 specific styling (if needed, often its themes are comprehensive) */
+.cm-editor {
+    height: 100%; /* Make CodeMirror fill the editor-container */
+    border-radius: 8px; /* Apply rounded corners to the editor view itself */
+}
+
+.cm-scroller {
+    border-radius: 8px; /* Ensure scroller also respects border radius */
+}
+
+/* Ensure the gutter also fits the dark theme if not handled by CM theme */
+.cm-gutters {
+    background-color: #1e1e1e; /* Or match your chosen CM6 theme's gutter */
+    border-right: 1px solid #333;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
 }
