@@ -1,0 +1,84 @@
+body {
+    background-color: #1e1e1e; /* Dark background */
+    color: #d4d4d4; /* Light text */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden; /* Prevent body scroll */
+}
+
+.top-bar {
+    background-color: #252526; /* Slightly lighter dark for top bar */
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+    border-radius: 8px;
+    margin: 10px;
+}
+
+.top-bar button {
+    background-color: #6a0dad; /* Purple accent */
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.top-bar button:hover {
+    background-color: #500784; /* Darker purple on hover */
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Allow container to fill remaining space */
+    margin: 0 10px 10px 10px; /* Gaps around the main container */
+    gap: 10px; /* Gaps between editor and console */
+}
+
+#editor-container {
+    background-color: #1e1e1e; /* Editor background */
+    border-radius: 8px;
+    overflow: hidden; /* Important for Monaco editor */
+    flex-grow: 3; /* Initial size ratio */
+    min-height: 100px; /* Minimum height */
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.resizer {
+    background-color: #6a0dad; /* Purple accent for resizer */
+    cursor: ns-resize;
+    height: 10px;
+    border-radius: 5px;
+    margin: -5px 0; /* Overlap slightly to ensure it's grabbable */
+    z-index: 10;
+    position: relative;
+}
+
+#console-container {
+    background-color: #252526; /* Console background */
+    border-radius: 8px;
+    padding: 10px;
+    overflow-y: auto;
+    flex-grow: 1; /* Initial size ratio */
+    min-height: 50px; /* Minimum height */
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+#console-output {
+    margin: 0;
+    white-space: pre-wrap; /* Wrap console text */
+    word-break: break-all;
+}
+
+/* Basic styling for Monaco editor itself to fit dark theme */
+.monaco-editor {
+    border-radius: 8px;
+}
