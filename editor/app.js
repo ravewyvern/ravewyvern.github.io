@@ -91,16 +91,17 @@ require(['vs/editor/editor.main'], function() {
     // Resizer functionality
     let isResizing = false;
 
-    resizer.addEventListener('mousedown', (e) => {
+    resizer.addEventListener('mousedown', startResize);
+    resizer.addEventListener('touchstart', startResize);
+
+    function startResize(e) {
         isResizing = true;
         document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', () => {
-            isResizing = false;
-            document.removeEventListener('mousemove', handleMouseMove);
-            // Optional: Recalculate editor layout if needed after resize
-            editor.layout();
-        });
-    });
+        document.addEventListener('touchmove', handleMouseMove);
+        document.addEventListener('mouseup', stopResize);
+        document.addEventListener('touchend', stopResize);
+        e.preventDefault(); // Prevent text selection and other unwanted behaviors
+    }
 
     function handleMouseMove(e) {
         if (!isResizing) return;
@@ -109,9 +110,12 @@ require(['vs/editor/editor.main'], function() {
         const editorMinHeight = 100; // px
         const consoleMinHeight = 50; // px
 
+        // Get the Y coordinate based on the event type (mouse or touch)
+        const clientY = e.clientY !== undefined ? e.clientY : e.touches[0].clientY;
+
         // Calculate the desired top position of the console (bottom of the editor)
         // relative to the container's top.
-        let newEditorHeight = e.clientY - containerRect.top - (resizer.offsetHeight / 2);
+        let newEditorHeight = clientY - containerRect.top - (resizer.offsetHeight / 2);
 
         // Ensure editor doesn't get too small
         if (newEditorHeight < editorMinHeight) {
@@ -134,6 +138,15 @@ require(['vs/editor/editor.main'], function() {
 
         // Monaco editor needs to be explicitly told to layout again when its container resizes
         editor.layout();
+    }
+
+    function stopResize() {
+        isResizing = false;
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('touchmove', handleMouseMove);
+        document.removeEventListener('mouseup', stopResize);
+        document.removeEventListener('touchend', stopResize);
+        editor.layout(); // Optional: Recalculate editor layout if needed after resize
     }
 
     // Initial layout call for editor
