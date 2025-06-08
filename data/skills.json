@@ -1,6 +1,0 @@
-{
-  "skills": [
-    { "name": "Java", "image": "icons/java.svg", "experience": "3 years" },
-    { "name": "C++", "image": "icons/c++.svg", "experience": "5 years" }
-  ]
-}
