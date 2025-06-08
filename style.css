@@ -1,3 +1,38 @@
 body {
     background: black;
 }
+
+.navbar {
+    width: auto;
+    height: 50px;
+    background: #333333;
+    border-radius: 3rem;
+    margin: 6px 6px 6px 6px;
+}
+
+.tile {
+
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+    color: white;
+}
+
+.nav-left {
+    float: left;
+}
+
+.nav-right {
+    float: right;
+}
+
+.navbar a {
+    display: inline-flex;
+    align-items: center;      /* vertical center */
+    justify-content: center;  /* horizontal center (optional) */
+    height: 50px;            /* set a height to center within */
+    text-decoration: none;
+    color: white;
+    padding-right: 10px;
+    padding-left: 10px;
+}
