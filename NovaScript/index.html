@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaScript Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="icon" href="icons/novascript-logo.png" type="image/svg+xml">
+
+    <link rel="stylesheet" href="lib/codemirror/http_cdnjs.cloudflare.com_ajax_libs_codemirror_5.65.16_codemirror.css">
+    <link rel="stylesheet" href="lib/codemirror/http_cdnjs.cloudflare.com_ajax_libs_codemirror_5.65.16_theme_material-darker.css">
+
+    <link rel="stylesheet" href="lib/codemirror/show-hint.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="top-bar">
+    <img src="icons/novascript-logo.png" alt="Novascript Logo" class="logo">
+    <div class="project-menu" id="project-menu">
+        <span class="material-icons">code</span>
+        <span id="project-name-text">Untitled</span>
+        <input type="text" id="project-name-input" />
+    </div>
+    <div class="menu-bar">
+        <div class="dropdown">
+            <button id="file-btn"><span style="text-decoration: underline">F</span>ile</button>
+            <div id="file-dropdown" class="dropdown-content">
+                <a href="#">New File</a>
+                <a href="#">Open File</a>
+                <a href="#">Save</a>
+                <a href="#">Save As...</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button id="edit-btn"><span style="text-decoration: underline">E</span>dit</button>
+            <div id="edit-dropdown" class="dropdown-content">
+                <a href="#">Undo</a>
+                <a href="#">Redo</a>
+                <a href="#">Cut</a>
+                <a href="#">Copy</a>
+                <a href="#">Paste</a>
+            </div>
+        </div>
+        <button id="extensions-btn"><span style="text-decoration: underline">E</span>xtensions</button>
+        <div class="dropdown">
+            <button id="help-btn"><span style="text-decoration: underline">H</span>elp</button>
+            <div id="help-dropdown" class="dropdown-content">
+                <a href="https://ravewyvern.me/NovaScript/Docs/novascript-docs.html">Docs</a>
+                <a href="#" id="about-btn">About</a>
+            </div>
+        </div>
+    </div>
+    <div class="controls">
+        <button id="run-btn"><span class="material-icons">play_arrow</span> Run</button>
+        <button id="clear-btn"><span class="material-icons">clear_all</span> Clear Output</button>
+    </div>
+</div>
+<div class="main-content">
+    <div class="editor-container">
+        <div id="code-editor"></div>
+    </div>
+    <div class="resizer" id="resizer"></div>
+    <div class="output-container">
+        <pre id="output" style="margin-bottom: 0;margin-top: 0;"></pre>
+    </div>
+</div>
+<div class="status-bar" id="status-bar">
+    <span>Ln 1, Col 1</span>
+</div>
+
+<div id="extension-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-sidebar" id="extension-sidebar">
+        </div>
+        <div class="modal-main-content">
+            <div id="extension-details-view">
+                <h2 id="detail-name"></h2>
+                <p><em>by <span id="detail-author"></span>, version <span id="detail-version"></span></em></p>
+                <p id="detail-desc"></p>
+                <h3>Functions</h3>
+                <ul id="function-list"></ul>
+                <div id="remove-btn-container"></div>
+            </div>
+            <div id="add-extension-view">
+                <h3>Add New Extension</h3>
+                <p>Paste the JSON content of an extension pack below.</p>
+                <textarea id="extension-json-input" placeholder='{ "info": { ... }, "functions": [ ... ] }'></textarea>
+                <button id="add-extension-btn" style="margin-top: 10px;"><span class="material-icons">add</span> Add Extension</button>
+                <p id="extension-error" style="color: #ff5555;"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="about-modal" class="modal-overlay">
+    <div class="modal-content">
+        <span class="close-btn" id="close-about-btn"></span>
+        <img src="icons/novascript-logo.png" alt="NovaScript Logo">
+        <h2>NovaScript</h2>
+        <h3>NovaScript Editor</h3>
+        <p>Version 1.0.0</p>
+        <h3>NovaScript Lang</h3>
+        <p>Version 1.0.0</p>
+        <p>A lightweight, extensible scripting environment for the browser.</p>
+    </div>
+</div>
+
+<script src="lib/codemirror/http_cdnjs.cloudflare.com_ajax_libs_codemirror_5.65.16_codemirror.js"></script>
+<script src="lib/codemirror/http_cdnjs.cloudflare.com_ajax_libs_codemirror_5.65.16_mode_python_python.js"></script>
+<script src="lib/codemirror/http_cdnjs.cloudflare.com_ajax_libs_codemirror_5.65.16_addon_hint_show-hint.js"></script>
+<script src="lib/codemirror/http_cdnjs.cloudflare.com_ajax_libs_codemirror_5.65.16_addon_hint_anyword-hint.js"></script>
+<script src="lib/codemirror/http_cdnjs.cloudflare.com_ajax_libs_codemirror_5.65.16_addon_edit_closebrackets.js"></script>
+
+<script src="transpiler.js"></script>
+<script src="parser.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

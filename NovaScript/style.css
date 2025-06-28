@@ -1,0 +1,186 @@
+:root { --header-height: 50px; --statusbar-height: 25px; }
+body {
+    font-family: "Fira Code", monospace;
+    margin: 0;
+    background-color: #1a1a1a;
+    color: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+.top-bar {
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    height: var(--header-height);
+    background-color: #2c2c2c;
+    border-bottom: 1px solid #333;
+    flex-shrink: 0;
+    margin: 15px 15px 0 15px;
+    border-radius: 20px;
+}
+.logo { width: 30px; margin-right: 10px; }
+.menu-bar > button {
+    background: none;
+    border: none;
+    color: #ccc;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+.menu-bar > button:hover { background-color: #3e3e3e; }
+.dropdown { position: relative; display: inline-block;}
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #2c2c2c;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 10;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 5px 0;
+}
+.dropdown-content a {
+    color: #ccc;
+    padding: 8px 16px;
+    text-decoration: none;
+    display: block;
+}
+.dropdown-content a:hover { background-color: #5d2d84; }
+.show { display: block; }
+.controls { margin-left: auto; }
+.controls button, #add-extension-btn, #remove-extension-btn {
+    background-color: #773ea5;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+}
+.controls button:hover { background-color: #5d2d84; }
+.controls .material-icons { font-size: 1.2rem; margin-right: 0.25rem; }
+.main-content {
+    display: flex;
+    flex: 1; /* Fill remaining vertical space */
+    height: calc(100vh - var(--header-height) - var(--statusbar-height));
+}
+.editor-container {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    margin: 10px;
+}
+.output-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* Takes up remaining space */
+    padding: 10px;
+}
+#code-editor { position: relative; height: 100%; }
+.CodeMirror {
+    font-family: 'Fira Code', monospace;
+    height: 100%;
+    font-size: 16px;
+}
+#output {
+    background-color: #252526;
+    border-radius: 4px;
+    border: 1px solid #333;
+    padding: 0.75rem;
+    white-space: pre-wrap;
+    font-family: 'Fira Code', monospace;
+    flex: 1;
+    overflow-y: auto;
+}
+.resizer {
+    background-color: #333;
+    width: 5px;
+    cursor: col-resize;
+    flex-shrink: 0;
+    border-radius: 5px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.status-bar {
+    height: var(--statusbar-height);
+    background-color: #2c2c2c;
+    border-top: 1px solid #333;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    margin: 0 10px 10px 10px;
+    border-radius: 20px;
+}
+#file-btn, #edit-btn, #help-btn, #extensions-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1rem;
+}
+:root { --header-height: 50px; --statusbar-height: 25px; }
+body { font-family: "Segoe UI", sans-serif; margin: 0; background-color: #1e1e1e; color: #d4d4d4; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+.top-bar { display: flex; align-items: center; padding: 0 15px; height: var(--header-height); background-color: #2c2c2c; border-bottom: 1px solid #333; flex-shrink: 0; }
+/* ... other styles from before ... */
+
+.modal-overlay {
+    display: none; /* Changed to none */
+    position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    align-items: center; justify-content: center;
+}
+.modal-overlay.show { display: flex; } /* New class to show modal */
+.modal-content { background-color: #2c2c2c; width: 80%; max-width: 800px; border-radius: 8px; display: flex; box-shadow: 0 5px 15px rgba(0,0,0,0.5); overflow: hidden; min-height: 500px; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #3e3e3e; }
+.modal-header h2 { margin: 0; }
+.close-btn { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+.close-btn:hover { color: white; }
+
+/* New Extension Modal Layout */
+.modal-sidebar { background-color: #252526; width: 200px; flex-shrink: 0; border-right: 1px solid #3e3e3e; padding: 10px 0; }
+.sidebar-item { padding: 10px 20px; cursor: pointer; border-left: 3px solid transparent; }
+.sidebar-item:hover { background-color: #3e3e3e; }
+.sidebar-item.active { background-color: #333; border-left-color: #773ea5; }
+.sidebar-item span { display: block; font-size: 0.8em; color: #888; }
+.modal-main-content { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+#extension-details-view, #add-extension-view { display: none; } /* Hide views by default */
+#extension-details-view.show, #add-extension-view.show { display: block; }
+#function-list { list-style: none; padding: 0; }
+#function-list li { background: #333; padding: 8px; border-radius: 4px; margin-bottom: 5px; font-family: 'Fira Code', monospace;}
+#add-extension-view textarea { width: 100%; box-sizing: border-box; height: 250px; background: #252526; color: #d4d4d4; border: 1px solid #333; border-radius: 4px; font-family: 'Fira Code', monospace; }
+
+/* New About Modal Layout */
+#about-modal .modal-content { flex-direction: column; align-items: center; text-align: center; max-width: 400px; min-height: auto; padding: 30px; }
+#about-modal img { width: 100px; height: 100px; margin-bottom: 20px; }
+.project-menu {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 15px;
+}
+.project-menu:hover { background-color: #3e3e3e; }
+#project-name-input {
+    background: #444;
+    border: 1px solid #773ea5;
+    color: white;
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 1em;
+    font-family: 'Segoe UI', sans-serif;
+    display: none; /* Hidden by default */
+}
+#remove-extension-btn {
+    background-color: #c93c3c;
+    margin-top: 20px;
+}
+#remove-extension-btn:hover { background-color: #a53131; }

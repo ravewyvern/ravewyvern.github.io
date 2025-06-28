@@ -1,0 +1,28 @@
+{
+  "info": {
+    "name": "Math Utilities",
+    "version": "1.1",
+    "author": "NovaScript Team",
+    "description": "Provides basic math and random number generation functions for NovaScript."
+  },
+  "functions": [
+    {
+      "name": "random",
+      "inputs": ["min", "max"],
+      "javascript": "return Math.floor(Math.random() * (max - min + 1)) + min;",
+      "returns": "integer"
+    },
+    {
+      "name": "pow",
+      "inputs": ["base", "exponent"],
+      "javascript": "return Math.pow(base, exponent);",
+      "returns": "number"
+    },
+    {
+      "name": "abs",
+      "inputs": ["num"],
+      "javascript": "return Math.abs(num);",
+      "returns": "number"
+    }
+  ]
+}
