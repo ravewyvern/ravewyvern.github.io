@@ -147,35 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const defaultCode = `
-name = "World"
-println("Hello, <name>!")
-x = 10
-y = 20
-
-// If/Else If/Else statements
-if x > y:
-  println("x is greater than y")
-else if y > x:
-  println("y is greater than x")
-else:
-  println("x and y are equal")
-
-
-println("") // Blank line
-println("Starting while loop:")
-
-count = 0
-while count < 3:
-  println("count is <count>")
-  // This now works correctly!
-  count = count + 1
-
-println("")
-println("Starting for loop:")
-for i in range(5):
-  print("<i> ")
-`;
+    const defaultCode = ``;
     editor.setValue(defaultCode.trim());
 
     loadInitialData();
@@ -184,6 +156,23 @@ for i in range(5):
     // Load saved code or set default
     const savedCode = localStorage.getItem(STORAGE_KEYS.code);
     editor.setValue(savedCode || `// Welcome to NovaScript!\n// Your code and added extensions are saved automatically.\n\nx = random(1, 10)\nprintln("Random number: <x>")`);
+
+    // TODO: update to use custom popup for new code in URL
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("code")) {
+        const newCode = atob(params.get("code"));
+        const confirmReplace = confirm(
+            "New code found in URL. Replace current code?"
+        );
+        if (confirmReplace) {
+            editor.setValue(newCode);
+            localStorage.setItem(STORAGE_KEYS.code, newCode);
+            isDirty = false;
+        }
+        // Remove code from the URL
+        params.delete("code");
+        history.replaceState({}, "", `${location.pathname}?${params.toString()}`);
+    }
 
     // Load saved project name or set default
     const savedProjectName = localStorage.getItem(STORAGE_KEYS.projectName);
@@ -368,7 +357,6 @@ for i in range(5):
         });
     };
 
-
     const handleNewFile = async () => {
         const userChoice = await promptToSaveIfDirty();
         if (userChoice === 'save') await handleSaveFile();
@@ -475,6 +463,16 @@ for i in range(5):
         localStorage.setItem(STORAGE_KEYS.projectName, newProjectName);
         isDirty = false;
     }
+    document.getElementById('export-url-btn').addEventListener('click', () => {
+        const editorCode = editor.getValue();
+        const encoded = btoa(editorCode);
+        const shareUrl = `${location.origin}${location.pathname}?code=${encoded}`;
+
+        // Copy to clipboard
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            alert("Share link copied to clipboard!");
+        });
+    });
 
     document.getElementById('new-file-btn').addEventListener('click', handleNewFile);
     document.getElementById('open-file-btn').addEventListener('click', handleOpenFile);

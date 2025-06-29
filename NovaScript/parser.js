@@ -8,10 +8,7 @@ function parse(code) {
         const block = { type: 'Program', body: [] };
 
         while (i < lines.length) {
-            // ---- FIX FOR BUG #2 ----
-            // Strip inline comments from the line first
             const rawLine = lines[i].split('//')[0];
-            // ------------------------
 
             const indentMatch = rawLine.match(/^\s*/);
             const indent = indentMatch ? indentMatch[0].length : 0;
@@ -20,13 +17,11 @@ function parse(code) {
             if (indent < currentIndent) {
                 break;
             }
-
-            if (!trimmedLine) { // Skip empty lines
+            if (!trimmedLine) {
                 i++;
                 continue;
             }
             i++;
-
             let node = parseLine(trimmedLine, scope, i);
             if (node) {
                 if (['IfStatement', 'WhileStatement', 'ForStatement', 'FunctionDeclaration'].includes(node.type)) {
@@ -35,8 +30,8 @@ function parse(code) {
                 if (node.type === 'IfStatement') {
                     let currentNode = node; // Start the chain with the initial 'if'
 
-                    while (i < lines.length && lines[i].split('#')[0].trim().startsWith('else if')) {
-                        const elseIfLineRaw = lines[i].split('#')[0];
+                    while (i < lines.length && lines[i].split('//')[0].trim().startsWith('else if')) {
+                        const elseIfLineRaw = lines[i].split('//')[0];
                         const elseIfLine = elseIfLineRaw.trim();
                         i++; // Consume the 'else if' line
 
@@ -44,20 +39,16 @@ function parse(code) {
                         const elseIfNode = parseLine(elseIfLine, scope);
                         elseIfNode.body = parseBlock(indent + 1);
 
-                        // Link it to the end of the current chain
                         currentNode.alternate = elseIfNode;
-                        // IMPORTANT: Move the end of the chain forward
                         currentNode = elseIfNode;
                     }
 
                     // After all 'else if's, check for a final 'else'
-                    if (i < lines.length && lines[i].split('#')[0].trim().startsWith('else:')) {
-                        i++; // Consume the 'else' line
-                        // Link the 'else' block to the end of the chain
+                    if (i < lines.length && lines[i].split('//')[0].trim().startsWith('else:')) {
+                        i++;
                         currentNode.alternate = parseBlock(indent + 1);
                     }
                 }
-                // --- END OF NEW LOGIC ---
                 block.body.push(node);
             }
         }
@@ -261,20 +252,33 @@ function parseExpression(expr) {
     }
 
     const operatorsInOrder = [
-        // Level 1: Comparison
         '==', '!=', '>=', '<=', '>', '<',
-        // Level 2: Addition/Subtraction
         '+', '-',
-        // Level 3: Multiplication/Division
         '*', '/'
     ];
 
+    // TODO: FIGURE OUT WHY THE FUCK <= and >= KEEP FAILING AHHHH
     for (const op of operatorsInOrder) {
-        // We split only on the last occurrence of the operator to help with precedence.
-        const parts = expr.split(op);
-        if (parts.length > 1) {
-            const right = parts.pop(); // Take the last part as the right side
-            const left = parts.join(op); // Join the rest back in case the operator appeared earlier
+        let inQuote = false;
+        let parenCount = 0;
+        let opIndex = -1;
+
+        for (let i = 0; i < expr.length; i++) {
+            if (expr[i] === '"') inQuote = !inQuote;
+            if (expr[i] === '(') parenCount++;
+            if (expr[i] === ')') parenCount--;
+
+            if (!inQuote && parenCount === 0) {
+                if (expr.substring(i, i + op.length) === op) {
+                    opIndex = i;
+                    break;
+                }
+            }
+        }
+
+        if (opIndex !== -1) {
+            const left = expr.substring(0, opIndex);
+            const right = expr.substring(opIndex + op.length);
             return {
                 type: 'BinaryExpression',
                 operator: op,
@@ -284,7 +288,6 @@ function parseExpression(expr) {
         }
     }
 
-    // 4. If nothing else matches, it must be a simple number, boolean, or variable name.
     if (!isNaN(parseFloat(expr)) && isFinite(expr)) {
         return { type: 'NumberLiteral', value: expr };
     }
