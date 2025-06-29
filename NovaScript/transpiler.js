@@ -29,18 +29,29 @@ function generate(node) {
         }
 
         case 'CallExpression': {
-            const calleeName = node.callee.name;
             const args = node.arguments.map(arg => generate(arg)).join(', ');
 
-            if (window._extensionExists(calleeName)) {
-                return `_callExtension("${calleeName}", [${args}])`;
-            }
+            if (node.callee.type === 'MemberExpression') {
+                // It's a namespaced call like math.random()
+                const namespace = node.callee.object.name;
+                const funcName = node.callee.property.name;
+                const namespacedName = `${namespace}.${funcName}`;
 
-            if (calleeName === 'print' || calleeName === 'println') {
-                return `_${calleeName}(${args})`;
+                // We use the full namespaced name to check and call the extension
+                if (window._extensionExists(namespacedName)) {
+                    return `_callExtension("${namespacedName}", [${args}])`;
+                } else {
+                    // Fallback for future object.method() calls
+                    return `${namespace}.${funcName}(${args})`;
+                }
+            } else {
+                // It's a simple call like my_fun() or println()
+                const calleeName = node.callee.name;
+                if (calleeName === 'print' || calleeName === 'println') {
+                    return `_${calleeName}(${args})`;
+                }
+                return `${calleeName}(${args})`;
             }
-
-            return `${calleeName}(${args})`;
         }
 
         case 'ReturnStatement': {
@@ -57,7 +68,18 @@ function generate(node) {
 
         // NEW: Handles updating an existing variable
         case 'AssignmentExpression':
-            return `${node.name} = ${generate(node.value)};`;
+            const leftTarget = generate(node.left);
+            const rightValue = generate(node.right);
+            return wrap(`${leftTarget} = ${rightValue};`, node.line);
+
+        case 'ArrayExpression':
+            const elements = node.elements.map(el => generate(el)).join(', ');
+            return `[${elements}]`;
+
+        case 'MemberExpression':
+            const object = generate(node.object);
+            const property = generate(node.property);
+            return `${object}[${property}]`;
 
         case 'IfStatement':
             const condition = generate(node.condition);

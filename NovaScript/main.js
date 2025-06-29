@@ -16,7 +16,8 @@ const STORAGE_KEYS = {
 const extensionRegistry = {};
 const loadedPacks = {}; // Holds full pack info for display
 let customExtensions = [];
-
+let currentFileHandle = null; // Stores the handle to the currently open file
+let isDirty = false; // Tracks if there are unsaved changes
 async function loadInitialData() {
     // 1. Load default extensions from files
     for (const fileName of defaultExtensionFiles) {
@@ -62,16 +63,24 @@ async function loadDefaultExtensions() {
 }
 
 function loadExtensionPack(pack) {
-    if (!pack.info || !pack.info.name || !pack.functions) {
-        throw new Error("Invalid extension pack: Missing 'info.name' or 'functions'.");
+    // MODIFIED: Check for the new 'id' field
+    if (!pack.info || !pack.info.id || !pack.functions) {
+        throw new Error("Invalid extension pack: Missing 'info.id' or 'functions'.");
     }
-    loadedPacks[pack.info.name] = pack; // Store the full pack info
+    // MODIFIED: Use the ID to check for conflicts
+    if (loadedPacks[pack.info.id]) {
+        console.warn(`An extension pack with id "${pack.info.id}" is already loaded.`);
+        return false;
+    }
+    loadedPacks[pack.info.id] = pack;
     pack.functions.forEach(func => {
-        console.log(`Registering extension function: ${func.name}`);
-        extensionRegistry[func.name] = {
+        // MODIFIED: The key is now "namespace.function"
+        const namespacedName = `${pack.info.id}.${func.name}`;
+        console.log(`Registering extension function: ${namespacedName}`);
+        extensionRegistry[namespacedName] = {
             inputs: func.inputs || [],
             jsBody: func.javascript,
-            packName: pack.info.name
+            packId: pack.info.id // Changed from packName
         };
     });
     return true;
@@ -169,7 +178,6 @@ for i in range(5):
 `;
     editor.setValue(defaultCode.trim());
 
-    loadDefaultExtensions();
     loadInitialData();
     console.log("Default extensions loaded.");
 
@@ -181,10 +189,12 @@ for i in range(5):
     const savedProjectName = localStorage.getItem(STORAGE_KEYS.projectName);
     projectNameText.textContent = savedProjectName || 'Untitled Project';
     projectNameInput.value = savedProjectName || 'Untitled Project';
+    isDirty = false; // Start with a clean slate
 
     // --- Core Functionality & Event Listeners ---
     // Save code on any change
     editor.on('change', () => {
+        isDirty = true; // Mark editor as dirty on any change
         localStorage.setItem(STORAGE_KEYS.code, editor.getValue());
     });
 
@@ -219,6 +229,27 @@ for i in range(5):
     });
 
     // --- UI Enhancement Logic ---
+
+    // --- NEW: Settings Modal Logic ---
+    const settingsModal = document.getElementById('settings-modal');
+    document.getElementById('settings-btn').addEventListener('click', () => {
+        settingsModal.classList.add('show');
+    });
+    document.getElementById('close-settings-btn').addEventListener('click', () => {
+        settingsModal.classList.remove('show');
+    });
+
+    // Also, update the main window click listener to close this new modal too
+    window.addEventListener('click', (event) => {
+        if (event.target === extensionModal) extensionModal.classList.remove('show');
+        if (event.target === aboutModal) aboutModal.classList.remove('show');
+        if (event.target === settingsModal) settingsModal.classList.remove('show'); // Add this line
+    });
+
+
+
+    document.getElementById('undo-btn').addEventListener('click', () => editor.undo());
+    document.getElementById('redo-btn').addEventListener('click', () => editor.redo());
 
     // 1. Status Bar
     function updateStatusBar() {
@@ -308,9 +339,148 @@ for i in range(5):
         }
     });
 
+    const promptToSaveIfDirty = () => {
+        return new Promise((resolve) => {
+            if (!isDirty) {
+                resolve('dont_save'); // Nothing to save, proceed immediately.
+                return;
+            }
+
+            const modal = document.getElementById('confirm-modal');
+            document.getElementById('confirm-project-name').textContent = projectNameText.textContent;
+
+            // Use .cloneNode(true) to remove any old event listeners
+            const saveBtn = document.getElementById('confirm-save-btn').cloneNode(true);
+            const dontSaveBtn = document.getElementById('confirm-dont-save-btn').cloneNode(true);
+            const cancelBtn = document.getElementById('confirm-cancel-btn').cloneNode(true);
+
+            document.getElementById('confirm-save-btn').replaceWith(saveBtn);
+            document.getElementById('confirm-dont-save-btn').replaceWith(dontSaveBtn);
+            document.getElementById('confirm-cancel-btn').replaceWith(cancelBtn);
+
+            const hideModal = () => modal.classList.remove('show');
+
+            saveBtn.addEventListener('click', () => { hideModal(); resolve('save'); });
+            dontSaveBtn.addEventListener('click', () => { hideModal(); resolve('dont_save'); });
+            cancelBtn.addEventListener('click', () => { hideModal(); resolve('cancel'); });
+
+            modal.classList.add('show');
+        });
+    };
 
 
-    // 1. About Modal
+    const handleNewFile = async () => {
+        const userChoice = await promptToSaveIfDirty();
+        if (userChoice === 'save') await handleSaveFile();
+        if (userChoice === 'cancel') return; // Abort
+
+        editor.setValue('');
+        projectNameText.textContent = 'Untitled Project';
+        projectNameInput.value = 'Untitled Project';
+        localStorage.setItem(STORAGE_KEYS.projectName, 'Untitled Project');
+        currentFileHandle = null;
+        isDirty = false;
+    };
+
+    const handleOpenFile = async () => {
+        const userChoice = await promptToSaveIfDirty();
+        if (userChoice === 'save') await handleSaveFile();
+        if (userChoice === 'cancel') return;
+
+        // Modern API for Chrome/Edge
+        if (window.showOpenFilePicker) {
+            try {
+                [currentFileHandle] = await window.showOpenFilePicker({
+                    types: [{ description: 'NovaScript Files', accept: { 'text/plain': ['.ns'] } }]
+                });
+                const file = await currentFileHandle.getFile();
+                const content = await file.text();
+                updateEditorAfterOpen(file.name, content);
+            } catch (err) {
+                console.log("Open file dialog cancelled or failed.", err);
+            }
+        } else {
+            // Fallback for Firefox/other browsers
+            const fileOpener = document.getElementById('file-opener-fallback');
+            fileOpener.click();
+            fileOpener.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    updateEditorAfterOpen(file.name, event.target.result);
+                };
+                reader.readAsText(file);
+                currentFileHandle = null; // We don't get a handle with the fallback
+                e.target.value = ''; // Reset input so the same file can be opened again
+            };
+        }
+    };
+
+    const handleSaveFile = async () => {
+        // If we have a handle (from modern API), save to it directly. Otherwise, trigger "Save As".
+        if (currentFileHandle) {
+            try {
+                const writable = await currentFileHandle.createWritable();
+                await writable.write(editor.getValue());
+                await writable.close();
+                isDirty = false;
+                console.log("File saved successfully!");
+            } catch (err) {
+                console.error("Error saving file:", err);
+                // If handle becomes invalid, fall back to "Save As"
+                currentFileHandle = null;
+                await handleSaveAsFile();
+            }
+        } else {
+            await handleSaveAsFile();
+        }
+    };
+
+    const handleSaveAsFile = async () => {
+        // Modern API for Chrome/Edge
+        if (window.showSaveFilePicker) {
+            try {
+                const handle = await window.showSaveFilePicker({
+                    suggestedName: `${projectNameText.textContent}.ns`,
+                    types: [{ description: 'NovaScript Files', accept: { 'text/plain': ['.ns'] } }]
+                });
+                currentFileHandle = handle; // Store the new handle
+                await handleSaveFile(); // Call the regular save function
+            } catch (err) {
+                console.log("Save As dialog cancelled or failed.", err);
+            }
+        } else {
+            // Fallback for Firefox/other browsers
+            const content = editor.getValue();
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${projectNameText.textContent}.ns`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            isDirty = false; // Mark as "saved" after download starts
+        }
+    };
+
+// NEW: Helper function to avoid duplicating code in handleOpenFile
+    function updateEditorAfterOpen(fileName, content) {
+        const newProjectName = fileName.replace(/\.ns$/, '');
+        editor.setValue(content);
+        projectNameText.textContent = newProjectName;
+        projectNameInput.value = newProjectName;
+        localStorage.setItem(STORAGE_KEYS.projectName, newProjectName);
+        isDirty = false;
+    }
+
+    document.getElementById('new-file-btn').addEventListener('click', handleNewFile);
+    document.getElementById('open-file-btn').addEventListener('click', handleOpenFile);
+    document.getElementById('save-file-btn').addEventListener('click', handleSaveFile);
+    document.getElementById('save-as-file-btn').addEventListener('click', handleSaveAsFile);
+
     const aboutModal = document.getElementById('about-modal');
     document.getElementById('about-btn').addEventListener('click', (e) => {
         e.preventDefault();
@@ -395,7 +565,7 @@ for i in range(5):
         pack.functions.forEach(func => {
             const li = document.createElement('li');
             const inputs = func.inputs.join(', ');
-            li.textContent = `${func.name}(${inputs}) -> ${func.returns || 'void'}`;
+            li.textContent = `${pack.info.id}.${func.name}(${inputs}) -> ${func.returns || 'void'}`;
             funcList.appendChild(li);
         });
 
@@ -445,7 +615,7 @@ for i in range(5):
         delete loadedPacks[packName];
 
         // 3. Find and remove the pack from our custom extensions array
-        const packIndex = customExtensions.findIndex(p => p.info.name === packName);
+        const packIndex = customExtensions.findIndex(p => p.info.id === packName);
         if (packIndex > -1) {
             customExtensions.splice(packIndex, 1);
         }

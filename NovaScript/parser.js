@@ -102,15 +102,27 @@ function parseLine(line, scope, lineNumber) {
     }
 
     if (line.includes('=')) {
-        match = line.match(/^(\w+)\s*=\s*(.*)$/);
-        if (match) {
-            const varName = match[1];
-            const value = parseExpression(match[2].trim());
-            if (!scope.has(varName)) {
-                scope.add(varName);
-                return { type: 'VariableDeclaration', name: varName, value: value };
-            } else {
-                return { type: 'AssignmentExpression', name: varName, value: value };
+        // Check for comparison operators first to avoid misinterpreting them as assignment
+        if (line.includes('==') || line.includes('!=')) {
+            // This is not an assignment, let other rules handle it.
+        } else {
+            // Use a more specific regex that finds the variable/member on the left,
+            // and the rest of the expression on the right.
+            const match = line.match(/^(.+?)\s*=\s*(.*)$/);
+            if (match) {
+                const left = parseExpression(match[1].trim());
+                const right = parseExpression(match[2].trim());
+
+                if (left.type === 'Identifier') {
+                    const varName = left.name;
+                    // This is a new declaration only if we haven't seen the variable before.
+                    if (!scope.has(varName)) {
+                        scope.add(varName);
+                        return { type: 'VariableDeclaration', name: varName, value: right, line: lineNumber };
+                    }
+                }
+                // For existing variables or array assignments (my_array[0] = ...)
+                return { type: 'AssignmentExpression', left: left, right: right, line: lineNumber };
             }
         }
     }
@@ -152,16 +164,25 @@ function parseLine(line, scope, lineNumber) {
     }
     // Check for assignment
     if (line.includes('=')) {
-        match = line.match(/^(\w+)\s*=\s*(.*)$/);
-        // Ensure it's not a comparison operator like ==
-        if (match && !line.trim().startsWith('==')) {
-            const varName = match[1];
-            const value = parseExpression(match[2].trim());
-            if (!scope.has(varName)) {
-                scope.add(varName);
-                return { type: 'VariableDeclaration', name: varName, value: value };
-            } else {
-                return { type: 'AssignmentExpression', name: varName, value: value };
+        // Check for comparison first to avoid misinterpreting it as assignment
+        if (line.includes('==') || line.includes('!=')) {
+            // It's likely a condition, let parseExpression handle it.
+        } else {
+            match = line.match(/(.*)=\s*(.*)/);
+            if (match) {
+                const left = parseExpression(match[1].trim());
+                const right = parseExpression(match[2].trim());
+
+                // If the left side is a simple variable name (Identifier)
+                if (left.type === 'Identifier') {
+                    const varName = left.name;
+                    if (!scope.has(varName)) {
+                        scope.add(varName);
+                        return { type: 'VariableDeclaration', name: varName, value: right, line: lineNumber };
+                    }
+                }
+                // If the left side is an array access (MemberExpression) or a simple variable
+                return { type: 'AssignmentExpression', left: left, right: right, line: lineNumber };
             }
         }
     }
@@ -181,77 +202,89 @@ function parseLine(line, scope, lineNumber) {
 function parseExpression(expr) {
     expr = expr.trim();
 
+
+    if (expr.startsWith('[') && expr.endsWith(']')) {
+        const content = expr.slice(1, -1);
+        if (content.trim() === '') return { type: 'ArrayExpression', elements: [] };
+        const elements = content.split(',').map(e => parseExpression(e.trim()));
+        return { type: 'ArrayExpression', elements: elements };
+    }
     if (expr.startsWith('"') && expr.endsWith('"')) {
         const strValue = expr.slice(1, -1);
-        // This is the string interpolation logic that was being skipped before.
         if (strValue.includes('<') && strValue.includes('>')) {
-            const regex = /<(\w+)>/g;
-            // A simple trick to convert <var> to `${var}` for JS template literals
-            const template = strValue.replace(regex, `\${$1}`);
+            const template = strValue.replace(/<(\w+)>/g, `\${$1}`);
             return { type: 'TemplateLiteral', value: template };
         }
         return { type: 'StringLiteral', value: strValue };
     }
 
+    // 2. Check for member access (both dot and bracket) and function calls.
+    // This now correctly distinguishes between my_list[0] and math.random()
+    const arrayAccessMatch = expr.match(/^(\w+)\[(.*)\]$/);
+    if (arrayAccessMatch) {
+        return {
+            type: 'MemberExpression',
+            object: { type: 'Identifier', name: arrayAccessMatch[1] },
+            property: parseExpression(arrayAccessMatch[2]),
+            computed: true // 'true' means use brackets []
+        };
+    }
 
-    for (let i = expr.length - 1; i >= 0; i--) {
-        if (expr[i] === '+' || expr[i] === '-') {
-            // Basic check to not split on a negative number at the start
-            if (i === 0) continue;
+    const memberCallMatch = expr.match(/^([a-zA-Z0-9_]+)\.(.*)$/);
+    if (memberCallMatch) {
+        const objectName = memberCallMatch[1];
+        const propertyExpression = memberCallMatch[2];
+        const callMatch = propertyExpression.match(/^(\w+)\((.*)\)$/);
+        if (callMatch) { // It's a namespaced function call: math.random()
+            const funcName = callMatch[1];
+            const argString = callMatch[2];
+            const args = argString ? argString.split(',').map(arg => parseExpression(arg.trim())) : [];
             return {
-                type: 'BinaryExpression',
-                operator: expr[i],
-                left: parseExpression(expr.substring(0, i)),
-                right: parseExpression(expr.substring(i + 1))
+                type: 'CallExpression',
+                callee: {
+                    type: 'MemberExpression',
+                    object: { type: 'Identifier', name: objectName },
+                    property: { type: 'Identifier', name: funcName },
+                    computed: false // 'false' means use a dot .
+                },
+                arguments: args
             };
         }
     }
 
-    // Level 2: Multiplication and Division
-    for (let i = expr.length - 1; i >= 0; i--) {
-        if (expr[i] === '*' || expr[i] === '/') {
-            return {
-                type: 'BinaryExpression',
-                operator: expr[i],
-                left: parseExpression(expr.substring(0, i)),
-                right: parseExpression(expr.substring(i + 1))
-            };
-        }
-    }
-
-    // Level 3: Comparison operators
-    // Note: this is simplified and doesn't handle chaining like a > b > c
-    const compOperators = ['==', '!=', '>=', '<='];
-    for (const op of compOperators) {
-        if (expr.includes(op)) {
-            const parts = expr.split(op);
-            return { type: 'BinaryExpression', operator: op, left: parseExpression(parts[0]), right: parseExpression(parts[1])};
-        }
-    }
-    // Handle single > and < separately to avoid conflict with >= and <=
-    if (expr.includes('>') && !expr.includes('=')) {
-        const parts = expr.split('>');
-        return { type: 'BinaryExpression', operator: '>', left: parseExpression(parts[0]), right: parseExpression(parts[1])};
-    }
-    if (expr.includes('<') && !expr.includes('=')) {
-        const parts = expr.split('<');
-        return { type: 'BinaryExpression', operator: '<', left: parseExpression(parts[0]), right: parseExpression(parts[1])};
-    }
-
-
-    // Base cases (things that are not binary expressions)
-    const callMatch = expr.match(/^(\w+)\((.*)\)$/);
-    if (callMatch) {
-        const calleeName = callMatch[1];
-        const argString = callMatch[2];
+    const simpleCallMatch = expr.match(/^(\w+)\((.*)\)$/);
+    if (simpleCallMatch) { // It's a simple function call: tester()
+        const calleeName = simpleCallMatch[1];
+        const argString = simpleCallMatch[2];
         const args = argString ? argString.split(',').map(arg => parseExpression(arg.trim())) : [];
         return { type: 'CallExpression', callee: { type: 'Identifier', name: calleeName }, arguments: args };
     }
 
-    if (expr.startsWith('"') && expr.endsWith('"')) {
-        // Same string parsing logic as before...
-        return { type: 'StringLiteral', value: expr.slice(1, -1) };
+    const operatorsInOrder = [
+        // Level 1: Comparison
+        '==', '!=', '>=', '<=', '>', '<',
+        // Level 2: Addition/Subtraction
+        '+', '-',
+        // Level 3: Multiplication/Division
+        '*', '/'
+    ];
+
+    for (const op of operatorsInOrder) {
+        // We split only on the last occurrence of the operator to help with precedence.
+        const parts = expr.split(op);
+        if (parts.length > 1) {
+            const right = parts.pop(); // Take the last part as the right side
+            const left = parts.join(op); // Join the rest back in case the operator appeared earlier
+            return {
+                type: 'BinaryExpression',
+                operator: op,
+                left: parseExpression(left),
+                right: parseExpression(right)
+            };
+        }
     }
+
+    // 4. If nothing else matches, it must be a simple number, boolean, or variable name.
     if (!isNaN(parseFloat(expr)) && isFinite(expr)) {
         return { type: 'NumberLiteral', value: expr };
     }

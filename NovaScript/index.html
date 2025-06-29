@@ -26,20 +26,21 @@
         <div class="dropdown">
             <button id="file-btn"><span style="text-decoration: underline">F</span>ile</button>
             <div id="file-dropdown" class="dropdown-content">
-                <a href="#">New File</a>
-                <a href="#">Open File</a>
-                <a href="#">Save</a>
-                <a href="#">Save As...</a>
+                <a href="#" id="new-file-btn">New File</a>
+                <a href="#" id="open-file-btn">Open File</a>
+                <a href="#" id="save-file-btn">Save</a>
+                <a href="#" id="save-as-file-btn">Save As...</a>
+                <a href="#" id="export-url-btn">Export to URL</a>
             </div>
         </div>
         <div class="dropdown">
             <button id="edit-btn"><span style="text-decoration: underline">E</span>dit</button>
             <div id="edit-dropdown" class="dropdown-content">
-                <a href="#">Undo</a>
-                <a href="#">Redo</a>
-                <a href="#">Cut</a>
-                <a href="#">Copy</a>
-                <a href="#">Paste</a>
+                <a href="#" id="undo-btn">Undo</a>
+                <a href="#" id="redo-btn">Redo</a>
+                <a href="#" id="cut-btn">Cut</a>
+                <a href="#" id="copy-btn">Copy</a>
+                <a href="#" id="paste-btn">Paste</a>
             </div>
         </div>
         <button id="extensions-btn"><span style="text-decoration: underline">E</span>xtensions</button>
@@ -54,6 +55,7 @@
     <div class="controls">
         <button id="run-btn"><span class="material-icons">play_arrow</span> Run</button>
         <button id="clear-btn"><span class="material-icons">clear_all</span> Clear Output</button>
+        <button id="settings-btn"><span class="material-icons">settings</span></button>
     </div>
 </div>
 <div class="main-content">
@@ -99,10 +101,39 @@
         <img src="icons/novascript-logo.png" alt="NovaScript Logo">
         <h2>NovaScript</h2>
         <h3>NovaScript Editor</h3>
-        <p>Version 1.0.0</p>
+        <p>Version 1.1.0</p>
         <h3>NovaScript Lang</h3>
-        <p>Version 1.0.0</p>
+        <p>Version 1.1.5</p>
         <p>A lightweight, extensible scripting environment for the browser.</p>
+    </div>
+</div>
+
+<input type="file" id="file-opener-fallback" style="display: none;" accept=".ns,text/plain">
+
+<div id="confirm-modal" class="modal-overlay">
+    <div id="confirm-modal-content" class="modal-content" style="flex-direction: column; max-width: 450px; min-height: auto;">
+        <div class="modal-header" style="padding-bottom: 10px; border: none;">
+            <h2 id="confirm-title">Unsaved Changes</h2>
+        </div>
+        <p id="confirm-message" style="padding: 0 20px;">Do you want to save the changes you made to the project "<span id="confirm-project-name"></span>"?</p>
+        <div class="controls" style="padding: 15px 20px; margin-top: auto; justify-content: flex-end;">
+            <button id="confirm-cancel-btn" style="background-color: #6c757d;">Cancel</button>
+            <button id="confirm-dont-save-btn">Don't Save</button>
+            <button id="confirm-save-btn">Save</button>
+        </div>
+    </div>
+</div>
+
+<div id="settings-modal" class="modal-overlay">
+    <div class="modal-content" style="flex-direction: column; max-width: 600px; min-height: 400px;">
+        <div class="modal-header">
+            <h2>Settings</h2>
+            <span class="close-btn" id="close-settings-btn">&times;</span>
+        </div>
+        <div style="padding: 20px;">
+            <p>Settings will be available in a future update.</p>
+            <p>TODO: add support for >= and <= in parser.js</p>
+        </div>
     </div>
 </div>
 

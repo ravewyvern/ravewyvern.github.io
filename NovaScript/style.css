@@ -51,7 +51,7 @@ body {
 .dropdown-content a:hover { background-color: #5d2d84; }
 .show { display: block; }
 .controls { margin-left: auto; }
-.controls button, #add-extension-btn, #remove-extension-btn {
+.controls button, #add-extension-btn, #remove-extension-btn, #settings-btn {
     background-color: #773ea5;
     color: white;
     border: none;
