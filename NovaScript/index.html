@@ -70,10 +70,21 @@
 </div>
 
 <div class="main-content">
-    <div class="icon-sidebar">
-        <!-- Icons for plugins can be added here later -->
-        <span class="material-icons" title="Files">folder</span>
-        <span class="material-icons" title="Search">search</span>
+    <div class="icon-sidebar" id="icon-sidebar">
+        <span class="material-icons" title="Files" id="sidebar-files-btn">folder</span>
+        <span class="material-icons" title="Search" id="sidebar-search-btn">search</span>
+    </div>
+    <div class="collapsible-sidebar" id="collapsible-sidebar">
+        <div class="sidebar-panel" id="files-panel">
+            <div class="sidebar-panel-header">
+                <h3>Files</h3>
+            </div>
+        </div>
+        <div class="sidebar-panel" id="search-panel">
+            <div class="sidebar-panel-header">
+                <h3>Search</h3>
+            </div>
+        </div>
     </div>
     <div class="editor-container">
         <div id="code-editor"></div>

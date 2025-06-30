@@ -1,9 +1,5 @@
-// main.js
-
 let _printBuffer = '';
 
-// --- CONFIGURATION ---
-// Set to true when packaging as a browser extension to disable adding new extensions.
 const browserExtensionMode = false;
 const defaultExtensionFiles = ['math.json']; // Add more filenames here, e.g., 'text.json'
 
@@ -20,7 +16,6 @@ let currentFileHandle = null; // Stores the handle to the currently open file
 let isDirty = false; // Tracks if there are unsaved changes
 let customThemes = []; // NEW: state for custom themes
 
-// --- NEW: Theme Management ---
 const defaultThemes = [
     { name: 'Nova Dark (Default)', isDefault: true, css: `:root { --accent-color: #773ea5; --button-text-color: #ffffff; #773ea5; --accent-color-hover: #5d2d84; --text-color: #ffffff; --secondary-text-color: #888; --darker-text-color: #ccc; --danger-color: #dc3545; --danger-color-hover: #a53131; --discard-color: #676767; --discard-color-hover: #555; --background-color: #1a1a1a; --foreground-color: #212121; --panel-color: #2c2c2c; --menu-hover-color: #3e3e3e; --menu-hover-color-light: #575757; --panel-border-color: #333; --code-block-color: #333; --sidebar-color: #252526; --panel-radius: 20px; --button-radius: 20px; --popup-radius: 20px; --small-radius: 5px; --window-gap: 10px; --inner-gap: 10px; }`},
     {name: 'Nova Light', isDefault: true, css: `:root { --accent-color: #773ea5; --button-text-color: #ffffff; --accent-color-hover: #5d2d84; --text-color: #000000; --secondary-text-color: #555; --darker-text-color: #333; --danger-color: #dc3545; --danger-color-hover: #a53131; --discard-color: #aaa; --discard-color-hover: #888; --background-color: #f4f4f4; --foreground-color: #ffffff; --panel-color: #eaeaea; --menu-hover-color: #dcdcdc; --menu-hover-color-light: #c0c0c0; --panel-border-color: #ccc; --code-block-color: #ddd; --sidebar-color: #f0f0f0; --panel-radius: 20px; --button-radius: 20px; --popup-radius: 20px; --small-radius: 5px; --window-gap: 10px; --inner-gap: 10px; }`},
@@ -47,7 +42,6 @@ function loadCustomThemes() {
 }
 
 async function loadInitialData() {
-    // 1. Load default extensions from files
     for (const fileName of defaultExtensionFiles) {
         try {
             const response = await fetch(`extensions/${fileName}`);
@@ -60,7 +54,6 @@ async function loadInitialData() {
         }
     }
 
-    // 2. Load custom extensions from localStorage
     const savedExtensions = localStorage.getItem(STORAGE_KEYS.customExtensions);
     if (savedExtensions) {
         customExtensions = JSON.parse(savedExtensions);
@@ -91,7 +84,6 @@ async function loadDefaultExtensions() {
 }
 
 function loadExtensionPack(pack) {
-    // MODIFIED: Check for the new 'id' field
     if (!pack.info || !pack.info.id || !pack.functions) {
         throw new Error("Invalid extension pack: Missing 'info.id' or 'functions'.");
     }
@@ -118,7 +110,6 @@ function saveCustomExtensions() {
     localStorage.setItem(STORAGE_KEYS.customExtensions, JSON.stringify(customExtensions));
 }
 
-// These helper functions will be globally available for the transpiled code to use.
 window._extensionExists = (name) => extensionRegistry.hasOwnProperty(name);
 window._callExtension = (name, args) => {
     const funcData = extensionRegistry[name];
@@ -128,8 +119,6 @@ window._callExtension = (name, args) => {
     if (args.length !== funcData.inputs.length) {
         throw new Error(`Incorrect number of arguments for ${name}. Expected ${funcData.inputs.length}, got ${args.length}.`);
     }
-    // Use the Function constructor for safer execution than eval.
-    // We dynamically create a function with the specified inputs and JS body.
     const func = new Function(...funcData.inputs, funcData.jsBody);
     return func(...args); // Call it with the provided arguments.
 };
@@ -464,7 +453,6 @@ document.addEventListener('DOMContentLoaded', async () => { // added async may n
     };
 
     const handleSaveAsFile = async () => {
-        // Modern API for Chrome/Edge
         if (window.showSaveFilePicker) {
             try {
                 const handle = await window.showSaveFilePicker({
@@ -492,7 +480,6 @@ document.addEventListener('DOMContentLoaded', async () => { // added async may n
         }
     };
 
-// NEW: Helper function to avoid duplicating code in handleOpenFile
     function updateEditorAfterOpen(fileName, content) {
         const newProjectName = fileName.replace(/\.ns$/, '');
         editor.setValue(content);
@@ -511,6 +498,45 @@ document.addEventListener('DOMContentLoaded', async () => { // added async may n
             alert("Share link copied to clipboard!");
         });
     });
+
+    const iconSidebarButtons = {
+        files: document.getElementById('sidebar-files-btn'),
+        search: document.getElementById('sidebar-search-btn')
+    };
+    const collapsibleSidebar = document.getElementById('collapsible-sidebar');
+    const iconSidebar = document.getElementById('icon-sidebar');
+    const sidebarPanels = {
+        files: document.getElementById('files-panel'),
+        search: document.getElementById('search-panel')
+    };
+
+    let activePanel = null; // Keep track of which panel is open
+
+    const toggleSidebarPanel = (panelName) => {
+        // If the clicked panel is already open, close everything.
+        if (activePanel === panelName) {
+            collapsibleSidebar.style.display = 'none';
+            iconSidebar.classList.remove('sidebar-panel-active');
+            activePanel = null;
+        } else {
+            // Otherwise, open the clicked panel.
+            collapsibleSidebar.style.display = 'block';
+            iconSidebar.classList.add('sidebar-panel-active');
+            activePanel = panelName;
+            // Hide all panels
+            Object.values(sidebarPanels).forEach(panel => panel.classList.remove('show'));
+            // Show the correct one
+            sidebarPanels[panelName].classList.add('show');
+        }
+
+        // Update the active state on the icon buttons
+        Object.keys(iconSidebarButtons).forEach(key => {
+            iconSidebarButtons[key].classList.toggle('active', key === activePanel);
+        });
+    };
+
+    iconSidebarButtons.files.addEventListener('click', () => toggleSidebarPanel('files'));
+    iconSidebarButtons.search.addEventListener('click', () => toggleSidebarPanel('search'));
 
     document.getElementById('new-file-btn').addEventListener('click', handleNewFile);
     document.getElementById('open-file-btn').addEventListener('click', handleOpenFile);

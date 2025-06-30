@@ -100,7 +100,7 @@ button:hover { background-color: var(--accent-color-hover); }
 .main-content {
     display: flex;
     flex: 1; /* Fill remaining vertical space */
-    height: calc(100vh - 50px - 25px);
+    height: 100%;
 }
 .editor-container {
     display: flex;
@@ -220,6 +220,11 @@ textarea { width: 100%; box-sizing: border-box; height: 250px; background: var(-
 }
 #remove-extension-btn:hover { background-color: var(--danger-color-hover); }
 
+.sidebar-panel-active {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
 .icon-sidebar {
     width: 50px;
     background-color: var(--panel-color);
@@ -241,6 +246,38 @@ textarea { width: 100%; box-sizing: border-box; height: 250px; background: var(-
     border-radius: var(--button-radius);
 }
 .icon-sidebar .material-icons:hover { background-color: var(--menu-hover-color); color: var(--text-color); }
+.icon-sidebar .material-icons.active {
+    color: var(--text-color);
+    background-color: var(--menu-hover-color);
+}
+.collapsible-sidebar {
+    width: 250px; /* Default width */
+    background-color: var(--panel-color,);
+    height: auto;
+    display: none; /* Hidden by default */
+    flex-shrink: 0;
+    border-right: 1px solid var(--panel-border-color,);
+    margin: var(--inner-gap) 0 var(--inner-gap) 0;
+    border-radius: 0 var(--panel-radius) var(--panel-radius) 0;
+    border-left: 1px solid var(--panel-border-color);
+}
+.sidebar-panel {
+    display: none; /* Each individual panel is hidden */
+    padding: var(--inner-gap, 10px);
+}
+.sidebar-panel.show {
+    display: block; /* Show the active panel */
+}
+.sidebar-panel-header {
+    margin-bottom: 15px;
+}
+.sidebar-panel-header h3 {
+    margin: 0;
+    color: var(--secondary-text-color);
+    text-transform: uppercase;
+    font-size: 0.9em;
+}
+
 .main-container {
     display: flex;
     flex-direction: column;
