@@ -18,6 +18,34 @@ const loadedPacks = {}; // Holds full pack info for display
 let customExtensions = [];
 let currentFileHandle = null; // Stores the handle to the currently open file
 let isDirty = false; // Tracks if there are unsaved changes
+let customThemes = []; // NEW: state for custom themes
+
+// --- NEW: Theme Management ---
+const defaultThemes = [
+    { name: 'Nova Dark (Default)', isDefault: true, css: `:root { --accent-color: #773ea5; --button-text-color: #ffffff; #773ea5; --accent-color-hover: #5d2d84; --text-color: #ffffff; --secondary-text-color: #888; --darker-text-color: #ccc; --danger-color: #dc3545; --danger-color-hover: #a53131; --discard-color: #676767; --discard-color-hover: #555; --background-color: #1a1a1a; --foreground-color: #212121; --panel-color: #2c2c2c; --menu-hover-color: #3e3e3e; --menu-hover-color-light: #575757; --panel-border-color: #333; --code-block-color: #333; --sidebar-color: #252526; --panel-radius: 20px; --button-radius: 20px; --popup-radius: 20px; --small-radius: 5px; --window-gap: 10px; --inner-gap: 10px; }`},
+    {name: 'Nova Light', isDefault: true, css: `:root { --accent-color: #773ea5; --button-text-color: #ffffff; --accent-color-hover: #5d2d84; --text-color: #000000; --secondary-text-color: #555; --darker-text-color: #333; --danger-color: #dc3545; --danger-color-hover: #a53131; --discard-color: #aaa; --discard-color-hover: #888; --background-color: #f4f4f4; --foreground-color: #ffffff; --panel-color: #eaeaea; --menu-hover-color: #dcdcdc; --menu-hover-color-light: #c0c0c0; --panel-border-color: #ccc; --code-block-color: #ddd; --sidebar-color: #f0f0f0; --panel-radius: 20px; --button-radius: 20px; --popup-radius: 20px; --small-radius: 5px; --window-gap: 10px; --inner-gap: 10px; }`},
+    {name: 'Nova Black', isDefault: true, css: `:root { --accent-color: #773ea5; --button-text-color: #ffffff; --accent-color-hover: #5d2d84; --text-color: #ffffff; --secondary-text-color: #999; --darker-text-color: #aaa; --danger-color: #dc3545; --danger-color-hover: #a53131; --discard-color: #888; --discard-color-hover: #666; --background-color: #000000; --foreground-color: #0a0a0a; --panel-color: #111111; --menu-hover-color: #1a1a1a; --menu-hover-color-light: #222222; --panel-border-color: #1c1c1c; --code-block-color: #1c1c1c; --sidebar-color: #0d0d0d; --panel-radius: 20px; --button-radius: 20px; --popup-radius: 20px; --small-radius: 5px; --window-gap: 10px; --inner-gap: 10px; }`},
+    {name: 'Terminal', isDefault: true, css: `:root { --accent-color: #ffffff; --button-text-color: #000000; --accent-color-hover: #cccccc; --text-color: #ffffff; --secondary-text-color: #ffffff; --darker-text-color: #ffffff; --danger-color: #ff5555; --danger-color-hover: #cc4444; --discard-color: #999999; --discard-color-hover: #777777; --background-color: #000000; --foreground-color: #000000; --panel-color: #000000; --menu-hover-color: #222222; --menu-hover-color-light: #333333; --panel-border-color: #444444; --code-block-color: #111111; --sidebar-color: #000000; --panel-radius: 0px; --button-radius: 0px; --popup-radius: 0px; --small-radius: 0px; --window-gap: 0px; --inner-gap: 0px; }`}
+];
+const themeStyleTag = document.createElement('style');
+themeStyleTag.id = 'dynamic-theme-style';
+document.head.appendChild(themeStyleTag);
+
+function applyTheme(themeName, css) {
+    // Applying an empty string reverts to the default styles in the main CSS file
+    themeStyleTag.textContent = css || '';
+    localStorage.setItem('novaScriptActiveTheme', themeName);
+}
+function saveCustomThemes() {
+    localStorage.setItem('novaScriptCustomThemes', JSON.stringify(customThemes));
+}
+function loadCustomThemes() {
+    const saved = localStorage.getItem('novaScriptCustomThemes');
+    if (saved) {
+        customThemes = JSON.parse(saved);
+    }
+}
+
 async function loadInitialData() {
     // 1. Load default extensions from files
     for (const fileName of defaultExtensionFiles) {
@@ -120,7 +148,7 @@ function _println(...args) {
     document.getElementById('output').textContent += args.join(' ') + '\n';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => { // added async may need to remove idk
     // --- Element Selectors ---
     const editorEl = document.getElementById('code-editor');
     const projectNameText = document.getElementById('project-name-text');
@@ -149,9 +177,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const defaultCode = ``;
     editor.setValue(defaultCode.trim());
-
-    loadInitialData();
+    loadCustomThemes();
+    await loadInitialData();
     console.log("Default extensions loaded.");
+
+    const savedThemeName = localStorage.getItem('novaScriptActiveTheme');
+    if (savedThemeName) {
+        const allThemes = [...defaultThemes, ...customThemes];
+        const themeToApply = allThemes.find(t => t.name === savedThemeName);
+        if (themeToApply) {
+            applyTheme(themeToApply.name, themeToApply.css);
+        }
+    }
 
     // Load saved code or set default
     const savedCode = localStorage.getItem(STORAGE_KEYS.code);
@@ -292,6 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     setupDropdown('file-btn', 'file-dropdown');
     setupDropdown('edit-btn', 'edit-dropdown');
+    setupDropdown('addon-btn', 'addon-dropdown');
     setupDropdown('help-btn', 'help-dropdown');
 
     // Close dropdowns if user clicks outside
@@ -630,4 +668,151 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('add-extension-view').style.display = 'none';
         document.getElementById('sidebar-add-new').style.display = 'none';
     }
+    const libraryModal = document.getElementById('library-modal');
+    const pluginModal = document.getElementById('plugin-modal');
+    const themeModal = document.getElementById('theme-modal');
+
+    document.getElementById('library-btn').addEventListener('click', () => libraryModal.classList.add('show'));
+    document.getElementById('plugin-btn').addEventListener('click', () => pluginModal.classList.add('show'));
+
+    // Add close buttons for these modals
+    libraryModal.querySelector('.close-btn').addEventListener('click', () => libraryModal.classList.remove('show'));
+    pluginModal.querySelector('.close-btn').addEventListener('click', () => pluginModal.classList.remove('show'));
+
+    // --- NEW: Full Theme Modal Logic ---
+    const themeSidebar = document.getElementById('theme-sidebar');
+    const themeDetailsView = document.getElementById('theme-details-view');
+    const addThemeView = document.getElementById('add-theme-view');
+
+    document.getElementById('theme-btn').addEventListener('click', () => {
+        renderThemeSidebar();
+        showThemeDetailsView('Nova Dark (Default)'); // Show default theme first
+        themeModal.classList.add('show');
+    });
+
+    const renderThemeSidebar = () => {
+        themeSidebar.innerHTML = '';
+        const addItem = document.createElement('div');
+        addItem.className = 'sidebar-item';
+        addItem.id = 'sidebar-add-theme';
+        addItem.innerHTML = `<strong>Add New Theme</strong>`;
+        addItem.addEventListener('click', showAddThemeView);
+        themeSidebar.appendChild(addItem);
+
+        [...defaultThemes, ...customThemes].forEach(theme => {
+            const item = document.createElement('div');
+            item.className = 'sidebar-item';
+            item.dataset.themeName = theme.name;
+            item.innerHTML = `<strong>${theme.name}</strong>`;
+            item.addEventListener('click', () => showThemeDetailsView(theme.name));
+            themeSidebar.appendChild(item);
+        });
+    };
+
+    const showAddThemeView = () => {
+        themeDetailsView.style.display = 'none';
+        addThemeView.style.display = 'block';
+        setActiveThemeSidebarItem('sidebar-add-theme');
+    };
+
+    const showThemeDetailsView = (themeName) => {
+        const allThemes = [...defaultThemes, ...customThemes];
+        const theme = allThemes.find(t => t.name === themeName);
+        if (!theme) return;
+
+        document.getElementById('theme-detail-name').textContent = theme.name;
+
+        // Update the preview
+        const previewFrame = document.getElementById('theme-preview-iframe');
+        const previewHTML = `
+<style>
+    ${theme.css}
+body {margin: 0;background-color: var(--background-color);display: flex;flex-direction: column;height: 100vh;overflow: hidden;}
+.top-bar {display: flex;align-items: center;padding: 0 12px;height: 40px;background-color: var(--panel-color);border-bottom: 1px solid var(--panel-border-color);flex-shrink: 0;margin: var(--window-gap) var(--window-gap) 0 var(--window-gap);border-radius: var(--panel-radius);}
+.logo { width: 24px; margin-right: 8px; }
+.dropdown-content a:hover { background-color: var(--menu-hover-color); }
+.controls { margin-left: auto; }
+button {border: none;padding: 6px 12px;margin-left: 8px;font-size: 0.8rem;display: inline-flex;align-items: center;border-radius: var(--button-radius);}
+.main-content {display: flex;flex: 1;height: calc(200vh - 40px - 20px);}
+.output-container {display: flex;flex-direction: column;flex: 1;padding: 8px;}
+.output {background-color: var(--foreground-color);border-radius: var(--small-radius);border: 1px solid #333;padding: 0.6rem;white-space: pre-wrap;flex: 1;overflow-y: auto;}
+.resizer {background-color: var(--panel-color);width: 4px;flex-shrink: 0;border-radius: var(--small-radius);margin-top: var(--inner-gap);margin-bottom: var(--inner-gap);}
+.status-bar {height: 20px;background-color: var(--panel-color);border-top: 1px solid #333;display: flex;align-items: center;padding: 0 12px;font-size: 0.72rem;flex-shrink: 0;margin: 0 var(--window-gap) var(--window-gap) var(--window-gap);border-radius: var(--panel-radius);}
+.icon-sidebar {width: 40px;background-color: var(--panel-color);overflow-y: auto;flex-shrink: 0;display: flex;flex-direction: column;align-items: center;padding-top: 12px;gap: 16px;border-radius: var(--panel-radius);margin: var(--inner-gap) 0 var(--inner-gap) var(--window-gap);}
+.dropdown-example {border: none;padding: 6px 12px;margin-left: 8px;display: inline-flex;align-items: center;width: 16px;border-radius: var(--small-radius);}
+</style><div class="top-bar"><img src="icons/novascript-logo.png" alt="Novascript Logo" class="logo">
+    <div class="menu-bar"><div class="dropdown-example" style="background: var(--text-color)"></div><div class="dropdown-example" style="background: var(--secondary-text-color)"></div><div class="dropdown-example" style="background: var(--darker-text-color)"></div><div class="dropdown-example" style="background: var(--button-text-color)"></div></div>
+    <div class="controls"><button style="color: var(--accent-color); background-color: var(--accent-color);">placehold</button><button style="color: var(--danger-color); background-color: var(--danger-color);">placehold</button><button style="color: var(--discard-color); background-color: var(--discard-color);">placehold</button>
+</div></div><div class="main-content"><div class="icon-sidebar"></div><div class="output-container"><pre class="output" style="margin-bottom: 0;margin-top: 0;"></pre></div><div class="resizer" id="resizer"></div><div class="output-container"><pre class="output" style="margin-bottom: 0;margin-top: 0;"></pre></div></div><div class="status-bar"></div>
+        `;
+        previewFrame.srcdoc = previewHTML;
+
+        // Update action buttons
+        const actionsContainer = document.getElementById('theme-actions');
+        actionsContainer.innerHTML = ''; // Clear old buttons
+
+        const applyBtn = document.createElement('button');
+        applyBtn.textContent = 'Apply Theme';
+        applyBtn.addEventListener('click', () => applyTheme(theme.name, theme.css));
+        actionsContainer.appendChild(applyBtn);
+
+        if (!theme.isDefault) {
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = 'Remove Theme';
+            removeBtn.style.backgroundColor = '#c93c3c';
+            removeBtn.addEventListener('click', () => {
+                const themeIndex = customThemes.findIndex(t => t.name === theme.name);
+                if (themeIndex > -1) {
+                    customThemes.splice(themeIndex, 1);
+                    saveCustomThemes();
+                    renderThemeSidebar();
+                    showThemeDetailsView('Nova Dark (Default)'); // Go back to default view
+                }
+            });
+            actionsContainer.appendChild(removeBtn);
+        }
+
+        addThemeView.style.display = 'none';
+        themeDetailsView.style.display = 'flex';
+        setActiveThemeSidebarItem(themeName);
+    };
+
+    const setActiveThemeSidebarItem = (themeName) => {
+        document.querySelectorAll('#theme-sidebar .sidebar-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.themeName === themeName || item.id === themeName);
+        });
+    };
+
+    document.getElementById('add-theme-btn').addEventListener('click', () => {
+        const nameInput = document.getElementById('new-theme-name');
+        const cssInput = document.getElementById('theme-css-input');
+        const errorDisplay = document.getElementById('theme-error');
+        errorDisplay.textContent = '';
+        const name = nameInput.value.trim();
+        const css = cssInput.value.trim();
+
+        if (!name || !css) {
+            errorDisplay.textContent = 'Theme name and CSS content cannot be empty.';
+            return;
+        }
+        if ([...defaultThemes, ...customThemes].some(t => t.name === name)) {
+            errorDisplay.textContent = 'A theme with this name already exists.';
+            return;
+        }
+
+        const newTheme = { name, css, isDefault: false };
+        customThemes.push(newTheme);
+        saveCustomThemes();
+        renderThemeSidebar();
+        showThemeDetailsView(name);
+        nameInput.value = '';
+        cssInput.value = '';
+    });
+
+    // Update main window click listener to handle all new modals
+    window.addEventListener('click', (event) => {
+        if (event.target.classList.contains('modal-overlay')) {
+            event.target.classList.remove('show');
+        }
+    });
 });
