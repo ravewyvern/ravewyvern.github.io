@@ -116,7 +116,7 @@
                 <p>Paste the JSON content of an extension pack below.</p>
                 <textarea id="extension-json-input" placeholder='{ "info": { ... }, "functions": [ ... ] }'></textarea>
                 <button id="add-extension-btn" style="margin-top: 10px;"><span class="material-icons">add</span> Add Extension</button>
-                <p id="extension-error" style="color: #ff5555;"></p>
+                <p id="extension-error" style="color: var(--danger-color);"></p>
             </div>
         </div>
     </div>
@@ -152,29 +152,45 @@
 </div>
 
 <div id="settings-modal" class="modal-overlay">
-    <div class="modal-content" style="flex-direction: column; max-width: 600px; min-height: 400px;">
-        <div class="modal-header">
-            <h2>Settings</h2>
-            <span class="close-btn" id="close-settings-btn">&times;</span>
+    <div class="modal-content">
+        <div class="modal-sidebar" id="settings-sidebar"></div>
+        <!-- Add an ID to this div -->
+        <div class="modal-main-content" id="settings-main-content">
+            <!-- Content will be generated here -->
         </div>
-        <div style="padding: 20px;">
-            <p>Settings will be available in a future update.</p>
+    </div>
+</div>
+<div id="library-modal" class="modal-overlay">
+    <div class="modal-content"><div class="modal-header"><h2>Libraries</h2><span class="close-btn">&times;</span></div><p style="padding: 20px;">Library management will be available after GTA VI.</p></div>
+</div>
+<div id="plugin-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-sidebar" id="plugin-sidebar">
+            <!-- Plugin list will be generated here -->
+        </div>
+        <div class="modal-main-content">
+            <div id="plugin-details-view">
+                <h2 id="plugin-detail-name"></h2>
+                <p><em>by <span id="plugin-detail-author"></span>, v<span id="plugin-detail-version"></span></em></p>
+                <p id="plugin-detail-desc"></p>
+                <h3>UI Components</h3>
+                <ul id="plugin-component-list"></ul>
+                <div id="plugin-actions" style="margin-top: 20px;"></div>
+            </div>
+            <div id="add-plugin-view">
+                <h3>Add New Plugin</h3>
+                <p>Paste the JSON content of a plugin below.</p>
+                <textarea id="plugin-json-input" placeholder='{ "info": { "id": "my-plugin", ... }, "ui": { ... } }' style="height: 250px;"></textarea>
+                <button id="add-plugin-btn" style="margin-top: 10px;">Add Plugin</button>
+                <p id="plugin-error" style="color: var(--danger-color);"></p>
+            </div>
         </div>
     </div>
 </div>
 
-<div id="library-modal" class="modal-overlay">
-    <div class="modal-content"><div class="modal-header"><h2>Libraries</h2><span class="close-btn">&times;</span></div><p style="padding: 20px;">Library management will be available in a future update.</p></div>
-</div>
-<div id="plugin-modal" class="modal-overlay">
-    <div class="modal-content"><div class="modal-header"><h2>Plugins</h2><span class="close-btn">&times;</span></div><p style="padding: 20px;">Plugin management will be available in a future update.</p></div>
-</div>
-
-<!-- NEW Functional Theme Modal -->
 <div id="theme-modal" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-sidebar" id="theme-sidebar">
-            <!-- Theme list will be generated here -->
         </div>
         <div class="modal-main-content">
             <div id="theme-details-view" style="display: flex; flex-direction: column; height: 100%;">
@@ -190,7 +206,7 @@
                 <input type="text" id="new-theme-name" placeholder="My Awesome Theme" style="width: 100%; margin-bottom: 10px; padding: 8px; background: #252526; border: 1px solid #333; color: white; border-radius: 4px;">
                 <textarea id="theme-css-input" placeholder="/* CSS variables go here */\n:root {\n  --header-height: 50px;\n}" style="height: 250px;"></textarea>
                 <button id="add-theme-btn" style="margin-top: 10px;">Add Theme</button>
-                <p id="theme-error" style="color: #ff5555;"></p>
+                <p id="theme-error" style="color: var(--danger-color);"></p>
             </div>
         </div>
     </div>
@@ -201,9 +217,9 @@
 <script src="lib/codemirror/http_cdnjs.cloudflare.com_ajax_libs_codemirror_5.65.16_addon_hint_show-hint.js"></script>
 <script src="lib/codemirror/http_cdnjs.cloudflare.com_ajax_libs_codemirror_5.65.16_addon_hint_anyword-hint.js"></script>
 <script src="lib/codemirror/http_cdnjs.cloudflare.com_ajax_libs_codemirror_5.65.16_addon_edit_closebrackets.js"></script>
-
 <script src="transpiler.js"></script>
 <script src="parser.js"></script>
+<script src="plugins.js"></script>
 <script src="main.js"></script>
 </body>
 </html>

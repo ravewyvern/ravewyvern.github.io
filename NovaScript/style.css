@@ -298,3 +298,33 @@ textarea { width: 100%; box-sizing: border-box; height: 250px; background: var(-
     border-radius: var(--panel-radius);
     background-color: var(--background-color);
 }
+
+.keymap-list {
+    list-style: none;
+    padding: 0;
+}
+.keymap-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 5px;
+    border-bottom: 1px solid var(--panel-border-color);
+}
+.keymap-key {
+    background-color: var(--code-block-color);
+    border: 1px solid var(--panel-border-color);
+    padding: 5px 10px;
+    border-radius: var(--small-radius, 5px);
+    font-family: var(--monospaced-font), monospace;
+    min-width: 120px;
+    text-align: center;
+    cursor: pointer;
+}
+.keymap-key:hover {
+    border-color: var(--accent-color);
+}
+.keymap-key.is-recording {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 5px var(--accent-color);
+}

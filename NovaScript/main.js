@@ -6,7 +6,14 @@ const defaultExtensionFiles = ['math.json']; // Add more filenames here, e.g., '
 const STORAGE_KEYS = {
     code: 'novaScriptCode',
     customExtensions: 'novaScriptCustomExtensions',
-    projectName: 'novaScriptProjectName'
+    projectName: 'novaScriptProjectName',
+    keymap: 'novaScriptKeymap'
+};
+
+const defaultKeymap = {
+    'runCode': 'Ctrl-Enter',
+    'clearOutput': 'Ctrl-K',
+    'showAutocomplete': 'Ctrl-Space'
 };
 
 const extensionRegistry = {};
@@ -14,7 +21,8 @@ const loadedPacks = {}; // Holds full pack info for display
 let customExtensions = [];
 let currentFileHandle = null; // Stores the handle to the currently open file
 let isDirty = false; // Tracks if there are unsaved changes
-let customThemes = []; // NEW: state for custom themes
+let customThemes = []; // state for custom themes
+let keymap = { ...defaultKeymap };
 
 const defaultThemes = [
     { name: 'Nova Dark (Default)', isDefault: true, css: `:root { --accent-color: #773ea5; --button-text-color: #ffffff; #773ea5; --accent-color-hover: #5d2d84; --text-color: #ffffff; --secondary-text-color: #888; --darker-text-color: #ccc; --danger-color: #dc3545; --danger-color-hover: #a53131; --discard-color: #676767; --discard-color-hover: #555; --background-color: #1a1a1a; --foreground-color: #212121; --panel-color: #2c2c2c; --menu-hover-color: #3e3e3e; --menu-hover-color-light: #575757; --panel-border-color: #333; --code-block-color: #333; --sidebar-color: #252526; --panel-radius: 20px; --button-radius: 20px; --popup-radius: 20px; --small-radius: 5px; --window-gap: 10px; --inner-gap: 10px; }`},
@@ -27,7 +35,6 @@ themeStyleTag.id = 'dynamic-theme-style';
 document.head.appendChild(themeStyleTag);
 
 function applyTheme(themeName, css) {
-    // Applying an empty string reverts to the default styles in the main CSS file
     themeStyleTag.textContent = css || '';
     localStorage.setItem('novaScriptActiveTheme', themeName);
 }
@@ -66,6 +73,26 @@ async function loadInitialData() {
             }
         });
     }
+}
+
+function applyKeymap(editor, keymapConfig, runBtn, clearBtn) {
+    const codeMirrorKeyMap = {
+        // Map our action names to the actual functions that perform them
+        'runCode': () => runBtn.click(),
+        'clearOutput': () => clearBtn.click(),
+        'showAutocomplete': "autocomplete" // CodeMirror's built-in command
+    };
+
+    const finalKeyMap = {};
+    for (const action in keymapConfig) {
+        const key = keymapConfig[action]; // e.g., 'Ctrl-Enter'
+        const command = codeMirrorKeyMap[action]; // e.g., () => runBtn.click()
+        if (key && command) {
+            finalKeyMap[key] = command;
+        }
+    }
+
+    editor.setOption("extraKeys", finalKeyMap);
 }
 
 async function loadDefaultExtensions() {
@@ -143,6 +170,7 @@ document.addEventListener('DOMContentLoaded', async () => { // added async may n
     const projectNameText = document.getElementById('project-name-text');
     const projectNameInput = document.getElementById('project-name-input');
     const runBtn = document.getElementById('run-btn');
+    const settingsModal = document.getElementById('settings-modal');
     const clearBtn = document.getElementById('clear-btn');
     const output = document.getElementById('output');
     const statusBar = document.getElementById('status-bar');
@@ -151,6 +179,11 @@ document.addEventListener('DOMContentLoaded', async () => { // added async may n
     const novaScriptKeywords = "fun if else for while return True False print println";
     const keywords = new Set(novaScriptKeywords.split(" "));
 
+    const savedKeymap = localStorage.getItem(STORAGE_KEYS.keymap);
+    if (savedKeymap) {
+        keymap = { ...defaultKeymap, ...JSON.parse(savedKeymap) };
+    }
+
     // --- CodeMirror Editor Initialization ---
     const editor = CodeMirror(document.getElementById('code-editor'), {
         lineNumbers: true,
@@ -158,14 +191,14 @@ document.addEventListener('DOMContentLoaded', async () => { // added async may n
         theme: 'material-darker',
         indentUnit: 2,
         tabSize: 2,
-        autoCloseBrackets: true, // Addon: Automatically close brackets and quotes
-        extraKeys: {
-            "Ctrl-Space": "autocomplete" // Addon: Trigger autocomplete with Ctrl+Space
-        }
+        autoCloseBrackets: true
     });
+
+    applyKeymap(editor, keymap, runBtn, clearBtn);
 
     const defaultCode = ``;
     editor.setValue(defaultCode.trim());
+    PluginManager.init(); // Initialize the plugin system
     loadCustomThemes();
     await loadInitialData();
     console.log("Default extensions loaded.");
@@ -179,11 +212,10 @@ document.addEventListener('DOMContentLoaded', async () => { // added async may n
         }
     }
 
-    // Load saved code or set default
+
     const savedCode = localStorage.getItem(STORAGE_KEYS.code);
     editor.setValue(savedCode || `// Welcome to NovaScript!\n// Your code and added extensions are saved automatically.\n\nx = random(1, 10)\nprintln("Random number: <x>")`);
 
-    // TODO: update to use custom popup for new code in URL
     const params = new URLSearchParams(window.location.search);
     if (params.has("code")) {
         const newCode = atob(params.get("code"));
@@ -246,12 +278,8 @@ document.addEventListener('DOMContentLoaded', async () => { // added async may n
     // --- UI Enhancement Logic ---
 
     // --- NEW: Settings Modal Logic ---
-    const settingsModal = document.getElementById('settings-modal');
     document.getElementById('settings-btn').addEventListener('click', () => {
         settingsModal.classList.add('show');
-    });
-    document.getElementById('close-settings-btn').addEventListener('click', () => {
-        settingsModal.classList.remove('show');
     });
 
     // Also, update the main window click listener to close this new modal too
@@ -510,26 +538,23 @@ document.addEventListener('DOMContentLoaded', async () => { // added async may n
         search: document.getElementById('search-panel')
     };
 
-    let activePanel = null; // Keep track of which panel is open
+    let activePanel = null;
 
     const toggleSidebarPanel = (panelName) => {
-        // If the clicked panel is already open, close everything.
         if (activePanel === panelName) {
+            //         window.activePanel = null;
+            //         window.toggleSidebarPanel = (panelName) => {
             collapsibleSidebar.style.display = 'none';
             iconSidebar.classList.remove('sidebar-panel-active');
             activePanel = null;
         } else {
-            // Otherwise, open the clicked panel.
             collapsibleSidebar.style.display = 'block';
             iconSidebar.classList.add('sidebar-panel-active');
             activePanel = panelName;
-            // Hide all panels
             Object.values(sidebarPanels).forEach(panel => panel.classList.remove('show'));
-            // Show the correct one
             sidebarPanels[panelName].classList.add('show');
         }
 
-        // Update the active state on the icon buttons
         Object.keys(iconSidebarButtons).forEach(key => {
             iconSidebarButtons[key].classList.toggle('active', key === activePanel);
         });
@@ -695,7 +720,6 @@ document.addEventListener('DOMContentLoaded', async () => { // added async may n
         document.getElementById('sidebar-add-new').style.display = 'none';
     }
     const libraryModal = document.getElementById('library-modal');
-    const pluginModal = document.getElementById('plugin-modal');
     const themeModal = document.getElementById('theme-modal');
 
     document.getElementById('library-btn').addEventListener('click', () => libraryModal.classList.add('show'));
@@ -703,7 +727,6 @@ document.addEventListener('DOMContentLoaded', async () => { // added async may n
 
     // Add close buttons for these modals
     libraryModal.querySelector('.close-btn').addEventListener('click', () => libraryModal.classList.remove('show'));
-    pluginModal.querySelector('.close-btn').addEventListener('click', () => pluginModal.classList.remove('show'));
 
     // --- NEW: Full Theme Modal Logic ---
     const themeSidebar = document.getElementById('theme-sidebar');
@@ -773,7 +796,6 @@ button {border: none;padding: 6px 12px;margin-left: 8px;font-size: 0.8rem;displa
         `;
         previewFrame.srcdoc = previewHTML;
 
-        // Update action buttons
         const actionsContainer = document.getElementById('theme-actions');
         actionsContainer.innerHTML = ''; // Clear old buttons
 
@@ -835,10 +857,231 @@ button {border: none;padding: 6px 12px;margin-left: 8px;font-size: 0.8rem;displa
         cssInput.value = '';
     });
 
-    // Update main window click listener to handle all new modals
     window.addEventListener('click', (event) => {
         if (event.target.classList.contains('modal-overlay')) {
             event.target.classList.remove('show');
+        }
+    });
+
+    const settingsSidebar = document.getElementById('settings-sidebar');
+    const settingsMainContent = document.getElementById('settings-main-content');
+    const coreSettingsTabs = ['Appearance', 'Behavior', 'Editor', 'Keymap', 'Advanced'];
+
+    document.getElementById('settings-btn').addEventListener('click', () => {
+        renderSettingsSidebar();
+        showSettingsTab('Appearance'); // Open to the keymap tab by default
+        settingsModal.classList.add('show');
+    });
+
+    const renderSettingsSidebar = () => {
+        settingsSidebar.innerHTML = '';
+        // Add core tabs
+        coreSettingsTabs.forEach(tabName => {
+            const item = document.createElement('div');
+            item.className = 'sidebar-item';
+            item.dataset.tabName = tabName;
+            item.innerHTML = `<strong>${tabName}</strong>`;
+            item.addEventListener('click', () => showSettingsTab(tabName));
+            settingsSidebar.appendChild(item);
+        });
+
+        // Add tabs for plugins that have settings
+        Object.values(PluginManager.registry).forEach(p => {
+            if (p.raw.config && p.raw.config.length > 0) {
+                const item = document.createElement('div');
+                item.className = 'sidebar-item';
+                item.dataset.tabName = p.info.id; // Use plugin ID as tab identifier
+                item.innerHTML = `<strong>${p.info.name}</strong><span>Plugin Settings</span>`;
+                item.addEventListener('click', () => showSettingsTab(p.info.id));
+                settingsSidebar.appendChild(item);
+            }
+        });
+    };
+
+    const showSettingsTab = (tabIdentifier) => {
+        settingsMainContent.innerHTML = ''; // Clear previous content
+
+        if (coreSettingsTabs.includes(tabIdentifier)) {
+            // Handle core settings tabs
+            if (tabIdentifier === 'Keymap') {
+                settingsMainContent.innerHTML = `<h2>Keymap</h2><p>Click on a keybinding to change it.</p><ul class="keymap-list" id="keymap-list"></ul>`;
+                renderKeymapTab();
+            } else {
+                settingsMainContent.innerHTML = `<h2>${tabIdentifier}</h2><p>Settings for ${tabIdentifier} will be available in a future update.</p>`;
+            }
+        } else {
+            // Handle a plugin settings tab
+            const pluginData = PluginManager.registry[tabIdentifier];
+            if (pluginData) {
+                renderPluginSettings(pluginData.raw);
+            }
+        }
+
+        // Set active state on sidebar
+        document.querySelectorAll('#settings-sidebar .sidebar-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.tabName === tabIdentifier);
+        });
+    };
+
+    const renderPluginSettings = (plugin) => {
+        settingsMainContent.innerHTML = `<h2>${plugin.info.name} Settings</h2>`;
+        // Logic to render text, checkbox, dropdown inputs from plugin.config will go here.
+        // For now, it's a placeholder.
+        settingsMainContent.innerHTML += `<p>Configuration for this plugin will be implemented soon.</p>`;
+    };
+
+    const renderKeymapTab = () => {
+        const keymapList = document.getElementById('keymap-list');
+        keymapList.innerHTML = '';
+
+        const actionLabels = {
+            runCode: 'Run Code',
+            clearOutput: 'Clear Output',
+            showAutocomplete: 'Show Autocomplete'
+        };
+
+        for (const action in keymap) {
+            const li = document.createElement('li');
+            li.className = 'keymap-item';
+
+            const label = document.createElement('span');
+            label.textContent = actionLabels[action] || action;
+
+            const keyEl = document.createElement('div');
+            keyEl.className = 'keymap-key';
+            keyEl.textContent = keymap[action];
+            keyEl.dataset.action = action;
+
+            keyEl.addEventListener('click', () => startKeyRecording(keyEl));
+
+            li.appendChild(label);
+            li.appendChild(keyEl);
+            keymapList.appendChild(li);
+        }
+    };
+
+    const startKeyRecording = (keyElement) => {
+        keyElement.textContent = 'Recording...';
+        keyElement.classList.add('is-recording');
+
+        const handleKeyDown = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const parts = [];
+            if (e.ctrlKey) parts.push('Ctrl');
+            if (e.metaKey) parts.push('Cmd'); // For Mac
+            if (e.altKey) parts.push('Alt');
+            if (e.shiftKey) parts.push('Shift');
+
+            const keyName = e.key.toUpperCase();
+            if (!['CONTROL', 'META', 'ALT', 'SHIFT'].includes(keyName)) {
+                parts.push(keyName.length === 1 ? keyName : e.key);
+            }
+
+            const newBinding = parts.join('-');
+            const action = keyElement.dataset.action;
+
+            // Update state, UI, localStorage, and CodeMirror instance
+            keymap[action] = newBinding;
+            keyElement.textContent = newBinding;
+            localStorage.setItem(STORAGE_KEYS.keymap, JSON.stringify(keymap));
+            applyKeymap(editor, keymap, runBtn, clearBtn);
+
+            keyElement.classList.remove('is-recording');
+            document.removeEventListener('keydown', handleKeyDown, true);
+        };
+
+        document.addEventListener('keydown', handleKeyDown, { capture: true, once: true });
+    };
+
+    const pluginModal = document.getElementById('plugin-modal');
+    document.getElementById('plugin-btn').addEventListener('click', () => {
+        renderPluginSidebar();
+        showAddPluginView();
+        pluginModal.classList.add('show');
+    });
+
+    const renderPluginSidebar = () => {
+        const sidebar = document.getElementById('plugin-sidebar');
+        sidebar.innerHTML = '';
+        const addItem = document.createElement('div');
+        addItem.className = 'sidebar-item';
+        addItem.id = 'sidebar-add-plugin';
+        addItem.innerHTML = `<strong>Add New Plugin</strong>`;
+        addItem.addEventListener('click', showAddPluginView);
+        sidebar.appendChild(addItem);
+
+        Object.values(PluginManager.registry).forEach(p => {
+            const item = document.createElement('div');
+            item.className = 'sidebar-item';
+            item.dataset.pluginId = p.info.id;
+            item.innerHTML = `<strong>${p.info.name}</strong><span>v${p.info.version}</span>`;
+            item.addEventListener('click', () => showPluginDetailsView(p.info.id));
+            sidebar.appendChild(item);
+        });
+    };
+
+    const showAddPluginView = () => {
+        document.getElementById('plugin-details-view').style.display = 'none';
+        document.getElementById('add-plugin-view').style.display = 'block';
+        document.querySelectorAll('#plugin-sidebar .sidebar-item').forEach(item => item.classList.remove('active'));
+        document.getElementById('sidebar-add-plugin')?.classList.add('active');
+    };
+
+    const showPluginDetailsView = (pluginId) => {
+        const pluginData = PluginManager.registry[pluginId];
+        if (!pluginData) return;
+        const plugin = pluginData.raw;
+
+        document.getElementById('plugin-detail-name').textContent = plugin.info.name;
+        document.getElementById('plugin-detail-author').textContent = plugin.info.author || 'Unknown';
+        document.getElementById('plugin-detail-version').textContent = plugin.info.version;
+        document.getElementById('plugin-detail-desc').textContent = plugin.info.description;
+
+        const componentList = document.getElementById('plugin-component-list');
+        componentList.innerHTML = '';
+        plugin.ui?.sidebar?.forEach(panel => {
+            componentList.innerHTML += `<li>Sidebar Panel: ${panel.name}</li>`;
+        });
+        // Future: Add other UI components here
+
+        const actions = document.getElementById('plugin-actions');
+        actions.innerHTML = `
+            <button id="toggle-plugin-btn">${pluginData.enabled ? 'Disable' : 'Enable'}</button>
+            <button id="remove-plugin-btn" style="background-color: var(--danger-color, #dc3545)">Remove</button>
+        `;
+        actions.querySelector('#toggle-plugin-btn').addEventListener('click', () => {
+            pluginData.enabled ? PluginManager.disablePlugin(pluginId) : PluginManager.enablePlugin(pluginId);
+            showPluginDetailsView(pluginId); // Re-render to update button text
+        });
+        actions.querySelector('#remove-plugin-btn').addEventListener('click', () => {
+            if (confirm(`Are you sure you want to remove the "${plugin.info.name}" plugin?`)) {
+                PluginManager.removePlugin(pluginId);
+                renderPluginSidebar();
+                showAddPluginView();
+            }
+        });
+
+        document.getElementById('add-plugin-view').style.display = 'none';
+        document.getElementById('plugin-details-view').style.display = 'block';
+        document.querySelectorAll('#plugin-sidebar .sidebar-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.pluginId === pluginId);
+        });
+    };
+
+    document.getElementById('add-plugin-btn').addEventListener('click', () => {
+        const jsonInput = document.getElementById('plugin-json-input');
+        const errorDisplay = document.getElementById('plugin-error');
+        errorDisplay.textContent = '';
+        try {
+            PluginManager.addPlugin(jsonInput.value);
+            renderPluginSidebar();
+            const newPlugin = JSON.parse(jsonInput.value);
+            showPluginDetailsView(newPlugin.info.id);
+            jsonInput.value = '';
+        } catch (e) {
+            errorDisplay.textContent = e.message;
         }
     });
 });
