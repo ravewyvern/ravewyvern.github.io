@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LunaCode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="icon" href="icons/LunaCode-logo.png" type="image/svg+xml">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+
+<div class="top-bar">
+    <img src="icons/LunaCode-logo.png" alt="LunaCode Logo" class="logo">
+    <div class="project-menu" id="project-menu">
+        <span class="material-icons">code</span>
+        <span id="project-name-text">Untitled</span>
+        <input type="text" id="project-name-input" />
+    </div>
+    <div class="menu-bar">
+        <div class="dropdown">
+            <button class="dropdown" id="file-btn"><span style="text-decoration: underline">F</span>ile</button>
+            <div id="file-dropdown" class="dropdown-content">
+                <a href="#" id="new-file-btn">New File</a>
+                <a href="#" id="open-file-btn">Open File</a>
+                <a href="#" id="save-file-btn">Save</a>
+                <a href="#" id="save-as-file-btn">Save As...</a>
+                <a href="#" id="export-url-btn">Export to URL</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="dropdown" id="edit-btn"><span style="text-decoration: underline">E</span>dit</button>
+            <div id="edit-dropdown" class="dropdown-content">
+                <a href="#" id="undo-btn">Undo</a>
+                <a href="#" id="redo-btn">Redo</a>
+                <a href="#" id="cut-btn">Cut</a>
+                <a href="#" id="copy-btn">Copy</a>
+                <a href="#" id="paste-btn">Paste</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="dropdown" id="addon-btn"><span style="text-decoration: underline">A</span>ddons</button>
+            <div id="addon-dropdown" class="dropdown-content">
+                <a href="#" id="plugin-btn">Plugins</a>
+                <a href="#" id="theme-btn">Themes</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="dropdown" id="help-btn"><span style="text-decoration: underline">H</span>elp</button>
+            <div id="help-dropdown" class="dropdown-content">
+                <a href="https://ravewyvern.me/">Docs</a>
+                <a href="#" id="about-btn">About</a>
+            </div>
+        </div>
+    </div>
+    <div class="controls">
+        <button id="run-btn"><span class="material-icons">play_arrow</span> Run</button>
+        <button id="clear-btn"><span class="material-icons">clear_all</span> Clear Output</button>
+        <button id="settings-btn"><span class="material-icons">settings</span></button>
+        <button id="search">Open search</button>
+        <input type="button" id="saveState" onclick="saveState()" value="Save State">
+        <select id="states"></select>
+        <input type="button" id="loadState" onclick="loadState()" value="Load State">
+        <input type="checkbox" id="oneDark" name="oneDark" onchange="changeTheme()">
+        <label for="oneDark">Toggle <a href="https://github.com/codemirror/theme-one-dark">One Dark</a> Theme</label>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="icon-sidebar" id="icon-sidebar">
+        <span class="material-icons" title="Files" id="sidebar-files-btn">folder</span>
+        <span class="material-icons" title="Search" id="sidebar-search-btn">search</span>
+    </div>
+    <div class="collapsible-sidebar" id="collapsible-sidebar">
+        <div class="sidebar-panel" id="files-panel">
+            <div class="sidebar-panel-header">
+                <h3>Files</h3>
+            </div>
+        </div>
+        <div class="sidebar-panel" id="search-panel">
+            <div class="sidebar-panel-header">
+                <h3>Search</h3>
+            </div>
+        </div>
+    </div>
+    <div class="editor-container">
+        <div id="editor"></div>
+    </div>
+
+    <div class="resizer" id="resizer"></div>
+    <div class="output-container">
+        <pre id="output" style="margin-bottom: 0;margin-top: 0;"></pre>
+    </div>
+</div>
+<div class="status-bar" id="status-bar">
+    <span>Ln 1, Col 1</span>
+</div>
+
+<div id="about-modal" class="modal-overlay">
+    <div class="modal-content">
+        <span class="close-btn" id="close-about-btn"></span>
+        <img src="icons/LunaCode-logo.png" alt="NovaScript Logo">
+        <h2>LunaCode</h2>
+        <p>Version 0.5.2</p>
+        <p>A fully featured web based programming IDE</p>
+    </div>
+</div>
+
+<input type="file" id="file-opener-fallback" style="display: none;" accept=".ns,text/plain">
+
+<div id="confirm-modal" class="modal-overlay">
+    <div id="confirm-modal-content" class="modal-content" style="flex-direction: column; max-width: 450px; min-height: auto;">
+        <div class="modal-header" style="padding-bottom: 10px; border: none;">
+            <h2 id="confirm-title">Unsaved Changes</h2>
+        </div>
+        <p id="confirm-message" style="padding: 0 20px;">Do you want to save the changes you made to the project "<span id="confirm-project-name"></span>"?</p>
+        <div class="controls" style="padding: 15px 20px; margin-top: auto; justify-content: flex-end;">
+            <button id="confirm-cancel-btn">Cancel</button>
+            <button id="confirm-dont-save-btn">Don't Save</button>
+            <button id="confirm-save-btn">Save</button>
+        </div>
+    </div>
+</div>
+
+<div id="settings-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-sidebar" id="settings-sidebar"></div>
+        <div class="modal-main-content" id="settings-main-content">
+        </div>
+    </div>
+</div>
+
+<div id="theme-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-sidebar" id="theme-sidebar">
+        </div>
+        <div class="modal-main-content">
+            <div id="theme-details-view" style="display: flex; flex-direction: column; height: 100%;">
+                <h2 id="theme-detail-name"></h2>
+                <div id="theme-preview-pane">
+                    <iframe id="theme-preview-iframe"></iframe>
+                </div>
+                <div id="theme-actions" style="margin-top: 15px;"></div>
+            </div>
+            <div id="add-theme-view">
+                <h3>Add New Theme</h3>
+                <p>Give your theme a name and paste in the CSS content below.</p>
+                <input type="text" id="new-theme-name" placeholder="My Awesome Theme" style="width: 100%; margin-bottom: 10px; padding: 8px; background: #252526; border: 1px solid #333; color: white; border-radius: 4px;">
+                <textarea id="theme-css-input" placeholder="/* CSS variables go here */\n:root {\n  --header-height: 50px;\n}" style="height: 250px;"></textarea>
+                <button id="add-theme-btn" style="margin-top: 10px;">Add Theme</button>
+                <p id="theme-error" style="color: var(--danger-color);"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="main.js"></script>
+<script src="cm6.bundle.js"></script>
+<script>
+    const statesEl = document.getElementById("states");
+    const saveStateEl = document.getElementById("saveState");
+    const loadStateEl = document.getElementById("loadState");
+    const oneDarkEl = document.getElementById("oneDark");
+    // Create an initial state for the view
+    const initialState = cm6.createEditorState("function foo() {\n    console.log(123);\n}");
+    const view = cm6.createEditorView(initialState, document.getElementById("editor"));
+    let states = { "Initial State": initialState };
+
+    view.setState(initialState);
+
+    let button = document.querySelector("#search");
+    button.addEventListener("click", () => {
+        cm6.openSearchPanel(view);
+    })
+
+    function populateSelect() {
+        statesEl.innerHTML = "";
+
+        for (let key of Object.keys(states)) {
+            var option = document.createElement("option");
+            option.value = key;
+            option.text = key;
+            statesEl.appendChild(option);
+        }
+    }
+
+    function changeTheme() {
+        let options = {
+            oneDark: oneDarkEl.checked,
+        };
+
+        let newState = cm6.createEditorState(view.state.doc, options);
+        view.setState(newState);
+    }
+
+    let stateNum = 1;
+    function saveState() {
+        let stateName = `Saved State ${stateNum++}`;
+        states[stateName] = view.state;
+        populateSelect();
+        statesEl.value = stateName;
+    }
+
+    function loadState() {
+        view.setState(states[statesEl.value])
+    }
+
+    populateSelect();
+</script>
+</body>
+</html>
