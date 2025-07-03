@@ -19,7 +19,7 @@ let customThemes = [];
 let keymap = { ...defaultKeymap };
 
 const defaultThemes = [
-    {name: 'Dark Night (Default)', isDefault: false, css: `:root { --accent-color: #6e57ff; --accent-color-hover: #4e3dcc; --button-text-color: #ffffff; --text-color: #e0e0ff; --secondary-text-color: #9f9fcf; --darker-text-color: #bcbce0; --danger-color: #ff4d6d; --danger-color-hover: #cc3a53; --discard-color: #666688; --discard-color-hover: #4d4d66; --background-color: #050505; --foreground-color: #0d0d0f; --panel-color: #111118; --menu-hover-color: #1a1a22; --menu-hover-color-light: #2a2a38; --panel-border-color: #222234; --code-block-color: #1a1a2a; --sidebar-color: #0a0a12; --panel-radius: 20px; --button-radius: 20px; --popup-radius: 20px; --small-radius: 5px; --window-gap: 10px; --inner-gap: 10px; }`},
+    {name: 'Dark Night (Default)', isDefault: true, css: `:root { --accent-color: #6e57ff; --accent-color-hover: #4e3dcc; --button-text-color: #ffffff; --text-color: #e0e0ff; --secondary-text-color: #9f9fcf; --darker-text-color: #bcbce0; --danger-color: #ff4d6d; --danger-color-hover: #cc3a53; --discard-color: #666688; --discard-color-hover: #4d4d66; --background-color: #050505; --foreground-color: #0d0d0f; --panel-color: #111118; --menu-hover-color: #1a1a22; --menu-hover-color-light: #2a2a38; --panel-border-color: #222234; --code-block-color: #1a1a2a; --sidebar-color: #0a0a12; --panel-radius: 20px; --button-radius: 20px; --popup-radius: 20px; --small-radius: 5px; --window-gap: 10px; --inner-gap: 10px; }`},
     { name: 'Nova Dark', isDefault: true, css: `:root { --accent-color: #773ea5; --button-text-color: #ffffff; #773ea5; --accent-color-hover: #5d2d84; --text-color: #ffffff; --secondary-text-color: #888; --darker-text-color: #ccc; --danger-color: #dc3545; --danger-color-hover: #a53131; --discard-color: #676767; --discard-color-hover: #555; --background-color: #1a1a1a; --foreground-color: #212121; --panel-color: #2c2c2c; --menu-hover-color: #3e3e3e; --menu-hover-color-light: #575757; --panel-border-color: #333; --code-block-color: #333; --sidebar-color: #252526; --panel-radius: 20px; --button-radius: 20px; --popup-radius: 20px; --small-radius: 5px; --window-gap: 10px; --inner-gap: 10px; }`},
     {name: 'Nova Light', isDefault: true, css: `:root { --accent-color: #773ea5; --button-text-color: #ffffff; --accent-color-hover: #5d2d84; --text-color: #000000; --secondary-text-color: #555; --darker-text-color: #333; --danger-color: #dc3545; --danger-color-hover: #a53131; --discard-color: #aaa; --discard-color-hover: #888; --background-color: #f4f4f4; --foreground-color: #ffffff; --panel-color: #eaeaea; --menu-hover-color: #dcdcdc; --menu-hover-color-light: #c0c0c0; --panel-border-color: #ccc; --code-block-color: #ddd; --sidebar-color: #f0f0f0; --panel-radius: 20px; --button-radius: 20px; --popup-radius: 20px; --small-radius: 5px; --window-gap: 10px; --inner-gap: 10px; }`},
     {name: 'Nova Black', isDefault: true, css: `:root { --accent-color: #773ea5; --button-text-color: #ffffff; --accent-color-hover: #5d2d84; --text-color: #ffffff; --secondary-text-color: #999; --darker-text-color: #aaa; --danger-color: #dc3545; --danger-color-hover: #a53131; --discard-color: #888; --discard-color-hover: #666; --background-color: #000000; --foreground-color: #0a0a0a; --panel-color: #111111; --menu-hover-color: #1a1a1a; --menu-hover-color-light: #222222; --panel-border-color: #1c1c1c; --code-block-color: #1c1c1c; --sidebar-color: #0d0d0d; --panel-radius: 20px; --button-radius: 20px; --popup-radius: 20px; --small-radius: 5px; --window-gap: 10px; --inner-gap: 10px; }`},
@@ -48,7 +48,6 @@ document.addEventListener('DOMContentLoaded', async () => { // added async may n
     const projectNameInput = document.getElementById('project-name-input');
     const runBtn = document.getElementById('run-btn');
     const settingsModal = document.getElementById('settings-modal');
-    const clearBtn = document.getElementById('clear-btn');
 
     const defaultCode = ``;
     loadCustomThemes();
@@ -117,10 +116,12 @@ document.addEventListener('DOMContentLoaded', async () => { // added async may n
         });
     }
 
+    const editorContainer = document.querySelector('.editor-container');
     setupDropdown('file-btn', 'file-dropdown');
     setupDropdown('edit-btn', 'edit-dropdown');
     setupDropdown('addon-btn', 'addon-dropdown');
     setupDropdown('help-btn', 'help-dropdown');
+    setupDropdown('state-btn', 'state-dropdown');
     window.addEventListener('click', (event) => {
         if (!event.target.matches('.dropdown button')) {
             document.querySelectorAll('.dropdown-content').forEach(d => {

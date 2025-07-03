@@ -45,6 +45,16 @@
             <div id="addon-dropdown" class="dropdown-content">
                 <a href="#" id="plugin-btn">Plugins</a>
                 <a href="#" id="theme-btn">Themes</a>
+                <input type="checkbox" id="oneDark" name="oneDark" onchange="changeTheme()">
+                <label for="oneDark">Dark Theme</label>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="dropdown" id="state-btn"><span style="text-decoration: underline">S</span>tate</button>
+            <div id="state-dropdown" class="dropdown-content">
+                <input type="button" id="saveState" onclick="saveState()" value="Save State">
+                <select id="states"></select>
+                <input type="button" id="loadState" onclick="loadState()" value="Load State">
             </div>
         </div>
         <div class="dropdown">
@@ -57,14 +67,8 @@
     </div>
     <div class="controls">
         <button id="run-btn"><span class="material-icons">play_arrow</span> Run</button>
-        <button id="clear-btn"><span class="material-icons">clear_all</span> Clear Output</button>
         <button id="settings-btn"><span class="material-icons">settings</span></button>
-        <button id="search">Open search</button>
-        <input type="button" id="saveState" onclick="saveState()" value="Save State">
-        <select id="states"></select>
-        <input type="button" id="loadState" onclick="loadState()" value="Load State">
-        <input type="checkbox" id="oneDark" name="oneDark" onchange="changeTheme()">
-        <label for="oneDark">Toggle <a href="https://github.com/codemirror/theme-one-dark">One Dark</a> Theme</label>
+        <button id="search"><span class="material-icons">search</span>Search</button>
     </div>
 </div>
 
@@ -158,56 +162,6 @@
 
 <script src="main.js"></script>
 <script src="cm6.bundle.js"></script>
-<script>
-    const statesEl = document.getElementById("states");
-    const saveStateEl = document.getElementById("saveState");
-    const loadStateEl = document.getElementById("loadState");
-    const oneDarkEl = document.getElementById("oneDark");
-    // Create an initial state for the view
-    const initialState = cm6.createEditorState("function foo() {\n    console.log(123);\n}");
-    const view = cm6.createEditorView(initialState, document.getElementById("editor"));
-    let states = { "Initial State": initialState };
-
-    view.setState(initialState);
-
-    let button = document.querySelector("#search");
-    button.addEventListener("click", () => {
-        cm6.openSearchPanel(view);
-    })
-
-    function populateSelect() {
-        statesEl.innerHTML = "";
-
-        for (let key of Object.keys(states)) {
-            var option = document.createElement("option");
-            option.value = key;
-            option.text = key;
-            statesEl.appendChild(option);
-        }
-    }
-
-    function changeTheme() {
-        let options = {
-            oneDark: oneDarkEl.checked,
-        };
-
-        let newState = cm6.createEditorState(view.state.doc, options);
-        view.setState(newState);
-    }
-
-    let stateNum = 1;
-    function saveState() {
-        let stateName = `Saved State ${stateNum++}`;
-        states[stateName] = view.state;
-        populateSelect();
-        statesEl.value = stateName;
-    }
-
-    function loadState() {
-        view.setState(states[statesEl.value])
-    }
-
-    populateSelect();
-</script>
+<script src="code.js"></script>
 </body>
 </html>

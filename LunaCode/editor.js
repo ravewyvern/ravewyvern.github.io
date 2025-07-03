@@ -4,6 +4,10 @@ import { indentWithTab, history, defaultKeymap, historyKeymap } from '@codemirro
 import { foldGutter, indentOnInput, indentUnit, bracketMatching, foldKeymap, syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language';
 import { closeBrackets, autocompletion, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete';
 import { lineNumbers, highlightActiveLineGutter, highlightSpecialChars, drawSelection, dropCursor, rectangularSelection, crosshairCursor, highlightActiveLine, keymap, EditorView } from '@codemirror/view';
+import CodeMirror from '@uiw/react-codemirror';
+import { color, colorView, colorTheme } from '@uiw/codemirror-extensions-color';
+import { hyperLink } from '@uiw/codemirror-extensions-hyper-link';
+import { indentationMarkers } from '@replit/codemirror-indentation-markers';
 
 // Theme
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -42,6 +46,11 @@ function createEditorState(initialContents, options = {}) {
         javascript(),
         html(),
         css(),
+        color(),
+        colorView(),
+        colorTheme(),
+        hyperLink(),
+        indentationMarkers(),
         syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
     ];
 
