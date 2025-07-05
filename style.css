@@ -1,60 +1,418 @@
-body {
-    background: black;
-}
+/* Import a nice font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
-.navbar { /* main navbar thingy*/
-    width: auto;
-    height: 50px;
-    background: #333333;
-    border-radius: 3rem;
-    margin: 6px 6px 20px 6px;
-    padding: 5px;
-}
-
-.tile {
-
-}
-
-p, h1, h2, h3, h4, h5, h6 {
-    color: white; /* make the text oposite the website*/
-}
-
-.nav-left {
-    float: left;
-}
-
-.nav-right {
-    float: right;
-}
-
-.navbar a {
-    display: inline-flex;
-    align-items: center;      /* vertical center */
-    justify-content: center;  /* horizontal center (optional) */
-    height: 50px;            /* set a height to center within */
-    text-decoration: none;
-    color: white;
-    padding-right: 10px;
-    padding-left: 10px;
-}
-
-.container {
+#main-content {
     display: grid;
-    gap: 10px;
-    grid-template-columns: auto /* im in the middle*/auto auto;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto auto; /* Let rows size automatically */
+    gap: 20px;
+    padding: 20px;
+    width: 80%;
+    height: 600px;
+    margin: 0 auto; /* Center horizontally */
+    max-width: 1100px;
 }
 
-.tile {
-    width: auto;
-    background: #333333;
-    height: 200px;
+/* Initial Grid Positions for Windows */
+#about-window {
+    grid-column: 1 / 2;
+    grid-row: 1 / 3; /* Span 2 rows */
+    height: auto; /* Let grid control height */
+}
+#description-window {
+    grid-column: 2 / 4; /* Span 2 columns */
+    grid-row: 1 / 2;
+    height: auto; /* Let grid control height */
+}
+#terminal-window {
+    grid-column: 2 / 4; /* Span 2 columns */
+    grid-row: 2 / 3;
+    height: auto; /* Let grid control height */
+}
+
+/* Define color themes */
+:root {
+    --bg-color: #f0f0f0;
+    --window-bg-color: #ffffff;
+    --text-color: #1a1a1a;
+    --accent-color: #e91e63; /* Pink */
+    --navbar-bg-color: rgba(255, 255, 255, 0.8);
+    --shadow-color: rgba(0, 0, 0, 0.15);
+    --title-bar-color: #eeeeee;
+}
+
+[data-theme='dark'] {
+    --bg-color: #121212;
+    --window-bg-color: #1e1e1e;
+    --text-color: #e0e0e0;
+    --accent-color: #9c27b0; /* Purple */
+    --navbar-bg-color: rgba(30, 30, 30, 0.8);
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    --title-bar-color: #2a2a2a;
+}
+
+/* General Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding-top: 80px; /* Space for navbar */
+    transition: background-color 0.3s, color 0.3s;
+    overflow: hidden; /* Prevent body scrollbars */
+}
+
+/* Navbar Styles */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 1200px;
+    background-color: var(--navbar-bg-color);
+    backdrop-filter: blur(10px);
     border-radius: 30px;
-    align-content: center;
+    padding: 8px 15px;
+    box-shadow: 0 4px 20px var(--shadow-color);
+    z-index: 1000;
 }
 
-.tile img {
+.nav-left, .nav-center, .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    border-radius: 20px;
+    text-decoration: none;
+    color: var(--text-color);
+    background-color: transparent;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.nav-button:hover, .nav-button.active {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+#theme-switcher {
+    font-size: 1.2rem;
+}
+#theme-switcher .material-icons-outlined {
+    font-size: 20px;
+}
+
+/* Floating Window Styles */
+.window {
+    position: relative;
+    background-color: var(--window-bg-color);
+    box-shadow: 0 8px 30px var(--shadow-color);
+    border-radius: 12px;
+    min-width: 250px;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 10;
+}
+.title-bar {
+    background-color: var(--title-bar-color);
+    padding: 8px 12px;
+    font-weight: 500;
+    cursor: move;
+    user-select: none;
+}
+
+.window .content {
+    padding: 15px;
+    flex-grow: 1; /* Allows content to fill space */
+    overflow-y: auto;
+}
+
+.resizer {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    z-index: 11; /* Ensure handles are on top */
+}
+.resizer.top-left { top: -7px; left: -7px; width: 16px; height: 16px; cursor: nwse-resize; }
+.resizer.top-right { top: -7px; right: -7px; width: 16px; height: 16px; cursor: nesw-resize; }
+.resizer.bottom-left { bottom: -7px; left: -7px; width: 16px; height: 16px; cursor: nesw-resize; }
+.resizer.bottom-right { bottom: -7px; right: -7px; width: 16px; height: 16px; cursor: nwse-resize; }
+/* ... keep the top, bottom, left, right styles the same */
+.resizer.top { top: -5px; left: 50%; transform: translateX(-50%); width: 100%; cursor: n-resize; }
+.resizer.bottom { bottom: -5px; left: 50%; transform: translateX(-50%); width: 100%; cursor: s-resize; }
+.resizer.left { top: 50%; left: -5px; transform: translateY(-50%); height: 100%; cursor: w-resize; }
+.resizer.right { top: 50%; right: -5px; transform: translateY(-50%); height: 100%; cursor: e-resize; }
+/* About Window Content */
+#about-content {
+    text-align: center;
+}
+.profile-pic {
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
-    width: 200px;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 3px solid var(--accent-color);
+}
+.profile-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+.profile-pronouns {
+    font-style: italic;
+    margin-bottom: 20px;
+}
+.social-links a {
+    color: var(--text-color);
+    text-decoration: none;
+    margin: 0 10px;
+    font-size: 1.8rem;
+    transition: color 0.2s;
+}
+.social-links a:hover {
+    color: var(--accent-color);
+}
+
+/* Skills Window Content */
+#skills-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+.skill-icon {
+    width: 50px;
+    height: 50px;
+}
+.skill-item .tooltip {
+    visibility: hidden;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 8px;
     padding: 10px;
-    opacity: 0.8;
+    position: absolute;
+    z-index: 1;
+    bottom: 140%; /* Position above the icon */
+    left: 50%;
+    transform: translateX(-50%) translateY(10px); /* Start slightly down */
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    width: 200px;
+    pointer-events: none;
+}
+.skill-item .tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+.skill-item.show-tooltip .tooltip {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0); /* Move to final position */
+}
+.tooltip-title {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+.tooltip-info {
+    font-size: 0.9rem;
+}
+
+/* Terminal Window Styles */
+#terminal-content {
+    background-color: #000;
+    color: #0f0;
+    font-family: 'Courier New', Courier, monospace;
+    flex-grow: 1;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+#terminal-output {
+    flex-grow: 1;
+    word-break: break-all;
+}
+.terminal-input-line {
+    display: flex;
+}
+#terminal-input {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    color: #0f0;
+    outline: none;
+}
+#terminal-output .echo {
+    color: #fff;
+}
+
+/* Floating Skills Styles */
+#skills-container {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    padding: 10px;
+    background-color: var(--navbar-bg-color);
+    backdrop-filter: blur(10px);
+    border-radius: 50px;
+    box-shadow: 0 4px 20px var(--shadow-color);
+    z-index: 999;
+}
+.skill-item {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    background-color: var(--window-bg-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+.skill-item:hover {
+    transform: translateY(-5px);
+}
+.skill-icon {
+    width: 30px;
+    height: 30px;
+}
+
+/* Responsive Navbar Styles */
+.mobile-menu {
+    display: none; /* Hidden by default */
+    position: relative;
+}
+.dropdown-menu {
+    display: none; /* Hidden by default */
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background-color: var(--window-bg-color);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px var(--shadow-color);
+    overflow: hidden;
+    width: 200px;
+}
+.dropdown-menu.show {
+    display: block;
+}
+.dropdown-menu a {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 20px;
+    text-decoration: none;
+    color: var(--text-color);
+}
+.dropdown-menu a:hover {
+    background-color: var(--accent-color);
+    color: #fff;
+}
+
+/* Media Query for mobile */
+@media (max-width: 768px) {
+    body {
+        overflow: auto; /* Allow scrolling on mobile */
+    }
+    .nav-center, .contact-button {
+        display: none;
+    }
+    .mobile-menu {
+        display: block;
+    }
+    #main-content {
+        display: block; /* Change from grid to block for simple stacking */
+        height: auto;
+    }
+    .window {
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        width: 90vw !important;
+        height: auto;
+        margin: 0 auto 20px auto; /* Center and space out windows */
+    }
+}
+
+/* About Window - Vertical Social Links */
+.social-links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align to the left */
+    gap: 15px;
+    margin-top: 20px;
+    width: 100%;
+}
+.social-links a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: color 0.2s;
+}
+.social-links a:hover {
+    color: var(--accent-color);
+}
+.social-links i {
+    font-size: 1.5rem;
+    width: 25px; /* Give icon a fixed width */
+    text-align: center;
+}
+
+/* Styles for the "More Skills" popup */
+#skills-more-container {
+    position: relative;
+    display: none; /* Hidden by default, shown by JS */
+}
+
+#skills-popup {
+    visibility: hidden;
+    position: absolute;
+    bottom: 120%; /* Position above the "more" button */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px;
+    background-color: var(--window-bg-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px var(--shadow-color);
+    width: 250px; /* Or max-content */
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+#skills-popup.show {
+    visibility: visible;
+    opacity: 1;
 }

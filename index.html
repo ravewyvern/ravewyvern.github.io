@@ -2,25 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Rave's Website</title>
-  <link rel="icon" href="icons/mypfp.png" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" /></head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <script src="scripts.js" defer></script>
+</head>
 <body>
-<div class="navbar">
+
+<nav class="navbar">
   <div class="nav-left">
-    <a href="#"><span class="material-symbols-outlined">home</span>Home</a>
+    <a href="#" class="nav-button active"><span class="material-icons-outlined">home</span>Home</a>
   </div>
-    <div class="nav-right">
-      <a href="#"><span class="material-symbols-outlined"> account_circle </span>About</a>
-      <a href="#"><span class="material-symbols-outlined"> team_dashboard </span>Projects</a>
+  <div class="nav-center">
+    <a href="#" class="nav-button"><span class="material-icons-outlined">photo_camera</span>Photos</a>
+    <a href="#" class="nav-button"><span class="material-icons-outlined">apps</span>Projects</a>
+  </div>
+  <div class="nav-right">
+    <a href="#" class="nav-button contact-button"><span class="material-icons-outlined">email</span>Contact</a>
+    <button id="theme-switcher" class="nav-button">
+      <span class="material-icons-outlined">dark_mode</span>
+    </button>
+    <div class="mobile-menu">
+      <button id="menu-toggle" class="nav-button">
+        <span class="material-icons-outlined">menu</span>
+      </button>
+      <div class="dropdown-menu">
+        <a href="#"><span class="material-icons-outlined">photo_camera</span>Photos</a>
+        <a href="#"><span class="material-icons-outlined">apps</span>Projects</a>
+        <a href="#"><span class="material-icons-outlined">email</span>Contact</a>
+      </div>
     </div>
-</div>
-<div class="container">
-  <div class="tile"><img src="icons/mypfp.png" alt="My profile picture containing a rainbow dragon" style="opacity: 80%;"></div>
-  <div class="tile"><p>2</p></div>
+  </div>
+</nav>
+
+<main id="main-content">
+
+  <div class="window" id="about-window">
+    <div class="title-bar">About</div>
+    <div class="content" id="about-content">
+    </div>
+  </div>
+
+  <div class="window" id="description-window">
+    <div class="title-bar">Description</div>
+    <div class="content" id="description-content">
+    </div>
+  </div>
+
+  <div class="window" id="terminal-window">
+    <div class="title-bar">Terminal</div>
+    <div class="content" id="terminal-content">
+      <div id="terminal-output"></div>
+      <div class="terminal-input-line">
+        <span>&gt;</span>
+        <div id="terminal-input" contenteditable="true"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+
+<div id="skills-container">
 </div>
 
-<script src="scripts.js"></script>
 </body>
 </html>
