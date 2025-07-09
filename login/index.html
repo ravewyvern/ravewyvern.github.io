@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: url('background.png') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    .blur-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(8px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-container {
+
+      padding: 30px;
+      text-align: center;
+      color: white;
+    }
+
+    .profile-img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin-bottom: 10px;
+    }
+
+    .profile-name {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    input {
+      padding: 10px;
+      width: 80%;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+  background-color: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.5);
+    color: white;
+    }
+
+    .error-message {
+      color: red;
+      margin-top: 10px;
+    }
+
+    .menu-button {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      padding: 8px 14px;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .menu-popup {
+      position: fixed;
+      bottom: 60px;
+      left: 20px;
+      background-color: rgba(0,0,0,0.9);
+      padding: 15px;
+      border-radius: 10px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 2;
+    }
+
+    .menu-popup button {
+      padding: 8px;
+      background-color: #444;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+    .switcher {
+      position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: rgba(255,255,255,0.1);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+    }
+    .topcons {
+      position: fixed;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 12px;
+  z-index: 3;
+    }
+    .notibar {
+      position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(255,255,255,0.1);
+  color: white;
+  padding: 10px 350px 10px 10px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  margin: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Blur + Login -->
+<div class="blur-overlay" id="blur">
+  <div class="login-container" id="login-box">
+    <img src="egg.png" alt="Profile" class="profile-img">
+    <div class="profile-name">ravewyvern</div>
+<div style="position: relative; width: 80%;">
+  <input type="password" id="password" placeholder="Password" style="width: 100%; padding-right: 40px;">
+  <span class="material-icons" onclick="togglePassword()" style="position: absolute; right: -40px; top: 50%; transform: translateY(-50%); cursor: pointer; color: white;">
+    visibility
+  </span>
+</div>
+    <div class="error-message" id="error"></div>
+  </div>
+</div>
+    <button class="switcher" id="switcher">
+  <span class="material-icons" style="color: white;">group</span>
+</button>
+    <div class="notibar" id="notibar">
+  <img src="org.webp" alt="Icon" style="width: 35px; height: 35px;">
+  <span>Extentions</span>
+</div>
+      <div class="topcons" id="topcons">
+  <span class="material-icons" style="color: white; cursor: pointer;">wifi</span>
+  <span class="material-icons" style="color: white; cursor: pointer;">volume_up</span>
+  <span class="material-icons" style="color: white; cursor: pointer;">power_settings_new</span>
+</div>
+
+
+
+
+<!-- Menu Button -->
+<button class="menu-button" onclick="toggleMenu()">☰</button>
+
+<!-- Popup Menu -->
+<div class="menu-popup" id="menu-popup">
+  <p style="color: white;">TURN ON CAFFINE</p>
+  <button onclick="toggleFullscreen()">Toggle Fullscreen</button>
+  <button onclick="hideLogin()">Hide Login</button>
+  <button onclick="hideMenu()">Hide Menu</button>
+  <button onclick="setFakeTimeout()">Set Fake Timeout</button>
+</div>
+      <div id="timeoutOverlay" style="
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: black;
+  z-index: 9999;
+  cursor: none;
+"></div>
+
+
+<script>
+  const passwordInput = document.getElementById('password');
+  const errorMessage = document.getElementById('error');
+  const loginBox = document.getElementById('login-box');
+  const blurOverlay = document.getElementById('blur');
+  const menuPopup = document.getElementById('menu-popup');
+  const switcher = document.getElementById('switcher');
+  const notibar = document.getElementById('notibar');
+  const topcons = document.getElementById('topcons');
+
+  passwordInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      errorMessage.textContent = "Incorrect password. Try again.";
+    }
+  });
+
+  function toggleMenu() {
+    menuPopup.style.display = menuPopup.style.display === 'flex' ? 'none' : 'flex';
+  }
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.log("Failed to enter fullscreen:", err);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  }
+  function togglePassword() {
+  const input = document.getElementById("password");
+  input.type = input.type === "password" ? "text" : "password";
+}
+
+
+  function hideLogin() {
+    loginBox.classList.add('hidden');
+      switcher.classList.add('hidden');
+      notibar.classList.add('hidden');
+      topcons.classList.add('hidden');
+    menuPopup.style.display = 'none';
+  }
+
+  function hideMenu() {
+    document.querySelector('.menu-button').classList.add('hidden');
+    menuPopup.style.display = 'none';
+  }
+  let timeoutSeconds = 0;
+let timeoutTimer;
+let lastActivity = Date.now();
+
+function setFakeTimeout() {
+  const input = prompt("Set timeout in seconds (0 to disable):", timeoutSeconds);
+  timeoutSeconds = parseInt(input);
+  if (isNaN(timeoutSeconds) || timeoutSeconds < 0) timeoutSeconds = 0;
+
+  if (timeoutSeconds > 0) {
+    startFakeTimeoutWatcher();
+  } else {
+    clearInterval(timeoutTimer);
+    document.getElementById('timeoutOverlay').style.display = 'none';
+    document.body.style.cursor = 'default';
+  }
+}
+
+function startFakeTimeoutWatcher() {
+  lastActivity = Date.now();
+  if (timeoutTimer) clearInterval(timeoutTimer);
+
+  document.onmousemove = document.onkeydown = () => {
+    if (document.getElementById('timeoutOverlay').style.display === 'block') {
+      document.getElementById('timeoutOverlay').style.display = 'none';
+      document.body.style.cursor = 'default';
+    }
+    lastActivity = Date.now();
+  };
+
+  timeoutTimer = setInterval(() => {
+    if (timeoutSeconds === 0) return;
+    if (Date.now() - lastActivity >= timeoutSeconds * 1000) {
+      document.getElementById('timeoutOverlay').style.display = 'block';
+      document.body.style.cursor = 'none';
+    }
+  }, 1000);
+}
+
+</script>
+
+</body>
+</html>
+
