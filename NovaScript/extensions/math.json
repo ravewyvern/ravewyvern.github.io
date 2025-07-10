@@ -2,7 +2,7 @@
   "info": {
     "id": "math",
     "name": "Math Utilities",
-    "version": "1.1",
+    "version": "1.2",
     "author": "NovaScript Team",
     "description": "Provides basic math and random number generation functions for NovaScript."
   },
@@ -23,6 +23,48 @@
       "name": "abs",
       "inputs": ["num"],
       "javascript": "return Math.abs(num);",
+      "returns": "number"
+    },
+    {
+      "name": "sqrt",
+      "inputs": ["num"],
+      "javascript": "return Math.sqrt(num);",
+      "returns": "number"
+    },
+    {
+      "name": "round",
+      "inputs": ["num"],
+      "javascript": "return Math.round(num);",
+      "returns": "integer"
+    },
+    {
+      "name": "floor",
+      "inputs": ["num"],
+      "javascript": "return Math.floor(num);",
+      "returns": "integer"
+    },
+    {
+      "name": "ceil",
+      "inputs": ["num"],
+      "javascript": "return Math.ceil(num);",
+      "returns": "integer"
+    },
+    {
+      "name": "sin",
+      "inputs": ["angle"],
+      "javascript": "return Math.sin(angle);",
+      "returns": "number"
+    },
+    {
+      "name": "cos",
+      "inputs": ["angle"],
+      "javascript": "return Math.cos(angle);",
+      "returns": "number"
+    },
+    {
+      "name": "tan",
+      "inputs": ["angle"],
+      "javascript": "return Math.tan(angle);",
       "returns": "number"
     }
   ]
