@@ -1,0 +1,35 @@
+{
+  "info": {
+    "id": "time",
+    "name": "Date and Time Utilities",
+    "version": "1.0",
+    "author": "NovaScript Team",
+    "description": "Provides current date and time utilities for NovaScript."
+  },
+  "functions": [
+    {
+      "name": "now",
+      "inputs": [],
+      "javascript": "return new Date().toISOString();",
+      "returns": "datetime"
+    },
+    {
+      "name": "timestamp",
+      "inputs": [],
+      "javascript": "return Date.now();",
+      "returns": "integer"
+    },
+    {
+      "name": "format",
+      "inputs": ["format"],
+      "javascript": "const d = new Date(); return format.replace(/yyyy/, d.getFullYear()).replace(/mm/, String(d.getMonth() + 1).padStart(2, '0')).replace(/dd/, String(d.getDate()).padStart(2, '0')).replace(/hh/, String(d.getHours()).padStart(2, '0')).replace(/MM/, String(d.getMinutes()).padStart(2, '0')).replace(/ss/, String(d.getSeconds()).padStart(2, '0'));",
+      "returns": "string"
+    },
+    {
+      "name": "day",
+      "inputs": [],
+      "javascript": "return new Date().getDay();",
+      "returns": "integer"
+    }
+  ]
+}
