@@ -1,7 +1,7 @@
 let _printBuffer = '';
 
 const browserExtensionMode = false;
-const defaultExtensionFiles = ['math.json']; // Add more filenames here, e.g., 'text.json'
+const defaultExtensionFiles = ['math.json', 'time.json']; // Add more filenames here, e.g., 'text.json'
 
 const STORAGE_KEYS = {
     code: 'novaScriptCode',
