@@ -96,55 +96,67 @@ button {
 }
 button:hover { background-color: var(--accent-color-hover); }
 .controls .material-icons { font-size: 1.2rem; margin-right: 0.25rem; }
+
 .main-content {
     display: flex;
-    flex: 1; /* Fill remaining vertical space */
-    height: 100%;
+    flex: 1; /* This is correct, it makes this div fill available vertical space */
+    min-height: 0; /* CRITICAL: Prevents flex items from overflowing their container */
 }
+
 .editor-container {
-    display: flex;
-    flex-direction: column;
-    width: 50%;
+    display: flex; /* This is correct */
+    flex-direction: column; /* This is correct */
+    /* REMOVE 'flex: 1' and 'width: 50%' */
+    flex-shrink: 0; /* Prevents this container from shrinking on its own */
+    width: 50%; /* Set an initial width */
     margin: var(--inner-gap);
+    overflow: hidden; /* This is correct */
 }
+
 .output-container {
     display: flex;
     flex-direction: column;
-    flex: 1; /* Takes up remaining space */
+    flex: 1; /* This makes the output grow to fill remaining space */
+    min-width: 0; /* Prevents this container from causing overflow */
     padding: 10px;
+}
+
+#editor {
+    background-color: var(--foreground-color);
+    border-radius: var(--panel-radius);
+    border: 1px solid #333;
+    font-family: var(--monospaced-font), monospace;
+    flex: 1; /* Makes the editor fill the .editor-container */
+    overflow-y: auto; /* Adds a scrollbar ONLY to the editor */
+    min-height: 0; /* Important for flexbox behavior */
 }
 
 #output {
     background-color: var(--foreground-color);
-    border-radius: var(--small-radius);
+    border-radius: var(--panel-radius);
     border: 1px solid #333;
     padding: 0.75rem;
     white-space: pre-wrap;
-    font-family: 'Fira Code', monospace;
+    font-family: var(--monospaced-font), monospace;
     flex: 1;
     overflow-y: auto;
 }
-.editor-container {
-    display: flex;
-    flex-direction: column;
-    width: 50%;
-    margin: var(--inner-gap);
-    /* Make sure the container is flexible */
-    flex: 1;
-    overflow: hidden; /* Hide anything that spills out */
+
+
+.ͼo .cm-gutters {
+    color: var(--secondary-text-color);
+    background-color: var(--panel-color);
 }
 
-/* NEW: Style the CodeMirror 6 editor */
 .cm-editor {
+    background: none;
     height: 100%;
     font-size: 16px; /* Example font size */
     outline: none !important;
+    font-family: var(--monospaced-font), monospace;
 }
 
-#code-editor {
-    height: 100%;
-    width: 100%;
-}
+
 .resizer {
     background-color: var(--panel-color);
     width: 5px;
@@ -315,40 +327,34 @@ textarea { width: 100%; box-sizing: border-box; height: 250px; background: var(-
     background-color: var(--background-color);
 }
 
-.keymap-list {
-    list-style: none;
-    padding: 0;
-}
-.keymap-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 5px;
-    border-bottom: 1px solid var(--panel-border-color);
-}
-.keymap-key {
-    background-color: var(--code-block-color);
-    border: 1px solid var(--panel-border-color);
-    padding: 5px 10px;
-    border-radius: var(--small-radius, 5px);
-    font-family: var(--monospaced-font), monospace;
-    min-width: 120px;
-    text-align: center;
-    cursor: pointer;
-}
-.keymap-key:hover {
-    border-color: var(--accent-color);
-}
-.keymap-key.is-recording {
-    color: var(--accent-color);
-    border-color: var(--accent-color);
-    box-shadow: 0 0 5px var(--accent-color);
-}
-
 .dropdown input, .dropdown select {
     padding: 8px 16px;
     background: none;
     border: none;
     color: var(--text-color);
     cursor: pointer;
+}
+
+.ͼ3 .cm-button, .ͼ1 .cm-panel.cm-search [name="close"] {
+    background-image: none;
+    background-color: var(--accent-color);
+    color: var(--button-text-color);
+    border: none;
+    padding: 8px 15px;
+    border-radius: var(--button-radius);
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+}
+.ͼo .cm-panels {
+    background-color: var(--panel-color);
+    border: 1px solid var(--panel-border-color);
+    border-radius: var(--panel-radius);
+    padding: 10px;
+    margin-top: 10px;
+}
+.ͼ3 .cm-textfield, .ͼ3 .cm-panels {
+    color: var(--text-color);
 }

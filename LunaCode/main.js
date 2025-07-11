@@ -78,7 +78,9 @@ document.addEventListener('DOMContentLoaded', async () => { // added async may n
         if (event.target === settingsModal) settingsModal.classList.remove('show'); // Add this line
     });
 
+
     const resizer = document.getElementById('resizer');
+    const editorContainer = document.querySelector('.editor-container');
 
     let isResizing = false;
     resizer.addEventListener('mousedown', (e) => {
@@ -116,7 +118,6 @@ document.addEventListener('DOMContentLoaded', async () => { // added async may n
         });
     }
 
-    const editorContainer = document.querySelector('.editor-container');
     setupDropdown('file-btn', 'file-dropdown');
     setupDropdown('edit-btn', 'edit-dropdown');
     setupDropdown('addon-btn', 'addon-dropdown');

@@ -99,8 +99,8 @@ button:hover { background-color: var(--accent-color-hover); }
 .controls .material-icons { font-size: 1.2rem; margin-right: 0.25rem; }
 .main-content {
     display: flex;
-    flex: 1; /* Fill remaining vertical space */
-    height: 100%;
+    flex: 1; /* This is correct, it makes this div fill available vertical space */
+    min-height: 0; /* CRITICAL: Prevents flex items from overflowing their container */
 }
 .editor-container {
     display: flex;
