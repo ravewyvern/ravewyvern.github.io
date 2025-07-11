@@ -28,6 +28,26 @@
     /* margins */
     --window-gap: 10px; /* gap betweens panels and window border */
     --inner-gap: 10px; /* gap between panels */
+    /* syntax colors */
+    --token-keyword-color: #6e57ff;         /* keywords like function, const, class */
+    --token-function-color: #a47fff;        /* function names like greet, fetch */
+    --token-variable-color: #d6d6ff;        /* variable references and object properties */
+    --token-identifier-color: #bcbce0;      /* variable names (e.g., let x = ...) */
+    --token-operator-color: #9f9fcf;        /* =, ., await, =>, etc */
+    --token-boolean-color: #ff4d6d;         /* true, false */
+    --token-builtin-color: #ffb86c;         /* this, async, class names, numbers */
+    --token-comment-color: #555577;         /* comments */
+    --token-punctuation-color: #7c7cb8;     /* (), {}, [], =>, etc */
+    --token-string-color: #ffb8e1;          /* "strings" */
+    /* editor highlighting and theming */
+    --highlight-active-line-bg: #6e57ff0a;  /* Background color for the line the cursor is currently on */
+    --highlight-selection-bg: #3e3e57;  /* Background color for selected text (highlighted with mouse/keyboard) */
+    --editor-cursor-color: #bd93f9;  /* Color of the text cursor (blinking line) */
+    --highlight-bracket-bg: #6e57ff40;  /* Background color for matching or mismatched brackets */
+    --highlight-selection-match-bg: #8888ff22;  /* Background color for matching selection ranges (like when you select a variable and all instances highlight) */
+    --autocomplete-selected-bg: #6e57ff;  /* Background color for the currently selected autocomplete item */
+    --autocomplete-selected-text: #ffffff;  /* Text color for the selected autocomplete item */
+    --autocomplete-bg: #2a2a38;  /* Background color for the autocomplete suggestion box */
 }
 body {
     font-family: var(--standard-font),sans-serif;
@@ -39,6 +59,46 @@ body {
     height: 100vh;
     overflow: hidden;
 }
+.ͼo .cm-activeLineGutter {
+    background-color: var(--menu-hover-color-light);
+}
+
+.ͼo .cm-activeLine {
+    background-color: var(--highlight-active-line-bg);
+}
+
+.ͼo.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground,
+.ͼo .cm-selectionBackground,
+.ͼo .cm-content ::selection {
+    background-color: var(--highlight-selection-bg);
+}
+
+.ͼo .cm-cursor,
+.ͼo .cm-dropCursor {
+    border-left-color: var(--editor-cursor-color);
+}
+
+.ͼo.cm-focused .cm-matchingBracket,
+.ͼo.cm-focused .cm-nonmatchingBracket {
+    background-color: var(--highlight-bracket-bg);
+}
+
+.ͼo .cm-selectionMatch {
+    background-color: var(--highlight-selection-match-bg);
+}
+
+.ͼo .cm-tooltip-autocomplete > ul > li[aria-selected] {
+    background-color: var(--autocomplete-selected-bg);
+    color: var(--autocomplete-selected-text);
+}
+
+.ͼo .cm-tooltip {
+    border: none;
+    background-color: var(--autocomplete-bg);
+    color: var(--text-color);
+}
+
+
 .top-bar {
     display: flex;
     align-items: center;
@@ -99,25 +159,24 @@ button:hover { background-color: var(--accent-color-hover); }
 
 .main-content {
     display: flex;
-    flex: 1; /* This is correct, it makes this div fill available vertical space */
-    min-height: 0; /* CRITICAL: Prevents flex items from overflowing their container */
+    flex: 1;
+    min-height: 0;
 }
 
 .editor-container {
-    display: flex; /* This is correct */
-    flex-direction: column; /* This is correct */
-    /* REMOVE 'flex: 1' and 'width: 50%' */
-    flex-shrink: 0; /* Prevents this container from shrinking on its own */
-    width: 50%; /* Set an initial width */
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    width: 50%;
     margin: var(--inner-gap);
-    overflow: hidden; /* This is correct */
+    overflow: hidden;
 }
 
 .output-container {
     display: flex;
     flex-direction: column;
-    flex: 1; /* This makes the output grow to fill remaining space */
-    min-width: 0; /* Prevents this container from causing overflow */
+    flex: 1;
+    min-width: 0;
     padding: 10px;
 }
 
@@ -126,9 +185,9 @@ button:hover { background-color: var(--accent-color-hover); }
     border-radius: var(--panel-radius);
     border: 1px solid #333;
     font-family: var(--monospaced-font), monospace;
-    flex: 1; /* Makes the editor fill the .editor-container */
-    overflow-y: auto; /* Adds a scrollbar ONLY to the editor */
-    min-height: 0; /* Important for flexbox behavior */
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
 }
 
 #output {
@@ -153,7 +212,7 @@ button:hover { background-color: var(--accent-color-hover); }
     height: 100%;
     font-size: 16px; /* Example font size */
     outline: none !important;
-    font-family: var(--monospaced-font), monospace;
+    font-family: var(--monospaced-font), monospace !important;
 }
 
 
@@ -199,12 +258,12 @@ button:hover { background-color: var(--accent-color-hover); }
     align-items: center; justify-content: center;
 }
 .modal-overlay.show { display: flex; } /* New class to show modal */
-.modal-content { background-color: var(--panel-color); width: 80%; max-width: 800px; border-radius: var(--popup-radius); display: flex; box-shadow: 0 5px 15px rgba(0,0,0,0.5); overflow: hidden; min-height: 500px; }
+.modal-content { background-color: var(--panel-color); width: 80%; max-width: 800px; border-radius: var(--popup-radius); display: flex; box-shadow: 0 5px 15px rgba(0,0,0,0.5); height: 500px; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--panel-border-color); }
 .modal-header h2 { margin: 0; }
 .close-btn { color: var(--secondary-text-color); font-size: 28px; font-weight: bold; cursor: pointer; }
 
-.modal-sidebar { background-color: var(--sidebar-color); width: 200px; flex-shrink: 0; border-right: 1px solid var(--panel-border-color); padding: 10px 0; }
+.modal-sidebar { background-color: var(--sidebar-color); width: 200px; flex-shrink: 0; border-right: 1px solid var(--panel-border-color); padding: 10px 0; overflow: scroll; border-radius: var(--panel-radius) 0 0 var(--panel-radius); }
 .sidebar-item { padding: 10px 20px; cursor: pointer; border-left: 3px solid transparent; }
 .sidebar-item:hover { background-color: var(--menu-hover-color-light); }
 .sidebar-item.active { background-color: var(--menu-hover-color); border-left-color: var(--accent-color); }
@@ -357,4 +416,35 @@ textarea { width: 100%; box-sizing: border-box; height: 250px; background: var(-
 }
 .ͼ3 .cm-textfield, .ͼ3 .cm-panels {
     color: var(--text-color);
+}
+/* Syntax Stlyes */
+.ͼp { /* color for let, const, function, try, class, null, new, extends, import, from, etc */
+    color: var(--token-keyword-color);
+}
+.ͼr { /* color for greet, fetch, symbol*/
+    color: var(--token-function-color);
+}
+.ͼq { /* color for number, undefined, three, key, method, name, console, log, data, error, speak, etc*/
+    color: var(--token-variable-color);
+}
+.ͼt { /* color for all variable names */
+    color: var(--token-identifier-color);
+}
+.ͼv { /* is the color for the = sign, await, the . symbol, makes a noise, barks, and regex */
+    color: var(--token-operator-color);
+}
+.ͼ12 { /* color for booleans like true and false */
+    color: var(--token-boolean-color);
+}
+.ͼu { /* color for integers and async and this and animal and dog */
+    color: var(--token-builtin-color);
+}
+.ͼw { /* color for comments and multiline comments */
+    color: var(--token-comment-color);
+}
+.ͼ4 .cm-line {/* color for () {} => ${} [] */
+    color: var(--token-punctuation-color);
+}
+.ͼ13 { /* color for things in "" */
+    color: var(--token-string-color);
 }
