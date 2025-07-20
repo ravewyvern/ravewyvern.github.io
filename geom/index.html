@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Geometry Tool</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      overscroll-behavior: none;
+    }
+    canvas {
+      cursor: crosshair;
+      touch-action: none;
+    }
+    .context-menu {
+      position: absolute;
+      z-index: 1000;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 8px 0;
+      min-width: 180px;
+    }
+    .context-menu-item {
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .context-menu-item:hover {
+      background-color: #f0f0f0;
+    }
+    .context-menu-header {
+      padding: 6px 16px;
+      font-size: 12px;
+      color: #666;
+      background-color: #f7f7f7;
+      border-bottom: 1px solid #eee;
+    }
+    .context-menu-divider {
+      height: 1px;
+      background-color: #eee;
+      margin: 4px 0;
+    }
+    #prompt-modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+    #prompt-modal-content {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      width: 320px;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 flex flex-col h-screen overflow-hidden">
+
+<!-- Header -->
+<header class="bg-white shadow-md p-2 flex items-center justify-between z-10">
+  <h1 class="text-lg font-bold text-gray-800">Interactive Geometry Tool</h1>
+  <div class="flex items-center space-x-2">
+    <span class="text-sm text-gray-500 mr-2">Hold 'Alt' for precise placement</span>
+    <button id="undo-btn" class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed">Undo (Ctrl+Z)</button>
+    <button id="redo-btn" class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed">Redo (Ctrl+Y)</button>
+  </div>
+</header>
+
+<!-- Main Content -->
+<div class="flex-grow relative">
+  <canvas id="geometry-canvas"></canvas>
+</div>
+
+<!-- Context Menu -->
+<div id="context-menu" class="context-menu" style="display: none;"></div>
+
+<!-- Prompt Modal -->
+<div id="prompt-modal" class="items-center">
+  <div id="prompt-modal-content">
+    <h3 id="prompt-title" class="text-lg font-semibold mb-3">Input</h3>
+    <p id="prompt-description" class="text-sm text-gray-600 mb-3"></p>
+    <input type="text" id="prompt-input" class="w-full border border-gray-300 rounded-md p-2 mb-4">
+    <div class="flex justify-end space-x-2">
+      <button id="prompt-cancel" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Cancel</button>
+      <button id="prompt-ok" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">OK</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  const canvas = document.getElementById('geometry-canvas');
+  const ctx = canvas.getContext('2d');
+  const undoBtn = document.getElementById('undo-btn');
+  const redoBtn = document.getElementById('redo-btn');
+
+  const gridSize = 50;
+  const pointColorPalette = ["#3b82f6", "#ef4444", "#22c55e", "#eab308", "#8b5cf6", "#ec4899"];
+  let pan = { x: 0, y: 0 };
+  let zoom = 1;
+  let points = [];
+  let lines = [];
+  let nextPointLabel = 'A';
+  let history = [];
+  let historyIndex = -1;
+
+  // State variables
+  let isPanning = false;
+  let panStart = { x: 0, y: 0 };
+  let draggedPoint = null;
+  let isDrawingLine = false;
+  let lineStartPoint = null;
+  let tempLineEnd = null;
+  let isAddingPointOnLine = null; // { lineId: ... }
+  let altKeyPressed = false;
+
+  function resizeCanvas() {
+    canvas.width = canvas.parentElement.clientWidth;
+    canvas.height = canvas.parentElement.clientHeight;
+    draw();
+  }
+
+  // --- State Management ---
+  function saveState() {
+    // Before saving, ensure all constrained points are up-to-date
+    updateConstrainedPoints();
+    const state = {
+      points: JSON.parse(JSON.stringify(points)),
+      lines: JSON.parse(JSON.stringify(lines)),
+      nextPointLabel: nextPointLabel
+    };
+    history = history.slice(0, historyIndex + 1);
+    history.push(state);
+    historyIndex++;
+    updateUndoRedoButtons();
+  }
+
+  function undo() {
+    if (historyIndex > 0) {
+      historyIndex--;
+      loadState(history[historyIndex]);
+    }
+  }
+
+  function redo() {
+    if (historyIndex < history.length - 1) {
+      historyIndex++;
+      loadState(history[historyIndex]);
+    }
+  }
+
+  function loadState(state) {
+    points = JSON.parse(JSON.stringify(state.points));
+    lines = JSON.parse(JSON.stringify(state.lines));
+    nextPointLabel = state.nextPointLabel;
+    draw();
+    updateUndoRedoButtons();
+  }
+
+  function updateUndoRedoButtons() {
+    undoBtn.disabled = historyIndex <= 0;
+    redoBtn.disabled = historyIndex >= history.length - 1;
+  }
+
+  // --- Coordinate Transformations ---
+  function toWorld(screenX, screenY) {
+    return {
+      x: (screenX - pan.x) / zoom,
+      y: (screenY - pan.y) / zoom
+    };
+  }
+
+  function toScreen(worldX, worldY) {
+    return {
+      x: worldX * zoom + pan.x,
+      y: worldY * zoom + pan.y
+    };
+  }
+
+  // --- Snapping Logic ---
+  function getSnapPoint(worldX, worldY, bypassSnap = false) {
+    if (bypassSnap || altKeyPressed) {
+      // Snap to a finer grid for precision
+      return { x: Math.round(worldX * 100) / 100, y: Math.round(worldY * 100) / 100 };
+    }
+
+    const gridX = Math.floor(worldX / gridSize);
+    const gridY = Math.floor(worldY / gridSize);
+
+    const cellX = gridX * gridSize;
+    const cellY = gridY * gridSize;
+
+    const localX = worldX - cellX;
+    const localY = worldY - cellY;
+
+    const snapPoints = [
+      { x: 0, y: 0 }, { x: gridSize / 2, y: 0 }, { x: gridSize, y: 0 },
+      { x: 0, y: gridSize / 2 }, { x: gridSize / 2, y: gridSize / 2 }, { x: gridSize, y: gridSize / 2 },
+      { x: 0, y: gridSize }, { x: gridSize / 2, y: gridSize }, { x: gridSize, y: gridSize }
+    ];
+
+    let closestSnap = snapPoints[0];
+    let minDistance = Infinity;
+
+    for (const sp of snapPoints) {
+      const dist = Math.hypot(localX - sp.x, localY - sp.y);
+      if (dist < minDistance) {
+        minDistance = dist;
+        closestSnap = sp;
+      }
+    }
+
+    return { x: cellX + closestSnap.x, y: cellY + closestSnap.y };
+  }
+
+  // --- Drawing ---
+  function draw() {
+    updateConstrainedPoints(); // Ensure positions are correct before drawing
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.translate(pan.x, pan.y);
+    ctx.scale(zoom, zoom);
+
+    drawGrid();
+    drawLines();
+    drawPoints();
+    drawAngles();
+
+    if (isDrawingLine && lineStartPoint && tempLineEnd) {
+      drawTempLine();
+    }
+
+    ctx.restore();
+  }
+
+  function drawGrid() {
+    ctx.beginPath();
+    ctx.lineWidth = 1 / zoom;
+    ctx.strokeStyle = '#e0e0e0';
+
+    const worldTopLeft = toWorld(0, 0);
+    const worldBottomRight = toWorld(canvas.width, canvas.height);
+
+    const startX = Math.floor(worldTopLeft.x / gridSize) * gridSize;
+    const endX = Math.ceil(worldBottomRight.x / gridSize) * gridSize;
+    const startY = Math.floor(worldTopLeft.y / gridSize) * gridSize;
+    const endY = Math.ceil(worldBottomRight.y / gridSize) * gridSize;
+
+    for (let x = startX; x <= endX; x += gridSize) {
+      ctx.moveTo(x, startY);
+      ctx.lineTo(x, endY);
+    }
+    for (let y = startY; y <= endY; y += gridSize) {
+      ctx.moveTo(startX, y);
+      ctx.lineTo(endX, y);
+    }
+    ctx.stroke();
+
+    // Axes
+    ctx.beginPath();
+    ctx.strokeStyle = '#999';
+    ctx.lineWidth = 1.5 / zoom;
+    ctx.moveTo(worldTopLeft.x, 0);
+    ctx.lineTo(worldBottomRight.x, 0);
+    ctx.moveTo(0, worldTopLeft.y);
+    ctx.lineTo(0, worldBottomRight.y);
+    ctx.stroke();
+
+    // Axis Numbering
+    drawAxisLabels(worldTopLeft, worldBottomRight);
+  }
+
+  function drawAxisLabels(worldTopLeft, worldBottomRight) {
+    const baseInterval = gridSize * 2;
+    let interval = baseInterval;
+    while(interval * zoom < 80) { interval *= 2; }
+    while(interval * zoom > 160) { interval /= 2; }
+
+    ctx.fillStyle = '#666';
+    ctx.font = `${12 / zoom}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+
+    const startX = Math.floor(worldTopLeft.x / interval) * interval;
+    const endX = Math.ceil(worldBottomRight.x / interval) * interval;
+    for(let x = startX; x <= endX; x += interval) {
+      if(Math.abs(x) > 1e-9) ctx.fillText(x / gridSize, x, 5 / zoom);
+    }
+
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    const startY = Math.floor(worldTopLeft.y / interval) * interval;
+    const endY = Math.ceil(worldBottomRight.y / interval) * interval;
+    for(let y = startY; y <= endY; y += interval) {
+      if(Math.abs(y) > 1e-9) ctx.fillText(-y / gridSize, -5 / zoom, y);
+    }
+  }
+
+  function drawPoints() {
+    points.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, (p.radius || 5) / zoom, 0, 2 * Math.PI);
+      ctx.fillStyle = p.color || 'rgba(0, 123, 255, 0.8)';
+      ctx.fill();
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 1 / zoom;
+      ctx.stroke();
+
+      ctx.fillStyle = '#000';
+      ctx.font = `${14 / zoom}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(p.label, p.x, p.y - (p.radius || 5) / zoom - 2 / zoom);
+    });
+  }
+
+  function drawLines() {
+    lines.forEach(line => {
+      const p1 = points.find(p => p.id === line.p1);
+      const p2 = points.find(p => p.id === line.p2);
+      if (!p1 || !p2) return;
+
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.strokeStyle = line.color || '#333';
+      ctx.lineWidth = (line.thickness || 2) / zoom;
+      if (line.style === 'dotted') {
+        ctx.setLineDash([5 / zoom, 5 / zoom]);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      const midX = (p1.x + p2.x) / 2;
+      const midY = (p1.y + p2.y) / 2;
+      const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+      const length = getDistance(p1, p2) / gridSize;
+
+      // Draw Midpoint Marker
+      ctx.beginPath();
+      ctx.arc(midX, midY, 3 / zoom, 0, 2 * Math.PI);
+      ctx.fillStyle = line.color || '#333';
+      ctx.fill();
+
+      // Draw length and midpoint coordinates
+      ctx.save();
+      ctx.translate(midX, midY);
+      ctx.rotate(angle > Math.PI / 2 || angle < -Math.PI / 2 ? angle + Math.PI : angle);
+
+      ctx.fillStyle = 'blue';
+      ctx.font = `${12 / zoom}px Arial`;
+      ctx.textAlign = 'center';
+
+      // Length
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(length.toFixed(2), 0, -5 / zoom);
+
+      // Midpoint Coords
+      ctx.textBaseline = 'top';
+      const midCoordText = `(${(midX/gridSize).toFixed(2)}, ${(-midY/gridSize).toFixed(2)})`;
+      ctx.fillText(midCoordText, 0, 5 / zoom);
+
+      ctx.restore();
+    });
+  }
+
+  function drawTempLine() {
+    const p1 = lineStartPoint;
+    const p2 = tempLineEnd;
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = 2 / zoom;
+    ctx.setLineDash([5 / zoom, 5 / zoom]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    const length = getDistance(p1, p2) / gridSize;
+    const midX = (p1.x + p2.x) / 2;
+    const midY = (p1.y + p2.y) / 2;
+    const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+
+    ctx.save();
+    ctx.translate(midX, midY);
+    ctx.rotate(angle > Math.PI / 2 || angle < -Math.PI / 2 ? angle + Math.PI : angle);
+    ctx.fillStyle = 'rgba(0,0,255,0.7)';
+    ctx.font = `${12 / zoom}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(length.toFixed(2), 0, -5 / zoom);
+    ctx.restore();
+  }
+
+  function drawAngles() {
+    points.forEach(p => {
+      const connectedLines = lines.filter(l => l.p1 === p.id || l.p2 === p.id);
+      if (connectedLines.length < 2) return;
+
+      for (let i = 0; i < connectedLines.length; i++) {
+        for (let j = i + 1; j < connectedLines.length; j++) {
+          const line1 = connectedLines[i];
+          const line2 = connectedLines[j];
+
+          const p1Id = line1.p1 === p.id ? line1.p2 : line1.p1;
+          const p2Id = line2.p1 === p.id ? line2.p2 : line2.p1;
+
+          const p1 = points.find(pt => pt.id === p1Id);
+          const p2 = points.find(pt => pt.id === p2Id);
+          if(!p1 || !p2) continue;
+
+          const v1 = { x: p1.x - p.x, y: p1.y - p.y };
+          const v2 = { x: p2.x - p.x, y: p2.y - p.y };
+
+          let angle1 = Math.atan2(v1.y, v1.x);
+          let angle2 = Math.atan2(v2.y, v2.x);
+
+          let angleDiff = angle2 - angle1;
+
+          // Normalize to (-PI, PI]
+          while (angleDiff <= -Math.PI) angleDiff += 2 * Math.PI;
+          while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+
+          const angleDeg = Math.abs(angleDiff * 180 / Math.PI);
+
+          ctx.beginPath();
+          ctx.strokeStyle = 'rgba(255, 0, 0, 0.7)';
+          ctx.lineWidth = 1.5 / zoom;
+
+          const radius = Math.min(getDistance(p, p1), getDistance(p, p2), 40) * 0.5;
+
+          if (Math.abs(angleDeg - 90) < 1) { // Right angle
+            const armLength = radius * 0.7;
+            let p1Unit = {x: v1.x / getDistance(p,p1), y: v1.y / getDistance(p,p1)};
+            let p2Unit = {x: v2.x / getDistance(p,p2), y: v2.y / getDistance(p,p2)};
+
+            const corner1 = {x: p.x + p1Unit.x * armLength, y: p.y + p1Unit.y * armLength};
+            const corner2 = {x: p.x + p2Unit.x * armLength, y: p.y + p2Unit.y * armLength};
+            const corner3 = {x: corner1.x + p2Unit.x * armLength, y: corner1.y + p2Unit.y * armLength};
+
+            ctx.moveTo(corner1.x, corner1.y);
+            ctx.lineTo(corner3.x, corner3.y);
+            ctx.lineTo(corner2.x, corner2.y);
+          } else { // Normal angle arc
+            ctx.arc(p.x, p.y, radius, angle1, angle2, angleDiff < 0);
+          }
+          ctx.stroke();
+
+          if (Math.abs(angleDeg - 90) >= 1) {
+            const textAngle = angle1 + angleDiff / 2;
+            const textRadius = radius * 0.7;
+            const textX = p.x + textRadius * Math.cos(textAngle);
+            const textY = p.y + textRadius * Math.sin(textAngle);
+
+            ctx.fillStyle = 'red';
+            ctx.font = `${12 / zoom}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(angleDeg.toFixed(1) + '°', textX, textY);
+          }
+        }
+      }
+    });
+  }
+
+  // --- Core Logic ---
+  function addPoint(x, y, constrainedTo = null) {
+    const id = Date.now();
+    const color = pointColorPalette[points.length % pointColorPalette.length];
+    const newPoint = { id, x, y, label: nextPointLabel, color, radius: 5 };
+
+    if (constrainedTo) {
+      newPoint.constrainedToLineId = constrainedTo.lineId;
+      newPoint.t = constrainedTo.t;
+    }
+
+    points.push(newPoint);
+    nextPointLabel = String.fromCharCode(nextPointLabel.charCodeAt(0) + 1);
+    saveState();
+    draw();
+    return newPoint;
+  }
+
+  function addLine(p1Id, p2Id) {
+    if (p1Id === p2Id) return;
+    const existingLine = lines.find(l => (l.p1 === p1Id && l.p2 === p2Id) || (l.p1 === p2Id && l.p2 === p1Id));
+    if (existingLine) return;
+
+    lines.push({ id: Date.now(), p1: p1Id, p2: p2Id, color: '#333', thickness: 2, style: 'solid' });
+    saveState();
+    draw();
+  }
+
+  function deletePoint(pointId) {
+    points = points.filter(p => p.id !== pointId);
+    lines = lines.filter(l => l.p1 !== pointId && l.p2 !== pointId);
+    // Also need to handle points constrained to a line that is now deleted.
+    const deletedLines = lines.filter(l => l.p1 === pointId || l.p2 === pointId).map(l => l.id);
+    points.forEach(p => {
+      if (p.constrainedToLineId && deletedLines.includes(p.constrainedToLineId)) {
+        delete p.constrainedToLineId;
+        delete p.t;
+      }
+    });
+    saveState();
+    draw();
+  }
+
+  function deleteLine(lineId) {
+    lines = lines.filter(l => l.id !== lineId);
+    // Un-constrain points that were on this line
+    points.forEach(p => {
+      if (p.constrainedToLineId === lineId) {
+        delete p.constrainedToLineId;
+        delete p.t;
+      }
+    });
+    saveState();
+    draw();
+  }
+
+  function updateConstrainedPoints() {
+    points.forEach(p => {
+      if (p.constrainedToLineId) {
+        const line = lines.find(l => l.id === p.constrainedToLineId);
+        if (line) {
+          const p1 = points.find(pt => pt.id === line.p1);
+          const p2 = points.find(pt => pt.id === line.p2);
+          if (p1 && p2) {
+            p.x = p1.x + (p2.x - p1.x) * p.t;
+            p.y = p1.y + (p2.y - p1.y) * p.t;
+          }
+        } else {
+          // Line was deleted, un-constrain the point
+          delete p.constrainedToLineId;
+          delete p.t;
+        }
+      }
+    });
+  }
+
+  function getPointAt(worldX, worldY) {
+    const threshold = 10 / zoom;
+    // Find the top-most point
+    return points.slice().reverse().find(p => getDistance({x: p.x, y: p.y}, {x: worldX, y: worldY}) < (p.radius || 5) / zoom + threshold/2);
+  }
+
+  function getLineAt(worldX, worldY) {
+    const threshold = 5 / zoom;
+    for (const line of lines) {
+      const p1 = points.find(p => p.id === line.p1);
+      const p2 = points.find(p => p.id === line.p2);
+      if (!p1 || !p2) continue;
+
+      const dist = distToSegment({x: worldX, y: worldY}, p1, p2);
+      if (dist < threshold) {
+        return line;
+      }
+    }
+    return null;
+  }
+
+  function getDistance(p1, p2) {
+    return Math.hypot(p2.x - p1.x, p2.y - p1.y);
+  }
+
+  // --- Event Handlers ---
+  canvas.addEventListener('mousedown', (e) => {
+    hideContextMenu();
+    const worldPos = toWorld(e.offsetX, e.offsetY);
+
+    if (e.button === 0) { // Left click
+      if (isAddingPointOnLine) {
+        const line = lines.find(l => l.id === isAddingPointOnLine.lineId);
+        if (line) {
+          const p1 = points.find(p => p.id === line.p1);
+          const p2 = points.find(p => p.id === line.p2);
+          const t = getProjectionT(worldPos, p1, p2);
+          const newPos = { x: p1.x + t * (p2.x - p1.x), y: p1.y + t * (p2.y - p1.y) };
+          addPoint(newPos.x, newPos.y, { lineId: line.id, t: t });
+        }
+        isAddingPointOnLine = null;
+        canvas.style.cursor = 'crosshair';
+        return;
+      }
+
+      const point = getPointAt(worldPos.x, worldPos.y);
+      if (isDrawingLine) {
+        const snappedPos = getSnapPoint(worldPos.x, worldPos.y, e.altKey);
+        const targetPoint = point || addPoint(snappedPos.x, snappedPos.y);
+        addLine(lineStartPoint.id, targetPoint.id);
+        isDrawingLine = false;
+        lineStartPoint = null;
+        tempLineEnd = null;
+        canvas.style.cursor = 'crosshair';
+      } else if (point) {
+        draggedPoint = point;
+      } else {
+        isPanning = true;
+        panStart = { x: e.offsetX - pan.x, y: e.offsetY - pan.y };
+        canvas.style.cursor = 'grabbing';
+      }
+    }
+  });
+
+  canvas.addEventListener('mousemove', (e) => {
+    const worldPos = toWorld(e.offsetX, e.offsetY);
+    if (isPanning) {
+      pan.x = e.offsetX - panStart.x;
+      pan.y = e.offsetY - panStart.y;
+      draw();
+    } else if (draggedPoint) {
+      if (draggedPoint.constrainedToLineId) {
+        const line = lines.find(l => l.id === draggedPoint.constrainedToLineId);
+        if (line) {
+          const p1 = points.find(p => p.id === line.p1);
+          const p2 = points.find(p => p.id === line.p2);
+          draggedPoint.t = getProjectionT(worldPos, p1, p2);
+        }
+      } else {
+        const snapped = getSnapPoint(worldPos.x, worldPos.y, e.altKey);
+        draggedPoint.x = snapped.x;
+        draggedPoint.y = snapped.y;
+      }
+      draw();
+    } else if (isDrawingLine) {
+      const snapped = getSnapPoint(worldPos.x, worldPos.y, e.altKey);
+      tempLineEnd = {x: snapped.x, y: snapped.y};
+      draw();
+    } else {
+      const point = getPointAt(worldPos.x, worldPos.y);
+      canvas.style.cursor = point ? 'pointer' : (isAddingPointOnLine ? 'copy' : 'grab');
+    }
+  });
+
+  canvas.addEventListener('mouseup', (e) => {
+    if (e.button === 0) { // Left click
+      if (draggedPoint) {
+        saveState(); // Save state after dragging is complete
+      }
+      isPanning = false;
+      draggedPoint = null;
+      canvas.style.cursor = isAddingPointOnLine ? 'copy' : 'grab';
+    }
+  });
+
+  canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const worldPos = toWorld(e.offsetX, e.offsetY);
+    const zoomFactor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+
+    zoom *= zoomFactor;
+    pan.x = e.offsetX - worldPos.x * zoom;
+    pan.y = e.offsetY - worldPos.y * zoom;
+
+    draw();
+  });
+
+  // --- Context Menu ---
+  const contextMenu = document.getElementById('context-menu');
+
+  function showContextMenu(e, items, coords) {
+    e.preventDefault();
+    contextMenu.innerHTML = '';
+
+    const header = document.createElement('div');
+    header.className = 'context-menu-header';
+    header.textContent = `(${coords.x.toFixed(2)}, ${coords.y.toFixed(2)})`;
+    contextMenu.appendChild(header);
+
+    items.forEach(item => {
+      if (item.type === 'divider') {
+        const divider = document.createElement('div');
+        divider.className = 'context-menu-divider';
+        contextMenu.appendChild(divider);
+      } else {
+        const menuItem = document.createElement('div');
+        menuItem.className = 'context-menu-item';
+        menuItem.textContent = item.label;
+        menuItem.onclick = () => {
+          item.action();
+          hideContextMenu();
+        };
+        contextMenu.appendChild(menuItem);
+      }
+    });
+    contextMenu.style.display = 'block';
+    contextMenu.style.left = `${e.clientX}px`;
+    contextMenu.style.top = `${e.clientY}px`;
+  }
+
+  function hideContextMenu() {
+    contextMenu.style.display = 'none';
+  }
+
+  canvas.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    const worldPos = toWorld(e.offsetX, e.offsetY);
+    const displayCoords = { x: worldPos.x / gridSize, y: -worldPos.y / gridSize };
+    const point = getPointAt(worldPos.x, worldPos.y);
+    const line = !point ? getLineAt(worldPos.x, worldPos.y) : null;
+
+    if (point) {
+      showPointContextMenu(e, point, displayCoords);
+    } else if (line) {
+      showLineContextMenu(e, line, displayCoords);
+    } else {
+      showGridContextMenu(e, worldPos, displayCoords);
+    }
+  });
+
+  function showGridContextMenu(e, worldPos, displayCoords) {
+    const snappedPos = getSnapPoint(worldPos.x, worldPos.y, e.altKey);
+    const items = [
+      { label: 'Add Point', action: () => addPoint(snappedPos.x, snappedPos.y) },
+      { label: 'Add Line', action: () => {
+          const newPoint = addPoint(snappedPos.x, snappedPos.y);
+          isDrawingLine = true;
+          lineStartPoint = newPoint;
+          canvas.style.cursor = 'crosshair';
+        }}
+    ];
+    showContextMenu(e, items, displayCoords);
+  }
+
+  function showPointContextMenu(e, point, displayCoords) {
+    const items = [
+      { label: 'Add Line', action: () => {
+          isDrawingLine = true;
+          lineStartPoint = point;
+          canvas.style.cursor = 'crosshair';
+        }},
+      { type: 'divider' },
+      { label: 'Customize Point...', action: () => customizePoint(point) },
+      { label: 'Rename...', action: () => renamePoint(point) },
+      { type: 'divider' },
+      { label: 'Delete Point', action: () => deletePoint(point.id) }
+    ];
+    showContextMenu(e, items, displayCoords);
+  }
+
+  function showLineContextMenu(e, line, displayCoords) {
+    const p1 = points.find(p => p.id === line.p1);
+    const p2 = points.find(p => p.id === line.p2);
+    if (!p1 || !p2) return;
+    const length = (getDistance(p1, p2) / gridSize).toFixed(2);
+
+    const items = [
+      { label: 'Add Point on Line', action: () => {
+          isAddingPointOnLine = { lineId: line.id };
+          canvas.style.cursor = 'copy';
+        }},
+      { type: 'divider' },
+      { label: 'Customize Line...', action: () => customizeLine(line) },
+      { label: `Copy Length: ${length}`, action: () => navigator.clipboard.writeText(length).catch(err => console.error('Copy failed', err)) },
+      { type: 'divider' },
+      { label: 'Delete Line', action: () => deleteLine(line.id) }
+    ];
+    showContextMenu(e, items, displayCoords);
+  }
+
+  // --- Prompt Modal ---
+  const promptModal = document.getElementById('prompt-modal');
+  const promptInput = document.getElementById('prompt-input');
+  const promptOk = document.getElementById('prompt-ok');
+  const promptCancel = document.getElementById('prompt-cancel');
+  let promptResolve = null;
+
+  function showPrompt(title, description, initialValue) {
+    return new Promise(resolve => {
+      promptResolve = resolve;
+      document.getElementById('prompt-title').textContent = title;
+      document.getElementById('prompt-description').textContent = description;
+      promptInput.value = initialValue;
+      promptModal.style.display = 'flex';
+      promptInput.focus();
+      promptInput.select();
+    });
+  }
+
+  function hidePrompt() {
+    promptModal.style.display = 'none';
+  }
+
+  promptOk.onclick = () => {
+    if (promptResolve) promptResolve(promptInput.value);
+    hidePrompt();
+  };
+  promptCancel.onclick = () => {
+    if (promptResolve) promptResolve(null);
+    hidePrompt();
+  };
+
+  async function renamePoint(point) {
+    const newLabel = await showPrompt('Rename Point', `Enter a new label for point ${point.label}.`, point.label);
+    if (newLabel && newLabel.trim() !== '') {
+      point.label = newLabel.trim();
+      saveState();
+      draw();
+    }
+  }
+
+  async function customizePoint(point) {
+    const newColor = await showPrompt('Customize Point Color', `Enter a hex color code (e.g., #ff00ff) for point ${point.label}.`, point.color);
+    if (newColor) point.color = newColor;
+
+    const newRadius = await showPrompt('Customize Point Size', `Enter a radius in pixels (e.g., 8) for point ${point.label}.`, point.radius);
+    if (newRadius && !isNaN(parseFloat(newRadius))) point.radius = parseFloat(newRadius);
+
+    saveState();
+    draw();
+  }
+
+  async function customizeLine(line) {
+    const newColor = await showPrompt('Customize Line Color', `Enter a hex color code (e.g., #00ff00).`, line.color);
+    if (newColor) line.color = newColor;
+
+    const newThickness = await showPrompt('Customize Line Thickness', `Enter a thickness in pixels (e.g., 4).`, line.thickness);
+    if (newThickness && !isNaN(parseFloat(newThickness))) line.thickness = parseFloat(newThickness);
+
+    const newStyle = await showPrompt('Customize Line Style', `Enter 'solid' or 'dotted'.`, line.style);
+    if (newStyle && (newStyle === 'solid' || newStyle === 'dotted')) line.style = newStyle;
+
+    saveState();
+    draw();
+  }
+
+  // --- Keyboard Shortcuts ---
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Alt') {
+      altKeyPressed = true;
+      e.preventDefault();
+    }
+    if (e.ctrlKey || e.metaKey) {
+      if (e.key === 'z') { e.preventDefault(); undo(); }
+      else if (e.key === 'y') { e.preventDefault(); redo(); }
+    }
+  });
+  window.addEventListener('keyup', (e) => {
+    if (e.key === 'Alt') {
+      altKeyPressed = false;
+      e.preventDefault();
+    }
+  });
+
+  undoBtn.onclick = undo;
+  redoBtn.onclick = redo;
+
+  // --- Utility ---
+  function getProjectionT(p, v, w) {
+    const l2 = getDistance(v, w) ** 2;
+    if (l2 === 0) return 0;
+    let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+    return Math.max(0, Math.min(1, t)); // Clamp to segment
+  }
+
+  function distToSegment(p, v, w) {
+    const t = getProjectionT(p, v, w);
+    return getDistance(p, { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) });
+  }
+
+  // --- Initialization ---
+  window.addEventListener('resize', resizeCanvas);
+
+  resizeCanvas();
+  saveState(); // Save the initial empty state
+</script>
+</body>
+</html>

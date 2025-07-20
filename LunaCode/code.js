@@ -28,15 +28,6 @@ function populateSelect() {
     }
 }
 
-// function changeTheme() {
-//     let options = {
-//         oneDark: oneDarkEl.checked,
-//     };
-//
-//     let newState = cm6.createEditorState(view.state.doc, options);
-//     view.setState(newState);
-// }
-
 let stateNum = 1;
 function saveState() {
     let stateName = `Saved State ${stateNum++}`;
