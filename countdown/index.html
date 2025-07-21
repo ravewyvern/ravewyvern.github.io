@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>HRT Countdown</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
@@ -56,6 +57,10 @@
       font-style: italic;
       color: #e1d3f8;
       font-size: 1.1em;
+    }
+    .material-symbols-outlined {
+        vertical-align: middle;
+        color: black;
     }
   </style>
 </head>
@@ -183,6 +188,17 @@
     const now       = new Date();
     const diffMs    = Math.max(targetDate - now, 0);
 
+    const msPerYear = msPerDay * 365.25;
+    const msPerMonth = msPerDay * 30.44;
+
+    const yearsLeft = Math.floor(diffMs / msPerYear);
+    const remAfterYears = diffMs % msPerYear;
+
+    const monthsLeft = Math.floor(remAfterYears / msPerMonth);
+    const remAfterMonths = remAfterYears % msPerMonth;
+
+    const onlyDaysLeft = Math.floor(remAfterMonths / msPerDay);
+
     // Days left (integer)
     const daysLeft  = Math.floor(diffMs / msPerDay);
 
@@ -212,12 +228,25 @@
     const percent    = Math.min((elapsedMs / totalMs) * 100, 100).toFixed(2);
 
     document.getElementById("output").innerHTML = `
-      <p><strong>📅 Days Left:</strong> ${daysLeft}</p>
-      <p><strong>⏰ Time Left:</strong> ${hoursLeft}h ${minsLeft}m ${secsLeft}s</p>
-      <p><strong>⏱ Total Minutes Left:</strong> ${totalMinsLeft.toLocaleString()}</p>
-      <p><strong>⏲ Total Seconds Left:</strong> ${totalSecsLeft.toLocaleString()}</p>
-      <p><strong>📈 Progress:</strong> ${percent}% complete</p>
-      <div class="quote">💬 “${quote}”</div>
+      <p><strong><span class="material-symbols-outlined">
+calendar_month
+</span> Days Left:</strong> ${daysLeft}</p>
+      <p><strong><span class="material-symbols-outlined">
+calendar_today
+</span> Years Left:</strong> ${yearsLeft}y ${monthsLeft}m ${onlyDaysLeft}d</p>
+      <p><strong><span class="material-symbols-outlined">
+alarm
+</span> Time Left:</strong> ${hoursLeft}h ${minsLeft}m ${secsLeft}s</p>
+      <p><strong><span class="material-symbols-outlined">
+hourglass_top
+</span> Total Minutes Left:</strong> ${totalMinsLeft.toLocaleString()}</p>
+      <p><strong><span class="material-symbols-outlined">
+pace
+</span> Total Seconds Left:</strong> ${totalSecsLeft.toLocaleString()}</p>
+      <p><strong><span class="material-symbols-outlined">
+elevation
+</span> Progress:</strong> ${percent}% complete</p>
+      <div class="quote">“${quote}”</div>
     `;
   }
 
