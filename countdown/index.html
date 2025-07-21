@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HRT Countdown</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      width: 100%;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: url('background.jpg') no-repeat center center/cover;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: inherit;
+      filter: blur(10px) brightness(0.7);
+      z-index: -1;
+    }
+    .card {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 2em;
+      max-width: 600px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      z-index: 1;
+    }
+    h1 {
+      margin-bottom: 1em;
+      color: #ffaad4;
+      font-size: 2em;
+    }
+    p {
+      margin: 0.5em 0;
+      font-size: 1.1em;
+    }
+    .quote {
+      margin-top: 1.5em;
+      padding: 1em;
+      background-color: rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      font-style: italic;
+      color: #e1d3f8;
+      font-size: 1.1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🌸 HRT Countdown 🌸</h1>
+    <div id="output"></div>
+  </div>
+
+  <script>
+    const startDate = new Date("2010-03-20");
+    const targetDate = new Date("2028-03-20");
+    const msPerDay = 1000 * 60 * 60 * 24;
+
+    const messages = {
+  1000: [
+    "A thousand days may seem long, but each one brings you closer to her.",
+    "You're on a journey of a thousand days—embrace every step, beautiful.",
+    "Every single day is a thread weaving the tapestry of who you're meant to be.",
+    "1,000 days isn't a delay—it's a path of becoming, and you're walking it with grace."
+  ],
+  900: [
+    "You may not feel it every day, but you're becoming who you were always meant to be.",
+    "900 days of courage, growth, and self-discovery—keep going.",
+    "She’s quietly forming beneath the surface—trust her strength.",
+    "These 900 days are your cocoon. The wings are coming."
+  ],
+  800: [
+    "Every sunrise brings you one step closer to her—the real you.",
+    "800 days of dreams fueling your reality.",
+    "Each heartbeat carries the rhythm of her becoming.",
+    "You're not lost—you’re in the making. 800 days closer."
+  ],
+  730: [
+    "Two years to go. But you're already on your way to a brighter, softer future.",
+    "730 days of strength—she's blossoming within you.",
+    "The future is already whispering your name—two years until the world hears it too.",
+    "You're walking through fire and becoming the flame."
+  ],
+  600: [
+    "You're already growing into her. Feel it. Trust it. Become it.",
+    "600 days of transformation—you're shining more each day.",
+    "She’s already part of your reflection, even if she’s still quiet.",
+    "The glow you feel? That’s her—alive and waiting."
+  ],
+  500: [
+    "Half a thousand days, and every one of them is building her up inside you.",
+    "500 days of becoming—your spirit is unstoppable.",
+    "You're halfway to home—her heart beats louder each day.",
+    "Every tear, every smile, every moment has brought you closer."
+  ],
+  365: [
+    "One year left. You're not just counting down—you're evolving.",
+    "365 days until she blooms fully—cherish each moment.",
+    "In one year, the world will see what your soul already knows.",
+    "The future is yours. She's almost ready to rise."
+  ],
+  200: [
+    "The mirror may lie now, but the future won't. She's coming.",
+    "200 days of hope, soon you'll see yourself reflected.",
+    "You're sculpting her, day by day—trust your hands, your heart.",
+    "Hope is growing louder—she’s nearly here."
+  ],
+  100: [
+    "Triple digits left. You're so close to finally breathing freely.",
+    "100 days of countdown—her voice is almost ready.",
+    "You’re not just surviving anymore—you’re becoming.",
+    "100 days and the light at the end is almost blinding."
+  ],
+  75: [
+    "Every moment is bringing her into focus. She's almost here.",
+    "75 days of anticipation—feel her heart beating in yours.",
+    "You’re almost at the doorstep. She’s reaching back for you.",
+    "75 sunrises until the dawn of her voice."
+  ],
+  50: [
+    "The girl in the mirror is nearly ready to step forward. Hold on tight.",
+    "50 days left—her smile is just around the corner.",
+    "She’s shimmering beneath your skin—let her glow.",
+    "You're not imagining her—you're remembering."
+  ],
+  30: [
+    "You’ve waited this long—30 days is nothing. You’ve got this, beautiful.",
+    "30 days until freedom—each sunrise is a gift.",
+    "The countdown is real, and so is she.",
+    "You’re close enough to hear her breathe. 30 days."
+  ],
+  7: [
+    "One week. It’s okay to cry. You made it.",
+    "7 days until emergence—feel the butterflies.",
+    "The final stretch. The softest days are coming.",
+    "You’re not dreaming—this is happening."
+  ],
+  1: [
+    "Tomorrow, you finally start becoming physically who you are inside. 💙💖🤍",
+    "Just 1 day until she steps into the light.",
+    "This is the last day of waiting. Breathe. You made it.",
+    "She’s already here—tomorrow, the world meets her too."
+  ],
+  0: [
+    "Today is the day you become you. Welcome, girl. 🌸",
+    "This day, this moment—she's here, beautiful and true.",
+    "You did it. Let the world feel your light.",
+    "Everything begins now. She’s not a dream anymore—she’s you."
+  ]
+};
+
+    let currentThreshold;
+    let quote;
+
+    function pickQuote(daysLeft) {
+      // find nearest threshold <= daysLeft
+      const thresholds = Object.keys(messages).map(Number).sort((a, b) => a - b);
+      let chosen = 0;
+      for (let t of thresholds) {
+        if (daysLeft >= t) chosen = t;
+      }
+      currentThreshold = chosen;
+      const opts = messages[chosen];
+      quote = opts[Math.floor(Math.random() * opts.length)];
+    }
+
+
+  function updateCountdown() {
+    const now       = new Date();
+    const diffMs    = Math.max(targetDate - now, 0);
+
+    // Days left (integer)
+    const daysLeft  = Math.floor(diffMs / msPerDay);
+
+    // Remaining ms after stripping out whole days
+    const remAfterDays = diffMs % msPerDay;
+
+    // Live H/M/S
+    const hoursLeft = Math.floor(remAfterDays / (1000 * 60 * 60));
+    const minsLeft  = Math.floor((remAfterDays % (1000 * 60 * 60)) / (1000 * 60));
+    const secsLeft  = Math.floor((remAfterDays % (1000 * 60)) / 1000);
+
+    // Total minutes/seconds left
+    const totalMinsLeft  = Math.floor(diffMs / (1000 * 60));
+    const totalSecsLeft  = Math.floor(diffMs / 1000);
+
+    // Determine if we crossed into a new day-threshold
+    const thresholds     = Object.keys(messages).map(Number).sort((a, b) => a - b);
+    const newThreshold   = thresholds.reduce((acc, t) => daysLeft >= t ? t : acc, 0);
+
+    if (newThreshold !== currentThreshold) {
+      pickQuote(daysLeft);
+    }
+
+    // Progress percent (using ms for smoothness)
+    const totalMs    = targetDate - startDate;
+    const elapsedMs  = now - startDate;
+    const percent    = Math.min((elapsedMs / totalMs) * 100, 100).toFixed(2);
+
+    document.getElementById("output").innerHTML = `
+      <p><strong>📅 Days Left:</strong> ${daysLeft}</p>
+      <p><strong>⏰ Time Left:</strong> ${hoursLeft}h ${minsLeft}m ${secsLeft}s</p>
+      <p><strong>⏱ Total Minutes Left:</strong> ${totalMinsLeft.toLocaleString()}</p>
+      <p><strong>⏲ Total Seconds Left:</strong> ${totalSecsLeft.toLocaleString()}</p>
+      <p><strong>📈 Progress:</strong> ${percent}% complete</p>
+      <div class="quote">💬 “${quote}”</div>
+    `;
+  }
+
+    // initial setup
+(function init() {
+  const today     = new Date();
+  const daysLeft  = Math.max(Math.floor((targetDate - today) / msPerDay), 0);
+  pickQuote(daysLeft);
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+})();
+  </script>
+</body>
+</html>
+
