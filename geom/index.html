@@ -115,6 +115,8 @@
   let nextPointLabel = 'A';
   let history = [];
   let historyIndex = -1;
+  let angles = []; // Holds persistent angle properties like color and distance
+  let drawableAngles = []; // Temporary, recreated on each draw for hit detection
 
   // State variables
   let isPanning = false;
@@ -164,6 +166,7 @@
   function loadState(state) {
     points = JSON.parse(JSON.stringify(state.points));
     lines = JSON.parse(JSON.stringify(state.lines));
+    angles = JSON.parse(JSON.stringify(state.angles || [])); // Add this line
     nextPointLabel = state.nextPointLabel;
     draw();
     updateUndoRedoButtons();
@@ -324,6 +327,11 @@
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
       ctx.fillText(p.label, p.x, p.y - (p.radius || 5) / zoom - 2 / zoom);
+      ctx.font = `${10 / zoom}px Arial`;
+      ctx.fillStyle = '#333'
+      ctx.textBaseline = 'top';
+      const coordText = `(${(p.x / gridSize).toFixed(2)}, ${(-p.y / gridSize).toFixed(2)})`;
+      ctx.fillText(coordText, p.x, p.y + (p.radius || 5) / zoom + 2 / zoom);
     });
   }
 
@@ -406,71 +414,99 @@
   }
 
   function drawAngles() {
+    drawableAngles = []; // Clear for redraw and hit detection
+
     points.forEach(p => {
       const connectedLines = lines.filter(l => l.p1 === p.id || l.p2 === p.id);
       if (connectedLines.length < 2) return;
 
-      for (let i = 0; i < connectedLines.length; i++) {
-        for (let j = i + 1; j < connectedLines.length; j++) {
-          const line1 = connectedLines[i];
-          const line2 = connectedLines[j];
+      // Create a list of vectors with their angles for sorting
+      const lineAngles = connectedLines.map(line => {
+        const otherPointId = line.p1 === p.id ? line.p2 : line.p1;
+        const otherPoint = points.find(pt => pt.id === otherPointId);
+        if (!otherPoint) return null;
+        return {
+          line,
+          otherPoint,
+          angle: Math.atan2(otherPoint.y - p.y, otherPoint.x - p.x)
+        };
+      }).filter(Boolean); // Filter out nulls if a point was missing
 
-          const p1Id = line1.p1 === p.id ? line1.p2 : line1.p1;
-          const p2Id = line2.p1 === p.id ? line2.p2 : line2.p1;
+      // ✅ FIX: Sort lines angularly to find adjacent pairs
+      lineAngles.sort((a, b) => a.angle - b.angle);
 
-          const p1 = points.find(pt => pt.id === p1Id);
-          const p2 = points.find(pt => pt.id === p2Id);
-          if(!p1 || !p2) continue;
+      // Draw angles only between adjacent lines in the sorted list
+      for (let i = 0; i < lineAngles.length - 1; i++) {
+        const item1 = lineAngles[i];
+        const item2 = lineAngles[i + 1];
 
+        // Find a persistent state object for this angle, or use defaults
+        let angleState = angles.find(a =>
+                a.vertexId === p.id &&
+                ((a.line1Id === item1.line.id && a.line2Id === item2.line.id) ||
+                        (a.line1Id === item2.line.id && a.line2Id === item1.line.id))
+        );
+
+        const source = angleState || {
+          id: `angle_${p.id}_${item1.line.id}_${item2.line.id}`,
+          vertexId: p.id,
+          line1Id: item1.line.id,
+          line2Id: item2.line.id,
+          color: 'rgba(255, 0, 0, 0.7)',
+          distance: 1.0
+        };
+
+        const p1 = item1.otherPoint;
+        const p2 = item2.otherPoint;
+        let angle1 = item1.angle;
+        let angle2 = item2.angle;
+        let angleDiff = angle2 - angle1;
+
+        while (angleDiff <= -Math.PI) angleDiff += 2 * Math.PI;
+        while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+
+        const angleDeg = Math.abs(angleDiff * 180 / Math.PI);
+        const angleColor = source.color;
+        const distanceScale = source.distance;
+        const radius = Math.min(getDistance(p, p1), getDistance(p, p2), 40) * 0.5 * distanceScale;
+
+        drawableAngles.push({
+          source, vertex: p, p1, p2, radius,
+          startAngle: angle1, endAngle: angle2,
+          isReversed: angleDiff < 0, angleDeg,
+        });
+
+        ctx.beginPath();
+        ctx.strokeStyle = angleColor;
+        ctx.lineWidth = 1.5 / zoom;
+
+        if (Math.abs(angleDeg - 90) < 1) { // Right angle
+          const armLength = radius * 0.7;
           const v1 = { x: p1.x - p.x, y: p1.y - p.y };
           const v2 = { x: p2.x - p.x, y: p2.y - p.y };
+          let p1Unit = { x: v1.x / getDistance(p, p1), y: v1.y / getDistance(p, p1) };
+          let p2Unit = { x: v2.x / getDistance(p, p2), y: v2.y / getDistance(p, p2) };
+          const corner1 = { x: p.x + p1Unit.x * armLength, y: p.y + p1Unit.y * armLength };
+          const corner2 = { x: p.x + p2Unit.x * armLength, y: p.y + p2Unit.y * armLength };
+          const corner3 = { x: corner1.x + p2Unit.x * armLength, y: corner1.y + p2Unit.y * armLength };
+          ctx.moveTo(corner1.x, corner1.y);
+          ctx.lineTo(corner3.x, corner3.y);
+          ctx.lineTo(corner2.x, corner2.y);
+        } else { // Normal angle arc
+          ctx.arc(p.x, p.y, radius, angle1, angle2, angleDiff < 0);
+        }
+        ctx.stroke();
 
-          let angle1 = Math.atan2(v1.y, v1.x);
-          let angle2 = Math.atan2(v2.y, v2.x);
-
-          let angleDiff = angle2 - angle1;
-
-          // Normalize to (-PI, PI]
-          while (angleDiff <= -Math.PI) angleDiff += 2 * Math.PI;
-          while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
-
-          const angleDeg = Math.abs(angleDiff * 180 / Math.PI);
-
-          ctx.beginPath();
-          ctx.strokeStyle = 'rgba(255, 0, 0, 0.7)';
-          ctx.lineWidth = 1.5 / zoom;
-
-          const radius = Math.min(getDistance(p, p1), getDistance(p, p2), 40) * 0.5;
-
-          if (Math.abs(angleDeg - 90) < 1) { // Right angle
-            const armLength = radius * 0.7;
-            let p1Unit = {x: v1.x / getDistance(p,p1), y: v1.y / getDistance(p,p1)};
-            let p2Unit = {x: v2.x / getDistance(p,p2), y: v2.y / getDistance(p,p2)};
-
-            const corner1 = {x: p.x + p1Unit.x * armLength, y: p.y + p1Unit.y * armLength};
-            const corner2 = {x: p.x + p2Unit.x * armLength, y: p.y + p2Unit.y * armLength};
-            const corner3 = {x: corner1.x + p2Unit.x * armLength, y: corner1.y + p2Unit.y * armLength};
-
-            ctx.moveTo(corner1.x, corner1.y);
-            ctx.lineTo(corner3.x, corner3.y);
-            ctx.lineTo(corner2.x, corner2.y);
-          } else { // Normal angle arc
-            ctx.arc(p.x, p.y, radius, angle1, angle2, angleDiff < 0);
-          }
-          ctx.stroke();
-
-          if (Math.abs(angleDeg - 90) >= 1) {
-            const textAngle = angle1 + angleDiff / 2;
-            const textRadius = radius * 0.7;
-            const textX = p.x + textRadius * Math.cos(textAngle);
-            const textY = p.y + textRadius * Math.sin(textAngle);
-
-            ctx.fillStyle = 'red';
-            ctx.font = `${12 / zoom}px Arial`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(angleDeg.toFixed(1) + '°', textX, textY);
-          }
+        if (Math.abs(angleDeg - 90) >= 1) {
+          const textAngle = angle1 + angleDiff / 2;
+          const textRadius = radius * 0.7;
+          const textX = p.x + textRadius * Math.cos(textAngle);
+          const textY = p.y + textRadius * Math.sin(textAngle);
+          ctx.fillStyle = angleColor;
+          ctx.font = `${12 / zoom}px Arial`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(angleDeg.toFixed(1) + '°', textX, textY);
         }
       }
     });
@@ -606,6 +642,15 @@
         lineStartPoint = null;
         tempLineEnd = null;
         canvas.style.cursor = 'crosshair';
+        const snapPoint = getPointAt(worldPos.x, worldPos.y);
+
+        if (snapPoint && snapPoint.id !== lineStartPoint.id) {
+          tempLineEnd = { x: snapPoint.x, y: snapPoint.y };
+        } else {
+          const snapped = getSnapPoint(worldPos.x, worldPos.y, e.altKey);
+          tempLineEnd = {x: snapped.x, y: snapped.y};
+        }
+        draw();
       } else if (point) {
         draggedPoint = point;
       } else {
@@ -615,7 +660,71 @@
       }
     }
   });
+  // --- NEW Angle Context Menu Functions ---
 
+  function getAngleAt(worldX, worldY) {
+    const threshold = 8 / zoom; // A bit more generous for clicking
+    for (const angle of drawableAngles) {
+      const distFromVertex = getDistance({ x: worldX, y: worldY }, angle.vertex);
+
+      if (Math.abs(distFromVertex - angle.radius) < threshold) {
+        let pointAngle = Math.atan2(worldY - angle.vertex.y, worldX - angle.vertex.x);
+        let start = angle.startAngle;
+        let end = angle.endAngle;
+
+        if (angle.isReversed) {
+          [start, end] = [end, start];
+        }
+        while (end < start) end += 2 * Math.PI;
+        while (pointAngle < start) pointAngle += 2 * Math.PI;
+
+        if (pointAngle >= start && pointAngle <= end + 0.01) { // Add small tolerance
+          return angle;
+        }
+      }
+    }
+    return null;
+  }
+
+  function findOrCreateAngleState(angle) {
+    let angleState = angles.find(a => a.id === angle.source.id);
+    if (!angleState) {
+      angleState = { ...angle.source };
+      angles.push(angleState);
+    }
+    return angleState;
+  }
+
+  async function changeAngleColor(angle) {
+    let angleState = findOrCreateAngleState(angle);
+    const newColor = await showPrompt('Customize Angle Color', `Enter a hex or rgba value.`, angleState.color);
+    if (newColor) {
+      angleState.color = newColor;
+      saveState();
+      draw();
+    }
+  }
+
+  async function adjustAngleDistance(angle) {
+    let angleState = findOrCreateAngleState(angle);
+    const newDist = await showPrompt('Adjust Arc Distance', `Enter a scale factor (e.g., 1.0 for default, 1.5 for farther).`, angleState.distance);
+    if (newDist && !isNaN(parseFloat(newDist))) {
+      angleState.distance = parseFloat(newDist);
+      saveState();
+      draw();
+    }
+  }
+
+  function showAngleContextMenu(e, angle) {
+    const items = [
+      { label: `Copy Angle: ${angle.angleDeg.toFixed(1)}°`, action: () => navigator.clipboard.writeText(angle.angleDeg.toFixed(1)) },
+      { type: 'divider' },
+      { label: 'Change Color...', action: () => changeAngleColor(angle) },
+      { label: 'Adjust Distance...', action: () => adjustAngleDistance(angle) }
+    ];
+    const displayCoords = { x: angle.vertex.x / gridSize, y: -angle.vertex.y / gridSize };
+    showContextMenu(e, items, displayCoords);
+  }
   canvas.addEventListener('mousemove', (e) => {
     const worldPos = toWorld(e.offsetX, e.offsetY);
     if (isPanning) {
@@ -709,14 +818,33 @@
   canvas.addEventListener('contextmenu', (e) => {
     e.preventDefault();
     const worldPos = toWorld(e.offsetX, e.offsetY);
-    const displayCoords = { x: worldPos.x / gridSize, y: -worldPos.y / gridSize };
+    let displayCoords = { x: worldPos.x / gridSize, y: -worldPos.y / gridSize }; // Default
+
     const point = getPointAt(worldPos.x, worldPos.y);
     const line = !point ? getLineAt(worldPos.x, worldPos.y) : null;
+    const angle = !point && !line ? getAngleAt(worldPos.x, worldPos.y) : null;
 
     if (point) {
+      // ✅ If clicking a point, show its coordinates (unless Alt is held)
+      if (!e.altKey) {
+        displayCoords = { x: point.x / gridSize, y: -point.y / gridSize };
+      }
       showPointContextMenu(e, point, displayCoords);
     } else if (line) {
+      // ✅ If clicking a line, show its midpoint coordinates
+      if (!e.altKey) {
+        const p1 = points.find(p => p.id === line.p1);
+        const p2 = points.find(p => p.id === line.p2);
+        if (p1 && p2) {
+          const midX = (p1.x + p2.x) / 2;
+          const midY = (p1.y + p2.y) / 2;
+          displayCoords = { x: midX / gridSize, y: -midY / gridSize };
+        }
+      }
       showLineContextMenu(e, line, displayCoords);
+    } else if (angle) {
+      // ✅ NEW: Show the angle context menu
+      showAngleContextMenu(e, angle);
     } else {
       showGridContextMenu(e, worldPos, displayCoords);
     }
