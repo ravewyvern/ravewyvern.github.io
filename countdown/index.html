@@ -71,11 +71,14 @@
   </div>
 
   <script>
-    const startDate = new Date("2010-03-20");
-    const targetDate = new Date("2028-03-20");
-    const msPerDay = 1000 * 60 * 60 * 24;
+// --- CONFIGURATION ---
 
-    const messages = {
+// FIX: Use new Date(year, monthIndex, day) to create dates in the local time zone.
+// The old method new Date("YYYY-MM-DD") parses the date as UTC midnight.
+const startDate = new Date(2010, 2, 20); // Month is 0-indexed, so 2 is March.
+const targetDate = new Date(2028, 2, 20);
+
+const messages = {
   1000: [
     "A thousand days may seem long, but each one brings you closer to her.",
     "You're on a journey of a thousand days—embrace every step, beautiful.",
@@ -168,95 +171,103 @@
   ]
 };
 
-    let currentThreshold;
-    let quote;
 
-    function pickQuote(daysLeft) {
-      // find nearest threshold <= daysLeft
-      const thresholds = Object.keys(messages).map(Number).sort((a, b) => a - b);
-      let chosen = 0;
-      for (let t of thresholds) {
-        if (daysLeft >= t) chosen = t;
-      }
-      currentThreshold = chosen;
-      const opts = messages[chosen];
-      quote = opts[Math.floor(Math.random() * opts.length)];
+// --- CONSTANTS & STATE ---
+
+// BUGFIX: Moved constant calculations outside the update loop for efficiency.
+const msPerDay = 1000 * 60 * 60 * 24;
+// NOTE: The following are approximations for display purposes and don't account
+// for the exact number of days in each month or all leap year rules.
+const msPerYear = msPerDay * 365.25;
+const msPerMonth = msPerDay * 30.44;
+
+// BUGFIX: Pre-calculate the sorted thresholds once instead of every second.
+const sortedThresholds = Object.keys(messages).map(Number).sort((a, b) => a - b);
+
+let currentThreshold = null; // Use null to ensure the first quote is always picked.
+let quote = "Loading quote..."; // A default message while the script loads.
+
+
+// --- FUNCTIONS ---
+
+/**
+ * Updates the quote if the day-based threshold has been crossed.
+ * @param {number} daysLeft - The total number of full days remaining.
+ */
+function updateQuoteIfNeeded(daysLeft) {
+    // Find the correct threshold for the current number of days.
+    const newThreshold = sortedThresholds.reduce((acc, t) => (daysLeft >= t ? t : acc), 0);
+
+    // Only update the quote if the threshold has changed.
+    if (newThreshold !== currentThreshold) {
+        currentThreshold = newThreshold;
+        const opts = messages[currentThreshold];
+        quote = opts[Math.floor(Math.random() * opts.length)];
     }
+}
 
+/**
+ * Main function to calculate time left and update the DOM.
+ */
+function updateCountdown() {
+    const now = new Date();
+    // Ensure the difference is never negative.
+    const diffMs = Math.max(targetDate - now, 0);
 
-  function updateCountdown() {
-    const now       = new Date();
-    const diffMs    = Math.max(targetDate - now, 0);
+    // --- Time Calculations ---
+    
+    // Total days left (integer).
+    const daysLeft = Math.floor(diffMs / msPerDay);
+    
+    // Check if we need to pick a new quote.
+    updateQuoteIfNeeded(daysLeft);
 
-    const msPerYear = msPerDay * 365.25;
-    const msPerMonth = msPerDay * 30.44;
-
+    // Approximate breakdown for display (Y/M/D).
     const yearsLeft = Math.floor(diffMs / msPerYear);
     const remAfterYears = diffMs % msPerYear;
-
     const monthsLeft = Math.floor(remAfterYears / msPerMonth);
     const remAfterMonths = remAfterYears % msPerMonth;
-
     const onlyDaysLeft = Math.floor(remAfterMonths / msPerDay);
 
-    // Days left (integer)
-    const daysLeft  = Math.floor(diffMs / msPerDay);
-
-    // Remaining ms after stripping out whole days
+    // Live countdown for the current day (H/M/S).
     const remAfterDays = diffMs % msPerDay;
-
-    // Live H/M/S
     const hoursLeft = Math.floor(remAfterDays / (1000 * 60 * 60));
-    const minsLeft  = Math.floor((remAfterDays % (1000 * 60 * 60)) / (1000 * 60));
-    const secsLeft  = Math.floor((remAfterDays % (1000 * 60)) / 1000);
+    const minsLeft = Math.floor((remAfterDays % (1000 * 60 * 60)) / (1000 * 60));
+    const secsLeft = Math.floor((remAfterDays % (1000 * 60)) / 1000);
 
-    // Total minutes/seconds left
-    const totalMinsLeft  = Math.floor(diffMs / (1000 * 60));
-    const totalSecsLeft  = Math.floor(diffMs / 1000);
+    // Totals for display.
+    const totalMinsLeft = Math.floor(diffMs / (1000 * 60));
+    const totalSecsLeft = Math.floor(diffMs / 1000);
 
-    // Determine if we crossed into a new day-threshold
-    const thresholds     = Object.keys(messages).map(Number).sort((a, b) => a - b);
-    const newThreshold   = thresholds.reduce((acc, t) => daysLeft >= t ? t : acc, 0);
+    // Progress percentage.
+    const totalMs = targetDate - startDate;
+    const elapsedMs = Math.max(now - startDate, 0);
+    const percent = Math.min((elapsedMs / totalMs) * 100, 100).toFixed(2);
 
-    if (newThreshold !== currentThreshold) {
-      pickQuote(daysLeft);
+    // --- DOM Update ---
+    
+    // Check for the output element before trying to update it.
+    const outputElement = document.getElementById("output");
+    if (outputElement) {
+        outputElement.innerHTML = `
+            <p><strong><span class="material-symbols-outlined">calendar_month</span> Days Left:</strong> ${daysLeft.toLocaleString()}</p>
+            <p><strong><span class="material-symbols-outlined">calendar_today</span> Years Left:</strong> ${yearsLeft}y ${monthsLeft}m ${onlyDaysLeft}d</p>
+            <p><strong><span class="material-symbols-outlined">alarm</span> Time Left:</strong> ${String(hoursLeft).padStart(2, '0')}h ${String(minsLeft).padStart(2, '0')}m ${String(secsLeft).padStart(2, '0')}s</p>
+            <p><strong><span class="material-symbols-outlined">hourglass_top</span> Total Minutes Left:</strong> ${totalMinsLeft.toLocaleString()}</p>
+            <p><strong><span class="material-symbols-outlined">pace</span> Total Seconds Left:</strong> ${totalSecsLeft.toLocaleString()}</p>
+            <p><strong><span class="material-symbols-outlined">elevation</span> Progress:</strong> ${percent}% complete</p>
+            <div class="quote">“${quote}”</div>
+        `;
     }
+}
 
-    // Progress percent (using ms for smoothness)
-    const totalMs    = targetDate - startDate;
-    const elapsedMs  = now - startDate;
-    const percent    = Math.min((elapsedMs / totalMs) * 100, 100).toFixed(2);
+// --- INITIALIZATION ---
 
-    document.getElementById("output").innerHTML = `
-      <p><strong><span class="material-symbols-outlined">
-calendar_month
-</span> Days Left:</strong> ${daysLeft}</p>
-      <p><strong><span class="material-symbols-outlined">
-calendar_today
-</span> Years Left:</strong> ${yearsLeft}y ${monthsLeft}m ${onlyDaysLeft}d</p>
-      <p><strong><span class="material-symbols-outlined">
-alarm
-</span> Time Left:</strong> ${hoursLeft}h ${minsLeft}m ${secsLeft}s</p>
-      <p><strong><span class="material-symbols-outlined">
-hourglass_top
-</span> Total Minutes Left:</strong> ${totalMinsLeft.toLocaleString()}</p>
-      <p><strong><span class="material-symbols-outlined">
-pace
-</span> Total Seconds Left:</strong> ${totalSecsLeft.toLocaleString()}</p>
-      <p><strong><span class="material-symbols-outlined">
-elevation
-</span> Progress:</strong> ${percent}% complete</p>
-      <div class="quote">“${quote}”</div>
-    `;
-  }
-
-    // initial setup
+// REFACTOR: Simplified the initialization.
+// Run the countdown immediately on page load, then set it to repeat every second.
 (function init() {
-  const today     = new Date();
-  const daysLeft  = Math.max(Math.floor((targetDate - today) / msPerDay), 0);
-  pickQuote(daysLeft);
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
 })();
   </script>
 </body>
