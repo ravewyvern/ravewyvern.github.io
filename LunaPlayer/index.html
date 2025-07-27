@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LunaPlayer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
+    <link rel="icon" href="Youtube-Music-Logo.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container" id="container">
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <img src="Youtube-Music-Logo.png" alt="Logo" class="logo">
+            <span class="logo-text">LunaPlayer</span>
+        </div>
+        <div class="top-bar-center">
+            <div class="search-bar">
+                <i class="material-icons">search</i>
+                <input type="text" placeholder="Search songs, albums, artists">
+            </div>
+        </div>
+        <div class="top-bar-right">
+            <i class="material-icons profile-icon" id="profileIcon">account_circle</i>
+            <div class="profile-popup" id="profilePopup">
+                <button class="popup-item">Log In</button>
+                <button class="popup-item" data-page="settings">Settings</button>
+                <div class="popup-divider"></div>
+                <div class="backend-url-container">
+                    <label for="backendUrl">Backend URL</label>
+                    <input type="text" id="backendUrl" placeholder="http://localhost:8000">
+                    <button id="saveBackendUrl">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-top">
+            <button class="icon-button" id="toggleBtn">
+                <i class="material-icons">menu</i>
+            </button>
+        </div>
+        <ul class="sidebar-links">
+            <li class="nav-item active" data-page="home"><i class="material-icons">home</i><span class="nav-text">Home</span></li>
+            <li class="nav-item" data-page="history"><i class="material-icons">history</i><span class="nav-text">History</span></li>
+            <li class="nav-item" data-page="stats"><i class="material-icons">bar_chart</i><span class="nav-text">Stats</span></li>
+            <li class="nav-item" data-page="library"><i class="material-icons">library_music</i><span class="nav-text">Library</span></li>
+        </ul>
+        <div class="sidebar-divider"></div>
+        <div class="playlists">
+            <p class="playlist-header">Playlists</p>
+            <ul class="sidebar-links">
+                <li class="nav-item" data-page="playlist-chill"><i class="material-icons">queue_music</i><span class="nav-text">Chill Mix</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="main-panel" id="mainPanel">
+        <div id="home" class="page-content active"><h1>Home</h1></div>
+        <div id="search" class="page-content"><h1>Search Results</h1></div>
+        <div id="settings" class="page-content"><h1>Settings</h1></div>
+        <div id="history" class="page-content"><h1>History</h1></div>
+        <div id="stats" class="page-content"><h1>Stats</h1></div>
+        <div id="library" class="page-content"><h1>Library</h1></div>
+        <div id="playlist-chill" class="page-content"><h1>Playlist: Chill Mix</h1></div>
+    </div>
+
+    <div class="side-content-panel" id="sideContentPanel">
+        <div id="lyrics-content" class="side-page-content"><h3>Lyrics</h3></div>
+        <div id="queue-content" class="side-page-content"><h3>Queue</h3></div>
+        <div id="info-content" class="side-page-content"><h3>Info</h3></div>
+    </div>
+
+    <div class="bottom-bar">
+        <div class="song-info">
+            <img src="album%20placeholder.jpg" alt="Album Art" class="album-art">
+            <div class="song-details">
+                <p class="song-title">Song Title</p>
+                <p class="song-artist">Artist Name • Album</p>
+            </div>
+            <i class="material-icons">favorite_border</i>
+        </div>
+        <div class="media-controls">
+            <div class="control-buttons">
+                <i class="material-icons">shuffle</i>
+                <i class="material-icons">skip_previous</i>
+                <i class="material-icons play-pause-btn" id="playPauseBtn">play_arrow</i>
+                <i class="material-icons">skip_next</i>
+                <i class="material-icons">repeat</i>
+            </div>
+            <div class="progress-bar-container">
+                <span class="time-stamp">0:00</span>
+                <input type="range" class="progress-bar" value="0">
+                <span class="time-stamp">3:56</span>
+            </div>
+        </div>
+        <div class="extra-controls">
+            <i class="material-icons side-panel-trigger" data-target="lyrics-content">lyrics</i>
+            <i class="material-icons side-panel-trigger" data-target="queue-content">queue_music</i>
+            <i class="material-icons side-panel-trigger" data-target="info-content">info</i>
+            <div class="volume-container">
+                <i class="material-icons">volume_up</i>
+                <input type="range" class="volume-slider" value="100">
+            </div>
+        </div>
+    </div>
+</div>
+<script src="main.js"></script>
+</body>
+</html>
