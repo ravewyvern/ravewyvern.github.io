@@ -6,6 +6,7 @@
     <title>LunaPlayer</title>
     <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
     <link rel="icon" href="Youtube-Music-Logo.png" type="image/png">
+    <link id="theme-style" rel="stylesheet" href="themes/dark_purple.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,7 +19,7 @@
         <div class="top-bar-center">
             <div class="search-bar">
                 <i class="material-icons">search</i>
-                <input type="text" placeholder="Search songs, albums, artists">
+                <input type="text" id="searchInput" placeholder="Search songs, albums, artists">
             </div>
         </div>
         <div class="top-bar-right">
@@ -58,13 +59,54 @@
     </div>
 
     <div class="main-panel" id="mainPanel">
-        <div id="home" class="page-content active"><h1>Home</h1></div>
+        <div id="home" class="page-content active"><h1>Home</h1>
+            <p>Welcome to LunaPlayer!</p>
+            <p>An alternate frontend for youtube music for the web</p>
+            <p>For now im working on improving the frontend with ui and stuff</p>
+            <p>Then im gonna make the backend in python to communicate with yt music</p>
+
+        </div>
         <div id="search" class="page-content"><h1>Search Results</h1></div>
-        <div id="settings" class="page-content"><h1>Settings</h1></div>
         <div id="history" class="page-content"><h1>History</h1></div>
         <div id="stats" class="page-content"><h1>Stats</h1></div>
         <div id="library" class="page-content"><h1>Library</h1></div>
         <div id="playlist-chill" class="page-content"><h1>Playlist: Chill Mix</h1></div>
+
+        <div id="settings" class="page-content">
+            <div class="settings-container">
+                <div class="settings-sidebar">
+                    <div class="settings-nav-item active" data-settings-page="theme">Theme</div>
+                    <div class="settings-nav-item" data-settings-page="general">General</div>
+                    <div class="settings-nav-item" data-settings-page="playback">Playback</div>
+                    <div class="settings-nav-item" data-settings-page="backend">Backend</div>
+                    <div class="settings-nav-item" data-settings-page="about">About</div>
+                </div>
+                <div class="settings-content">
+                    <div class="settings-page active" id="theme-settings">
+                        <h2>Themes</h2>
+                        <p>Select a theme for the application.</p>
+                        <div class="theme-options">
+                            <div class="theme-choice" data-theme="themes/dark_purple.css">
+                                <div class="theme-swatch" style="background-color: #773ea5;"></div>
+                                <p>Dark Purple (Default)</p>
+                            </div>
+                            <div class="theme-choice" data-theme="themes/ocean_blue.css">
+                                <div class="theme-swatch" style="background-color: #007acc;"></div>
+                                <p>Ocean Blue</p>
+                            </div>
+                            <div class="theme-choice" data-theme="themes/forest_green.css">
+                                <div class="theme-swatch" style="background-color: #2e8b57;"></div>
+                                <p>Forest Green</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="settings-page" id="general-settings"><h2>General Settings</h2></div>
+                    <div class="settings-page" id="playback-settings"><h2>Playback Settings</h2></div>
+                    <div class="settings-page" id="backend-settings"><h2>Backend Settings</h2></div>
+                    <div class="settings-page" id="about-settings"><h2>About LunaPlayer</h2></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="side-content-panel" id="sideContentPanel">
@@ -75,31 +117,31 @@
 
     <div class="bottom-bar">
         <div class="song-info">
-            <img src="album%20placeholder.jpg" alt="Album Art" class="album-art">
+            <img src="album%20placeholder.jpg" alt="Album Art" class="album-art" id="miniPlayerTrigger">
             <div class="song-details">
                 <p class="song-title">Song Title</p>
                 <p class="song-artist">Artist Name • Album</p>
             </div>
-            <i class="material-icons">favorite_border</i>
+            <i class="material-icons icon-button">favorite_border</i>
         </div>
         <div class="media-controls">
             <div class="control-buttons">
-                <i class="material-icons">shuffle</i>
-                <i class="material-icons">skip_previous</i>
-                <i class="material-icons play-pause-btn" id="playPauseBtn">play_arrow</i>
-                <i class="material-icons">skip_next</i>
-                <i class="material-icons">repeat</i>
+                <i class="material-icons icon-button">shuffle</i>
+                <i class="material-icons icon-button">skip_previous</i>
+                <i class="material-icons icon-button play-pause-btn" id="playPauseBtn">play_arrow</i>
+                <i class="material-icons icon-button">skip_next</i>
+                <i class="material-icons icon-button">repeat</i>
             </div>
             <div class="progress-bar-container">
                 <span class="time-stamp">0:00</span>
                 <input type="range" class="progress-bar" value="0">
-                <span class="time-stamp">3:56</span>
+                <span class="time-stamp">0:00</span>
             </div>
         </div>
         <div class="extra-controls">
-            <i class="material-icons side-panel-trigger" data-target="lyrics-content">lyrics</i>
-            <i class="material-icons side-panel-trigger" data-target="queue-content">queue_music</i>
-            <i class="material-icons side-panel-trigger" data-target="info-content">info</i>
+            <i class="material-icons icon-button side-panel-trigger" data-target="lyrics-content">lyrics</i>
+            <i class="material-icons icon-button side-panel-trigger" data-target="queue-content">queue_music</i>
+            <i class="material-icons icon-button side-panel-trigger" data-target="info-content">info</i>
             <div class="volume-container">
                 <i class="material-icons">volume_up</i>
                 <input type="range" class="volume-slider" value="100">
