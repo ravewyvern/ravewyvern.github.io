@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Error 404 :(</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #0078d7;
+      color: #ffffff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .bsod-container {
+      padding: 10vw;
+      box-sizing: border-box;
+    }
+
+    .sad-face {
+      font-size: 8rem;
+      font-weight: 200;
+      margin-top: 0;
+      margin-bottom: 2rem;
+    }
+
+    p {
+      font-size: 1.25rem;
+      line-height: 1.6;
+    }
+
+    .info-section {
+      display: flex;
+      align-items: center;
+      margin-top: 3rem;
+      gap: 20px;
+    }
+
+    #qr-code {
+      width: 150px;
+      height: 150px;
+      cursor: pointer;
+    }
+
+    .info-text p {
+      margin: 0.5rem 0;
+      font-size: 1rem;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+      cursor: default;
+    }
+
+    .modal-content {
+      position: relative;
+      background-color: #2e2e2e;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 640px;
+      height: 50%;
+      max-height: 480px;
+      border-radius: 15px;
+    }
+
+    #popup-iframe {
+      width: 100%;
+      height: 100%;
+      border-radius: 15px;
+    }
+
+    .close-button {
+      color: #aaa;
+      position: absolute;
+      top: -5px;
+      right: 10px;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close-button:hover,
+    .close-button:focus {
+      color: black;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="bsod-container">
+  <h1 class="sad-face">:(</h1>
+  <p>You went to a nonexistent page and got here. I'm just collecting your credit card info, and then I restart "Borrow" your money.</p>
+
+  <p><span id="percentage">0</span>% complete</p>
+
+  <div class="info-section">
+    <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.youtube.com/watch?v=dQw4w9WgXcQ" alt="QR Code">
+    <div class="info-text">
+      <p>For more information about this issue and possible fixes, visit https://www.youtube.com/watch?v=dQw4w9WgXcQ</p>
+      <p>If you call a support person, give them this info:</p>
+      <p>Stop Code: <span id="stop-code"></span></p>
+    </div>
+  </div>
+</div>
+
+<div id="popup-modal" class="modal">
+  <div class="modal-content">
+    <span class="close-button">&times;</span>
+    <iframe id="popup-iframe" width="100%" height="100%" src="https://supermario-game.com/mario-game/mario.html" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const percentageElement = document.getElementById('percentage');
+    const stopCodeElement = document.getElementById('stop-code');
+    const qrCode = document.getElementById('qr-code');
+    const modal = document.getElementById('popup-modal');
+    const closeButton = document.querySelector('.close-button');
+    const iframe = document.getElementById('popup-iframe');
+    const originalIframeSrc = iframe.src;
+
+    let progress = 0;
+
+    // List of possible stop codes
+    const stopCodes = [
+      "WRONG_PAGE_LOSER",
+      "ERROR_404",
+      "I_NEED_SLEEP",
+      "EMONTIAL_DAMAGE",
+      "O7_TECHNOBLADE",
+      "AHHHHHHHHHHHHHHHHHHH",
+      "ANARCHY!!!!!"
+    ];
+
+    // Set a random stop code on page load
+    stopCodeElement.textContent = stopCodes[Math.floor(Math.random() * stopCodes.length)];
+
+    // Update the percentage randomly
+    const updateProgress = () => {
+      if (progress < 1000000000000) {
+        progress += Math.floor(Math.random() * 8) + 1;
+        if (progress > 100) {
+          progress = 100;
+        }
+        percentageElement.textContent = progress;
+      }
+    };
+
+    // The user requested every minute, but a real BSOD is faster.
+    // This interval updates it every 1 to 4 seconds for a more realistic feel.
+    setInterval(updateProgress, (Math.random() * 3000) + 1000);
+
+    // Show the modal when the QR code is clicked
+    qrCode.addEventListener('click', () => {
+      modal.style.display = 'flex';
+    });
+
+    // Hide the modal when the close button is clicked
+    closeButton.addEventListener('click', () => {
+      modal.style.display = 'none';
+      // Stop the video by resetting the iframe src
+      iframe.src = originalIframeSrc;
+    });
+
+    // Hide the modal when clicking outside the modal content
+    window.addEventListener('click', (event) => {
+      if (event.target === modal) {
+        modal.style.display = 'none';
+        iframe.src = originalIframeSrc;
+      }
+    });
+  });
+</script>
+</body>
+</html>

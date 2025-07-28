@@ -6,7 +6,8 @@
   <title>Home</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
-  <script src="scripts.js" defer></script>
+  <script src="scripts.js"></script>
+  <link rel="icon" href="icons/mypfp.png" type="image/svg+xml">
 </head>
 <body>
 
@@ -15,11 +16,11 @@
     <a href="#" class="nav-button active"><span class="material-icons-outlined">home</span>Home</a>
   </div>
   <div class="nav-center">
-    <a href="#" class="nav-button"><span class="material-icons-outlined">photo_camera</span>Photos</a>
-    <a href="#" class="nav-button"><span class="material-icons-outlined">apps</span>Projects</a>
+    <a href="photos" class="nav-button"><span class="material-icons-outlined">photo_camera</span>Photos</a>
+    <a href="projects" class="nav-button"><span class="material-icons-outlined">apps</span>Projects</a>
   </div>
   <div class="nav-right">
-    <a href="#" class="nav-button contact-button"><span class="material-icons-outlined">email</span>Contact</a>
+    <a href="contacts" class="nav-button contact-button"><span class="material-icons-outlined">email</span>Contact</a>
     <button id="theme-switcher" class="nav-button">
       <span class="material-icons-outlined">dark_mode</span>
     </button>
@@ -28,44 +29,39 @@
         <span class="material-icons-outlined">menu</span>
       </button>
       <div class="dropdown-menu">
-        <a href="#"><span class="material-icons-outlined">photo_camera</span>Photos</a>
-        <a href="#"><span class="material-icons-outlined">apps</span>Projects</a>
-        <a href="#"><span class="material-icons-outlined">email</span>Contact</a>
+        <a href="photos"><span class="material-icons-outlined">photo_camera</span>Photos</a>
+        <a href="projects"><span class="material-icons-outlined">apps</span>Projects</a>
+        <a href="contacts"><span class="material-icons-outlined">email</span>Contact</a>
       </div>
     </div>
   </div>
 </nav>
 
 <main id="main-content">
-
-  <div class="window" id="about-window">
-    <div class="title-bar">About</div>
-    <div class="content" id="about-content">
+  <div class="panel profile-panel">
+    <img src="https://github.com/ravewyvern.png" alt="Profile Picture" class="pfp">
+    <h2>Rave Wyvern</h2>
+    <p class="pronouns">she/her</p>
+    <div class="socials">
+      <a href="https://github.com/ravewyvern" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+      <a href="https://www.youtube.com/@rave_wyvern" target="_blank" aria-label="Twitter"><i class="fa-brands fa-youtube"></i></a>
     </div>
   </div>
-
-  <div class="window" id="description-window">
-    <div class="title-bar">Description</div>
-    <div class="content" id="description-content">
+  <div class="panel description-panel">
+    <h3>About Me</h3>
+    <p>Hey there I do programming, photography and other random things but mainly those I have a bunch of random projects and cool photos you should check them out</p>
+  </div>
+  <div class="panel skills-panel">
+    <h3>Skills</h3>
+    <div class="skills-grid">
+      <!-- Replace with your skill icons -->
+      <i class="fa-brands fa-java fa-2x"></i>
+      <i class="fa-brands fa-html5 fa-2x"></i>
+      <i class="fa-brands fa-css3-alt fa-2x"></i>
+      <p>Thats it D:</p>
     </div>
   </div>
-
-  <div class="window" id="terminal-window">
-    <div class="title-bar">Terminal</div>
-    <div class="content" id="terminal-content">
-      <div id="terminal-output"></div>
-      <div class="terminal-input-line">
-        <span>&gt;</span>
-        <div id="terminal-input" contenteditable="true"></div>
-      </div>
-    </div>
-  </div>
-
 </main>
-
-
-<div id="skills-container">
-</div>
 
 </body>
 </html>
