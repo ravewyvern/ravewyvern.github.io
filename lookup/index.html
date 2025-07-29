@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Android Package Search</title>
+  <title>Advanced Android Package Search</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --bg: #1a1b26;
@@ -16,6 +17,7 @@
       --red: #f7768e;
       --dark-red: #db4b4b;
       --blue: #7aa2f7;
+      --modal-bg: rgba(0, 0, 0, 0.7);
     }
     * { box-sizing: border-box; }
     body {
@@ -27,12 +29,26 @@
     }
     h1 {
       text-align: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 0.5rem;
       color: var(--blue);
     }
-    .controls {
+    .header-controls {
       display: flex;
-      flex-wrap: wrap; 
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    #settingsBtn {
+      background: none;
+      border: none;
+      color: var(--fg);
+      font-size: 1.5rem;
+      cursor: pointer;
+      margin-left: 1rem;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 0.75rem;
       margin-bottom: 1.5rem;
     }
@@ -43,11 +59,10 @@
       border: 1px solid var(--border);
       color: var(--fg);
       border-radius: 8px;
-      flex-grow: 1; 
     }
     .package {
       display: flex;
-      flex-direction: column; 
+      flex-direction: column;
       gap: 1rem;
       background: var(--panel);
       border: 1px solid var(--border);
@@ -62,16 +77,31 @@
     }
     .package-main { flex-grow: 1; }
     .package-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 0.5rem;
       margin-bottom: 0.5rem;
     }
-    .package h2 {
+    .package-header .app-name {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--fg);
       margin: 0;
-      font-size: 1.25rem;
+    }
+    .package-header .package-name {
+      font-size: 1rem;
+      color: var(--blue);
       word-break: break-all;
+    }
+    .package-header .developer-name {
+      font-size: 0.9rem;
+      color: var(--orange);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .sub-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
     .badge {
       display: inline-block;
@@ -79,104 +109,61 @@
       border-radius: 6px;
       font-size: 0.75rem;
       font-weight: bold;
-      margin-left: 0.5rem;
       white-space: nowrap;
     }
     .badge--Recommended { background: var(--green); color: #1a1b26; }
     .badge--Advanced { background: var(--orange); color: #1a1b26; }
     .badge--Expert { background: var(--red); color: #1a1b26; }
     .badge--Unsafe { background: var(--dark-red); color: #fff; }
-
     .info { margin: 0.5rem 0; line-height: 1.6; }
     .info strong { color: var(--blue); }
     .cmd-block {
-      background: var(--highlight);
-      padding: 0.75rem;
-      border-radius: 6px;
-      margin-top: 0.75rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: "Fira Code", monospace;
+      background: var(--highlight); padding: 0.75rem; border-radius: 6px; margin-top: 0.75rem;
+      display: flex; justify-content: space-between; align-items: center; font-family: "Fira Code", monospace;
     }
     .cmd-block button {
-      padding: 5px 10px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      background: var(--border);
-      color: var(--fg);
-      margin-left: 1rem;
-      transition: background-color 0.2s;
+      padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer;
+      background: var(--border); color: var(--fg); margin-left: 1rem; transition: background-color 0.2s;
     }
     .cmd-block button:hover { background: #565f89; }
-
-    .action-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      flex-shrink: 0;
-    }
+    .action-buttons { display: flex; flex-direction: column; gap: 0.5rem; flex-shrink: 0; }
     .action-btn {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 0.75rem;
-      border-radius: 6px;
-      text-decoration: none;
-      background: var(--border);
-      color: var(--fg);
-      transition: background-color 0.2s ease;
+      display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; border-radius: 6px;
+      text-decoration: none; background: var(--border); color: var(--fg); transition: background-color 0.2s ease;
     }
     .action-btn:hover { background-color: #565f89; }
-    .action-btn svg {
-      width: 16px;
-      height: 16px;
-      fill: currentColor;
-    }
-
-    /* Fancy Links Section */
-    .links-container {
-      margin-top: 1rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
+    .action-btn svg { width: 16px; height: 16px; fill: currentColor; }
+    .links-container { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .fancy-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: var(--highlight);
-      padding: 4px 8px;
-      border-radius: 6px;
-      text-decoration: none;
-      color: var(--blue);
-      font-size: 0.9rem;
+      display: inline-flex; align-items: center; gap: 0.5rem; background: var(--highlight);
+      padding: 4px 8px; border-radius: 6px; text-decoration: none; color: var(--blue); font-size: 0.9rem;
     }
     .fancy-link:hover { text-decoration: underline; }
-    .fancy-link img {
-      width: 16px;
-      height: 16px;
-      border-radius: 2px;
-    }
-
+    .fancy-link img { width: 16px; height: 16px; border-radius: 2px; }
     #showMoreBtn {
-      display: block;
-      width: 100%;
-      padding: 1rem;
-      font-size: 1rem;
-      font-weight: bold;
-      border: none;
-      border-radius: 8px;
-      background: var(--blue);
-      color: var(--bg);
-      cursor: pointer;
-      margin-top: 1rem;
+      display: block; width: 100%; padding: 1rem; font-size: 1rem; font-weight: bold; border: none;
+      border-radius: 8px; background: var(--blue); color: var(--bg); cursor: pointer; margin-top: 1rem;
     }
     #showMoreBtn:hover { opacity: 0.9; }
-
+    .modal {
+      display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+      overflow: auto; background-color: var(--modal-bg);
+    }
+    .modal-content {
+      background-color: var(--panel); margin: 15% auto; padding: 20px;
+      border: 1px solid var(--border); width: 80%; max-width: 500px; border-radius: 12px;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px;}
+    .close-btn { color: var(--fg); font-size: 28px; font-weight: bold; cursor: pointer; }
+    .setting-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .setting-row label { font-size: 1.1rem; }
+    .toggle-switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border); transition: .4s; border-radius: 28px; }
+    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--blue); }
+    input:checked + .slider:before { transform: translateX(22px); }
     @media (min-width: 768px) {
-      .controls { flex-wrap: nowrap; }
       .package { flex-direction: row; }
     }
   </style>
@@ -189,9 +176,14 @@
     <symbol id="icon-exodus" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H8l4-5v4h3l-4 5z"/></symbol>
   </svg>
 
-  <h1>Android Package Search</h1>
+  <div class="header-controls">
+    <h1>Advanced Android Package Search</h1>
+    <button id="settingsBtn" title="Settings"><i class="fas fa-cog"></i></button>
+  </div>
+
   <div class="controls">
-    <input type="text" id="search" placeholder="Search packages..." />
+    <input type="text" id="search" placeholder="Search package names..." />
+    <input type="text" id="devSearch" placeholder="Search by developer..." />
     <select id="filterList">
       <option value="">All Lists</option>
       <option value="aosp">AOSP</option>
@@ -211,6 +203,30 @@
   <div id="results"></div>
   <button id="showMoreBtn" style="display: none;">Show More</button>
 
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Settings</h2>
+        <span class="close-btn">&times;</span>
+      </div>
+      <div class="setting-row">
+        <label for="showAppNameToggle">Show Detected App Name</label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="showAppNameToggle" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <label for="showDevNameToggle">Show Detected Developer</label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="showDevNameToggle" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
   <script>
     const DATA_URL = 'https://raw.githubusercontent.com/Universal-Debloater-Alliance/universal-android-debloater-next-generation/refs/heads/main/resources/assets/uad_lists.json';
     const PACKAGES_PER_PAGE = 100;
@@ -219,59 +235,139 @@
     let filteredEntries = [];
     let currentPage = 1;
     let debounceTimeout;
+    
+    let settings = {
+        showAppName: true,
+        showDeveloperName: true,
+    };
 
     const searchInput = document.getElementById('search');
+    const devSearchInput = document.getElementById('devSearch');
     const listSelect = document.getElementById('filterList');
     const removalSelect = document.getElementById('filterRemoval');
     const resultsContainer = document.getElementById('results');
     const showMoreBtn = document.getElementById('showMoreBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsModal = document.getElementById('settingsModal');
+    const closeBtn = document.querySelector('.close-btn');
+    const showAppNameToggle = document.getElementById('showAppNameToggle');
+    const showDevNameToggle = document.getElementById('showDevNameToggle');
 
-    // --- Event Listeners ---
-    searchInput.addEventListener('input', () => {
-      clearTimeout(debounceTimeout);
-      debounceTimeout = setTimeout(triggerFilter, 300);
-    });
-
-    [listSelect, removalSelect].forEach(el => {
-      el.addEventListener('change', triggerFilter); // Use 'change' for immediate selection
-    });
-    
-    showMoreBtn.addEventListener('click', () => {
-        currentPage++;
-        renderResultsPage();
-    });
+    [searchInput, devSearchInput].forEach(el => el.addEventListener('input', () => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(triggerFilter, 300);
+    }));
+    [listSelect, removalSelect].forEach(el => el.addEventListener('change', triggerFilter));
+    showMoreBtn.addEventListener('click', () => { currentPage++; renderResultsPage(); });
+    settingsBtn.onclick = () => settingsModal.style.display = 'block';
+    closeBtn.onclick = () => settingsModal.style.display = 'none';
+    window.onclick = (event) => { if (event.target == settingsModal) settingsModal.style.display = 'none'; };
+    showAppNameToggle.onchange = (e) => { settings.showAppName = e.target.checked; triggerFilter(); };
+    showDevNameToggle.onchange = (e) => { settings.showDeveloperName = e.target.checked; triggerFilter(); };
 
     function triggerFilter() {
-      currentPage = 1; // Reset to first page on new filter
+      currentPage = 1; 
       applyFilters();
     }
 
-    // --- Data Fetching and Processing ---
     fetch(DATA_URL)
       .then(res => res.json())
       .then(data => {
-        allEntries = Object.entries(data).map(([pkg, info]) => ({ pkg, ...info }))
-                                         .sort((a, b) => a.pkg.localeCompare(b.pkg));
+        const processedData = Object.entries(data).map(([pkg, info]) => {
+            const { appName, developerName } = extractNames(info.description || '', info.list);
+            return { pkg, ...info, appName, developerName };
+        });
+        allEntries = processedData.sort((a, b) => a.pkg.localeCompare(b.pkg));
         applyFilters();
       })
       .catch(err => {
         resultsContainer.innerHTML = '<p>Error fetching data. Please try again later.</p>';
-        console.error('Error fetching data:', err)
+        console.error('Error fetching data:', err);
       });
+
+    function extractNames(description, list) {
+        const OEM_NAMES = ['Samsung', 'Google', 'Nothing', 'OnePlus', 'Motorola', 'LG', 'Sony', 'HTC', 'Xiaomi', 'Oppo', 'Vivo', 'Realme', 'Huawei', 'Asus'];
+        const CARRIER_NAMES = ['Sprint', 'T-Mobile', 'AT&T', 'Verizon', 'Vodafone', 'Orange', 'Deutsche Telekom', 'Cricket'];
+        let developerName = null;
+        let appName = null;
+
+        // --- Developer Name Extraction ---
+        // 1. List-based detection
+        if (list === 'google') developerName = 'Google';
+        else if (list === 'aosp') developerName = 'AOSP';
+        else if (list === 'carrier') {
+            for (const carrier of CARRIER_NAMES) {
+                if (description.toLowerCase().includes(carrier.toLowerCase())) {
+                    developerName = carrier;
+                    break;
+                }
+            }
+        } else if (list === 'oem') {
+            for (const oem of OEM_NAMES) {
+                if (description.toLowerCase().includes(oem.toLowerCase())) {
+                    developerName = oem;
+                    break;
+                }
+            }
+        }
+
+        // 2. "by" detection as a fallback
+        if (!developerName) {
+            const byMatch = description.toLowerCase().split(/\s+by\s+/);
+            if (byMatch.length > 1) {
+                const segment = byMatch[1].split(/[.,()]/)[0].trim();
+                const words = segment.split(/\s+/);
+                if (words.length > 0) {
+                    if (words.length > 1 && words[0][0].toUpperCase() === words[0][0] && words[1][0].toUpperCase() === words[1][0]) {
+                        developerName = `${words[0]} ${words[1]}`;
+                    } else if (words[0].length > 0) {
+                        developerName = words[0].charAt(0).toUpperCase() + words[0].slice(1);
+                    }
+                }
+            }
+        }
+        
+        // --- App Name Extraction ---
+        const titleSegment = description.split(/[.,()]/)[0].trim();
+        const words = titleSegment.split(/\s+/).filter(w => w.length > 0);
+        
+        if (words.length >= 1 && words[0][0].toUpperCase() === words[0][0]) {
+            let potentialNameParts = [];
+            for (const word of words) {
+                if (word[0].toUpperCase() === word[0]) {
+                    potentialNameParts.push(word);
+                } else {
+                    break;
+                }
+            }
+            if (potentialNameParts.length >= 2 && potentialNameParts.length <= 4) {
+                let tempAppName = potentialNameParts.join(' ');
+                if (tempAppName.toLowerCase().endsWith(' app') && tempAppName.split(/\s+/).length > 1) {
+                    appName = tempAppName.slice(0, -4).trim();
+                } else {
+                    appName = tempAppName;
+                }
+            }
+        }
+        
+        return { appName, developerName };
+    }
 
     function applyFilters() {
       const q = searchInput.value.trim().toLowerCase();
+      const devQ = devSearchInput.value.trim().toLowerCase();
       const listFilter = listSelect.value;
       const remFilter = removalSelect.value;
 
       filteredEntries = allEntries.filter(entry => {
         if (q && !entry.pkg.toLowerCase().includes(q)) return false;
+        if (devQ && !(entry.developerName || '').toLowerCase().includes(devQ)) return false;
         if (listFilter && entry.list.toLowerCase() !== listFilter) return false;
         if (remFilter && entry.removal !== remFilter) return false;
         return true;
       });
 
-      resultsContainer.innerHTML = ''; // Clear previous results
+      resultsContainer.innerHTML = ''; 
       renderResultsPage();
     }
 
@@ -291,45 +387,64 @@
       showMoreBtn.style.display = (endIndex < filteredEntries.length) ? 'block' : 'none';
     }
     
-    function createPackageElement({ pkg, removal, list, dependencies, neededBy, labels, description }) {
+    function createPackageElement(entry) {
+      const { pkg, removal, list, dependencies, neededBy, labels, description, appName, developerName } = entry;
       const div = document.createElement('div');
       div.className = 'package';
       
       const textDescription = description || 'No description available.';
-      const urlRegex = /(https?:\/\/[^\s()<>]+(?:\([\w\d]+\)|[^.,!?"'\]\s]))/g;
+      const urlRegex = /(?:[(<[]|&lt;)?(https?:\/\/[^\s()<>\[\]]+)(?:[)>\]]|&gt;)?/g;
+      const urls = [];
+      let cleanDescription = textDescription.replace(urlRegex, (match, p1) => {
+          if (p1) urls.push(p1);
+          return '';
+      }).trim();
       
-      const urls = [...textDescription.matchAll(urlRegex)].map(match => match[0]);
-      const cleanDescription = textDescription.replace(urlRegex, '').trim();
-
       let linksContainerHTML = '';
       if (urls.length > 0) {
-        const uniqueUrls = [...new Set(urls)]; // Avoid duplicate links
+        const uniqueUrls = [...new Set(urls)];
         linksContainerHTML = `<div class="links-container">
           ${uniqueUrls.map(url => {
             try {
-              const hostname = new URL(url).hostname;
+              const hostname = new URL(url).hostname.replace(/^www\./, '');
               return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="fancy-link">
-                        <img src="https://www.google.com/s2/favicons?domain=${hostname}&sz=32" alt="favicon">
+                        <img src="https://www.google.com/s2/favicons?domain=${hostname}&sz=32" alt="favicon" onerror="this.style.display='none'">
                         <span>${hostname}</span>
                       </a>`;
             } catch (e) { return ''; }
           }).join('')}
         </div>`;
       }
+
+      const showAppName = settings.showAppName && appName;
+      const showDevName = settings.showDeveloperName && developerName;
       
+      let headerHTML = '';
+      if (showAppName) {
+          headerHTML = `<h2 class="app-name">${appName}</h2>
+            <div class="sub-header">
+              <span class="package-name">${pkg}</span>
+              ${showDevName ? `<span class="developer-name" onclick="searchByDeveloper('${developerName}')">by ${developerName}</span>` : ''}
+            </div>`;
+      } else {
+          headerHTML = `<div class="sub-header">
+              <span class="package-name" style="font-size: 1.25rem; font-weight: bold;">${pkg}</span>
+              ${showDevName ? `<span class="developer-name" onclick="searchByDeveloper('${developerName}')">by ${developerName}</span>` : ''}
+            </div>`;
+      }
+
       div.innerHTML = `
         <div class="package-main">
           <div class="package-header">
-            <h2>${pkg}<span class="badge badge--${removal}">${removal}</span></h2>
+            ${headerHTML}
           </div>
+          <span class="badge badge--${removal}">${removal}</span>
           <div class="info"><strong>List:</strong> ${list}</div>
           ${labels?.length ? `<div class="info"><strong>Labels:</strong> ${labels.join(', ')}</div>` : ''}
           ${dependencies?.length ? `<div class="info"><strong>Dependencies:</strong> ${dependencies.join(', ')}</div>` : ''}
           ${neededBy?.length ? `<div class="info"><strong>Needed by:</strong> ${neededBy.join(', ')}</div>` : ''}
-          <div class="info">${cleanDescription.split('\\n').join('<br>')}</div>
-          
+          <div class="info">${cleanDescription.replace(/\\n/g, '<br>')}</div>
           ${linksContainerHTML}
-
           <div class="cmd-block">
             <code>adb shell pm uninstall -k --user 0 ${pkg}</code>
             <button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">Copy</button>
@@ -340,21 +455,18 @@
           </div>
         </div>
         <div class="action-buttons">
-          <a href="https://play.google.com/store/apps/details?id=${pkg}" class="action-btn" target="_blank" rel="noopener noreferrer">
-            <svg><use href="#icon-playstore"></use></svg>
-            <span>Play Store</span>
-          </a>
-          <a href="https://f-droid.org/packages/${pkg}" class="action-btn" target="_blank" rel="noopener noreferrer">
-            <svg><use href="#icon-fdroid"></use></svg>
-            <span>F-Droid</span>
-          </a>
-          <a href="https://reports.exodus-privacy.eu.org/en/reports/search/${pkg}" class="action-btn" target="_blank" rel="noopener noreferrer">
-            <svg><use href="#icon-exodus"></use></svg>
-            <span>Exodus</span>
-          </a>
+          <a href="https://play.google.com/store/apps/details?id=${pkg}" class="action-btn" target="_blank" rel="noopener noreferrer"><svg><use href="#icon-playstore"></use></svg><span>Play Store</span></a>
+          <a href="https://f-droid.org/packages/${pkg}" class="action-btn" target="_blank" rel="noopener noreferrer"><svg><use href="#icon-fdroid"></use></svg><span>F-Droid</span></a>
+          <a href="https://reports.exodus-privacy.eu.org/en/reports/search/${pkg}" class="action-btn" target="_blank" rel="noopener noreferrer"><svg><use href="#icon-exodus"></use></svg><span>Exodus</span></a>
         </div>
       `;
       return div;
+    }
+
+    function searchByDeveloper(devName) {
+        devSearchInput.value = devName;
+        searchInput.value = '';
+        triggerFilter();
     }
   </script>
 </body>
