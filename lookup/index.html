@@ -6,42 +6,190 @@
   <title>Android Package Search</title>
   <style>
     :root {
-      --bg: #1e1e1e;
-      --fg: #ddd;
-      --panel: #2c2c2c;
-      --border: #444;
-      --highlight: #3a3a3a;
-      --green: #4caf50;
-      --orange: #ff9800;
-      --red: #f44336;
-      --dark-red: #b71c1c;
+      --bg: #1a1b26;
+      --fg: #a9b1d6;
+      --panel: #24283b;
+      --border: #414868;
+      --highlight: #292e42;
+      --green: #9ece6a;
+      --orange: #ff9e64;
+      --red: #f7768e;
+      --dark-red: #db4b4b;
+      --blue: #7aa2f7;
     }
     * { box-sizing: border-box; }
-    body { background: var(--bg); color: var(--fg); font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-    h1 { margin-bottom: 16px; }
-    .controls { display: flex; gap: 8px; margin-bottom: 16px; }
-    .controls input, .controls select { padding: 8px; font-size: 16px; background: var(--panel); border: 1px solid var(--border); color: var(--fg); border-radius: 4px; }
-    #results { }
-    .package { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px; }
-    .package h2 { margin: 0 0 8px; font-size: 20px; }
-    .info { margin: 6px 0; }
-    .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 12px; margin-left: 6px; }
-    .badge--Recommended { background: var(--green); }
-    .badge--Advanced { background: var(--orange); }
-    .badge--Expert { background: var(--red); }
-    .badge--Unsafe { background: var(--dark-red); }
-    a { color: #4eaaff; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .cmd-block { background: var(--highlight); padding: 12px; border-radius: 4px; margin: 8px 0; position: relative; }
-    .cmd-block button { position: absolute; top: 8px; right: 8px; padding: 4px 8px; border: none; border-radius: 4px; cursor: pointer; }
-    button { background: var(--border); color: var(--fg); }
-    button:hover { background: var(--highlight); }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      margin: 0;
+      padding: 1rem;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: var(--blue);
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap; /* Wraps controls on smaller screens */
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .controls input, .controls select {
+      padding: 0.75rem;
+      font-size: 1rem;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--fg);
+      border-radius: 8px;
+      flex-grow: 1; /* Allows controls to fill space */
+    }
+    .package {
+      display: flex;
+      flex-direction: column; /* Default to column for mobile */
+      gap: 1rem;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .package:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .package-main { flex-grow: 1; }
+    .package-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .package h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      word-break: break-all;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      margin-left: 0.5rem;
+      white-space: nowrap;
+    }
+    .badge--Recommended { background: var(--green); color: #1a1b26; }
+    .badge--Advanced { background: var(--orange); color: #1a1b26; }
+    .badge--Expert { background: var(--red); color: #1a1b26; }
+    .badge--Unsafe { background: var(--dark-red); color: #fff; }
+
+    .info { margin: 0.5rem 0; line-height: 1.6; }
+    .info strong { color: var(--blue); }
+    .cmd-block {
+      background: var(--highlight);
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin-top: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: "Fira Code", monospace;
+    }
+    .cmd-block button {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background: var(--border);
+      color: var(--fg);
+      margin-left: 1rem;
+      transition: background-color 0.2s;
+    }
+    .cmd-block button:hover { background: #565f89; }
+
+    /* Vertical Action Buttons */
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      text-decoration: none;
+      background: var(--border);
+      color: var(--fg);
+      transition: background-color 0.2s ease;
+    }
+    .action-btn:hover { background-color: #565f89; }
+    .action-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    /* Fancy Links */
+    .fancy-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--highlight);
+      padding: 4px 8px;
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--blue);
+      margin: 2px 0;
+      font-size: 0.9rem;
+    }
+    .fancy-link:hover { text-decoration: underline; }
+    .fancy-link img {
+      width: 16px;
+      height: 16px;
+      border-radius: 2px;
+    }
+
+    /* Show More Button */
+    #showMoreBtn {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      background: var(--blue);
+      color: var(--bg);
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    #showMoreBtn:hover { opacity: 0.9; }
+
+    /* Desktop layout adjustments */
+    @media (min-width: 768px) {
+      .controls { flex-wrap: nowrap; }
+      .package { flex-direction: row; }
+    }
   </style>
 </head>
 <body>
+
+  <svg width="0" height="0" style="display: none;">
+    <symbol id="icon-playstore" viewBox="0 0 512 512"><path d="M498.4 239.2c-3.2-12-16-48-16-48L320 32 48 320l144 144 288.8-176.8c11.2-8.8 13.6-24 4.8-35.2zM256 320L96 144l32-32 128 112 128-112 32 32-160 176z"/></symbol>
+    <symbol id="icon-fdroid" viewBox="0 0 24 24"><path d="M18.5 7a4.5 4.5 0 10-9 0 4.5 4.5 0 009 0zm-13 0a4.5 4.5 0 10-9 0 4.5 4.5 0 009 0zM5.5 17a4.5 4.5 0 109 0 4.5 4.5 0 00-9 0z" transform="translate(2 3.5) scale(.9)"/></symbol>
+    <symbol id="icon-exodus" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H8l4-5v4h3l-4 5z"/></symbol>
+  </svg>
+
   <h1>Android Package Search</h1>
   <div class="controls">
-    <input type="text" id="search" placeholder="Search package names..." />
+    <input type="text" id="search" placeholder="Search packages..." />
     <select id="filterList">
       <option value="">All Lists</option>
       <option value="aosp">AOSP</option>
@@ -59,111 +207,147 @@
     </select>
   </div>
   <div id="results"></div>
+  <button id="showMoreBtn" style="display: none;">Show More</button>
 
   <script>
     const DATA_URL = 'https://raw.githubusercontent.com/Universal-Debloater-Alliance/universal-android-debloater-next-generation/refs/heads/main/resources/assets/uad_lists.json';
-    let entries = [];
-    let timeout;
+    const PACKAGES_PER_PAGE = 100;
+
+    let allEntries = [];
+    let filteredEntries = [];
+    let currentPage = 1;
+    let debounceTimeout;
+
+    const searchInput = document.getElementById('search');
+    const listSelect = document.getElementById('filterList');
+    const removalSelect = document.getElementById('filterRemoval');
+    const resultsContainer = document.getElementById('results');
+    const showMoreBtn = document.getElementById('showMoreBtn');
 
     // Fetch and prepare data
     fetch(DATA_URL)
       .then(res => res.json())
       .then(data => {
-        entries = Object.entries(data).map(([pkg, info]) => ({ pkg, info }));
-        renderResults();
+        allEntries = Object.entries(data).map(([pkg, info]) => ({ pkg, ...info }))
+                                         .sort((a, b) => a.pkg.localeCompare(b.pkg));
+        applyFilters();
       })
-      .catch(err => console.error('Error fetching data:', err));
+      .catch(err => {
+        resultsContainer.innerHTML = '<p>Error fetching data. Please try again later.</p>';
+        console.error('Error fetching data:', err)
+      });
 
-    // UI elements
-    const searchInput = document.getElementById('search');
-    const listSelect = document.getElementById('filterList');
-    const removalSelect = document.getElementById('filterRemoval');
-
+    // Add event listeners
     [searchInput, listSelect, removalSelect].forEach(el =>
       el.addEventListener('input', () => {
-        clearTimeout(timeout);
-        timeout = setTimeout(renderResults, 300);
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
+          currentPage = 1; // Reset to first page on new filter
+          applyFilters();
+        }, 300);
       })
     );
 
-    function renderResults() {
+    showMoreBtn.addEventListener('click', () => {
+        currentPage++;
+        renderResultsPage();
+    });
+
+    function applyFilters() {
       const q = searchInput.value.trim().toLowerCase();
       const listFilter = listSelect.value;
       const remFilter = removalSelect.value;
 
-      const results = entries.filter(({ pkg, info }) => {
-        if (q && !pkg.toLowerCase().includes(q)) return false;
-        if (listFilter && info.list.toLowerCase() !== listFilter) return false;
-        if (remFilter && info.removal !== remFilter) return false;
+      filteredEntries = allEntries.filter(entry => {
+        if (q && !entry.pkg.toLowerCase().includes(q)) return false;
+        if (listFilter && entry.list.toLowerCase() !== listFilter) return false;
+        if (remFilter && entry.removal !== remFilter) return false;
         return true;
       });
 
-      const container = document.getElementById('results');
-      container.innerHTML = '';
+      resultsContainer.innerHTML = ''; // Clear previous results
+      renderResultsPage();
+    }
 
-      if (!results.length) {
-        container.innerHTML = '<p>No packages found.</p>';
-        return;
+    function renderResultsPage() {
+      const startIndex = (currentPage - 1) * PACKAGES_PER_PAGE;
+      const endIndex = startIndex + PACKAGES_PER_PAGE;
+      const pageEntries = filteredEntries.slice(startIndex, endIndex);
+
+      if (filteredEntries.length === 0 && currentPage === 1) {
+        resultsContainer.innerHTML = '<p>No packages found matching your criteria.</p>';
       }
 
-      results.sort((a, b) => a.pkg.localeCompare(b.pkg)).forEach(({ pkg, info }) => {
-        const div = document.createElement('div');
-        div.className = 'package';
-
-        // Title & badge
-        const title = document.createElement('h2');
-        title.textContent = pkg;
-        const badge = document.createElement('span');
-        badge.className = `badge badge--${info.removal}`;
-        badge.textContent = info.removal;
-        title.appendChild(badge);
-        div.appendChild(title);
-
-        // Core info
-        ['list', 'dependencies', 'neededBy', 'labels'].forEach(key => {
-          const val = info[key];
-          if (val && (Array.isArray(val) ? val.length : true)) {
-            const p = document.createElement('div');
-            p.className = 'info';
-            p.innerHTML = `<strong>${key.charAt(0).toUpperCase()+key.slice(1)}:</strong> ${Array.isArray(val)? val.join(', '): val}`;
-            div.appendChild(p);
-          }
-        });
-
-        // Description
-        if (info.description) {
-          const desc = document.createElement('div');
-          desc.className = 'info';
-          info.description.split('\\n').forEach((line, i) => {
-            const html = line.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
-            desc.insertAdjacentHTML('beforeend', html + (i<info.description.split('\\n').length-1 ? '<br>':'') );
-          });
-          div.appendChild(desc);
-        }
-
-        // Uninstall
-        const uniBlock = document.createElement('div');
-        uniBlock.className = 'cmd-block';
-        uniBlock.textContent = `adb uninstall ${pkg}`;
-        const copyUni = document.createElement('button');
-        copyUni.textContent = 'Copy';
-        copyUni.onclick = () => navigator.clipboard.writeText(uniBlock.textContent);
-        uniBlock.appendChild(copyUni);
-        div.appendChild(uniBlock);
-
-        // Disable
-        const disBlock = document.createElement('div');
-        disBlock.className = 'cmd-block';
-        disBlock.textContent = `adb shell pm disable-user --user 0 ${pkg}`;
-        const copyDis = document.createElement('button');
-        copyDis.textContent = 'Copy';
-        copyDis.onclick = () => navigator.clipboard.writeText(disBlock.textContent);
-        disBlock.appendChild(copyDis);
-        div.appendChild(disBlock);
-
-        container.appendChild(div);
+      pageEntries.forEach(entry => {
+        resultsContainer.appendChild(createPackageElement(entry));
       });
+      
+      // Toggle "Show More" button
+      if (endIndex < filteredEntries.length) {
+        showMoreBtn.style.display = 'block';
+      } else {
+        showMoreBtn.style.display = 'none';
+      }
     }
+    
+    function createPackageElement({ pkg, removal, list, dependencies, neededBy, labels, description }) {
+      const div = document.createElement('div');
+      div.className = 'package';
+      
+      const descriptionHTML = description
+        ? description.split('\\n').map(line => 
+            line.replace(/(https?:\/\/[^\s]+)/g, (url) => {
+              try {
+                const hostname = new URL(url).hostname;
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="fancy-link">
+                          <img src="https://www.google.com/s2/favicons?domain=${hostname}&sz=32" alt="favicon">
+                          <span>${hostname}</span>
+                        </a>`;
+              } catch (e) {
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`; // Fallback for invalid URLs
+              }
+            })
+          ).join('<br>')
+        : 'No description available.';
+
+      div.innerHTML = `
+        <div class="package-main">
+          <div class="package-header">
+            <h2>${pkg}<span class="badge badge--${removal}">${removal}</span></h2>
+          </div>
+          <div class="info"><strong>List:</strong> ${list}</div>
+          ${labels?.length ? `<div class="info"><strong>Labels:</strong> ${labels.join(', ')}</div>` : ''}
+          ${dependencies?.length ? `<div class="info"><strong>Dependencies:</strong> ${dependencies.join(', ')}</div>` : ''}
+          ${neededBy?.length ? `<div class="info"><strong>Needed by:</strong> ${neededBy.join(', ')}</div>` : ''}
+          <div class="info">${descriptionHTML}</div>
+          
+          <div class="cmd-block">
+            <code>adb shell pm uninstall -k --user 0 ${pkg}</code>
+            <button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">Copy</button>
+          </div>
+          <div class="cmd-block">
+            <code>adb shell pm disable-user --user 0 ${pkg}</code>
+            <button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">Copy</button>
+          </div>
+        </div>
+        <div class="action-buttons">
+          <a href="https://play.google.com/store/apps/details?id=${pkg}" class="action-btn" target="_blank" rel="noopener noreferrer">
+            <svg><use href="#icon-playstore"></use></svg>
+            <span>Play Store</span>
+          </a>
+          <a href="https://f-droid.org/packages/${pkg}" class="action-btn" target="_blank" rel="noopener noreferrer">
+            <svg><use href="#icon-fdroid"></use></svg>
+            <span>F-Droid</span>
+          </a>
+          <a href="https://reports.exodus-privacy.eu.org/en/reports/search/${pkg}" class="action-btn" target="_blank" rel="noopener noreferrer">
+            <svg><use href="#icon-exodus"></use></svg>
+            <span>Exodus</span>
+          </a>
+        </div>
+      `;
+      return div;
+    }
+
   </script>
 </body>
 </html>
