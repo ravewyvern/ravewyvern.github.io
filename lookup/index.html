@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Android Package Search</title>
+  <style>
+    :root {
+      --bg: #1e1e1e;
+      --fg: #ddd;
+      --panel: #2c2c2c;
+      --border: #444;
+      --highlight: #3a3a3a;
+      --green: #4caf50;
+      --orange: #ff9800;
+      --red: #f44336;
+      --dark-red: #b71c1c;
+    }
+    * { box-sizing: border-box; }
+    body { background: var(--bg); color: var(--fg); font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+    h1 { margin-bottom: 16px; }
+    .controls { display: flex; gap: 8px; margin-bottom: 16px; }
+    .controls input, .controls select { padding: 8px; font-size: 16px; background: var(--panel); border: 1px solid var(--border); color: var(--fg); border-radius: 4px; }
+    #results { }
+    .package { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+    .package h2 { margin: 0 0 8px; font-size: 20px; }
+    .info { margin: 6px 0; }
+    .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 12px; margin-left: 6px; }
+    .badge--Recommended { background: var(--green); }
+    .badge--Advanced { background: var(--orange); }
+    .badge--Expert { background: var(--red); }
+    .badge--Unsafe { background: var(--dark-red); }
+    a { color: #4eaaff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .cmd-block { background: var(--highlight); padding: 12px; border-radius: 4px; margin: 8px 0; position: relative; }
+    .cmd-block button { position: absolute; top: 8px; right: 8px; padding: 4px 8px; border: none; border-radius: 4px; cursor: pointer; }
+    button { background: var(--border); color: var(--fg); }
+    button:hover { background: var(--highlight); }
+  </style>
+</head>
+<body>
+  <h1>Android Package Search</h1>
+  <div class="controls">
+    <input type="text" id="search" placeholder="Search package names..." />
+    <select id="filterList">
+      <option value="">All Lists</option>
+      <option value="aosp">AOSP</option>
+      <option value="carrier">Carrier</option>
+      <option value="google">Google</option>
+      <option value="misc">Misc</option>
+      <option value="oem">OEM</option>
+    </select>
+    <select id="filterRemoval">
+      <option value="">All Removal Levels</option>
+      <option value="Recommended">Recommended</option>
+      <option value="Advanced">Advanced</option>
+      <option value="Expert">Expert</option>
+      <option value="Unsafe">Unsafe</option>
+    </select>
+  </div>
+  <div id="results"></div>
+
+  <script>
+    const DATA_URL = 'https://raw.githubusercontent.com/Universal-Debloater-Alliance/universal-android-debloater-next-generation/refs/heads/main/resources/assets/uad_lists.json';
+    let entries = [];
+    let timeout;
+
+    // Fetch and prepare data
+    fetch(DATA_URL)
+      .then(res => res.json())
+      .then(data => {
+        entries = Object.entries(data).map(([pkg, info]) => ({ pkg, info }));
+        renderResults();
+      })
+      .catch(err => console.error('Error fetching data:', err));
+
+    // UI elements
+    const searchInput = document.getElementById('search');
+    const listSelect = document.getElementById('filterList');
+    const removalSelect = document.getElementById('filterRemoval');
+
+    [searchInput, listSelect, removalSelect].forEach(el =>
+      el.addEventListener('input', () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(renderResults, 300);
+      })
+    );
+
+    function renderResults() {
+      const q = searchInput.value.trim().toLowerCase();
+      const listFilter = listSelect.value;
+      const remFilter = removalSelect.value;
+
+      const results = entries.filter(({ pkg, info }) => {
+        if (q && !pkg.toLowerCase().includes(q)) return false;
+        if (listFilter && info.list.toLowerCase() !== listFilter) return false;
+        if (remFilter && info.removal !== remFilter) return false;
+        return true;
+      });
+
+      const container = document.getElementById('results');
+      container.innerHTML = '';
+
+      if (!results.length) {
+        container.innerHTML = '<p>No packages found.</p>';
+        return;
+      }
+
+      results.sort((a, b) => a.pkg.localeCompare(b.pkg)).forEach(({ pkg, info }) => {
+        const div = document.createElement('div');
+        div.className = 'package';
+
+        // Title & badge
+        const title = document.createElement('h2');
+        title.textContent = pkg;
+        const badge = document.createElement('span');
+        badge.className = `badge badge--${info.removal}`;
+        badge.textContent = info.removal;
+        title.appendChild(badge);
+        div.appendChild(title);
+
+        // Core info
+        ['list', 'dependencies', 'neededBy', 'labels'].forEach(key => {
+          const val = info[key];
+          if (val && (Array.isArray(val) ? val.length : true)) {
+            const p = document.createElement('div');
+            p.className = 'info';
+            p.innerHTML = `<strong>${key.charAt(0).toUpperCase()+key.slice(1)}:</strong> ${Array.isArray(val)? val.join(', '): val}`;
+            div.appendChild(p);
+          }
+        });
+
+        // Description
+        if (info.description) {
+          const desc = document.createElement('div');
+          desc.className = 'info';
+          info.description.split('\\n').forEach((line, i) => {
+            const html = line.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+            desc.insertAdjacentHTML('beforeend', html + (i<info.description.split('\\n').length-1 ? '<br>':'') );
+          });
+          div.appendChild(desc);
+        }
+
+        // Uninstall
+        const uniBlock = document.createElement('div');
+        uniBlock.className = 'cmd-block';
+        uniBlock.textContent = `adb uninstall ${pkg}`;
+        const copyUni = document.createElement('button');
+        copyUni.textContent = 'Copy';
+        copyUni.onclick = () => navigator.clipboard.writeText(uniBlock.textContent);
+        uniBlock.appendChild(copyUni);
+        div.appendChild(uniBlock);
+
+        // Disable
+        const disBlock = document.createElement('div');
+        disBlock.className = 'cmd-block';
+        disBlock.textContent = `adb shell pm disable-user --user 0 ${pkg}`;
+        const copyDis = document.createElement('button');
+        copyDis.textContent = 'Copy';
+        copyDis.onclick = () => navigator.clipboard.writeText(disBlock.textContent);
+        disBlock.appendChild(copyDis);
+        div.appendChild(disBlock);
+
+        container.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>
