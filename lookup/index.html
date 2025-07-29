@@ -32,7 +32,7 @@
     }
     .controls {
       display: flex;
-      flex-wrap: wrap; /* Wraps controls on smaller screens */
+      flex-wrap: wrap; 
       gap: 0.75rem;
       margin-bottom: 1.5rem;
     }
@@ -43,11 +43,11 @@
       border: 1px solid var(--border);
       color: var(--fg);
       border-radius: 8px;
-      flex-grow: 1; /* Allows controls to fill space */
+      flex-grow: 1; 
     }
     .package {
       display: flex;
-      flex-direction: column; /* Default to column for mobile */
+      flex-direction: column; 
       gap: 1rem;
       background: var(--panel);
       border: 1px solid var(--border);
@@ -111,7 +111,6 @@
     }
     .cmd-block button:hover { background: #565f89; }
 
-    /* Vertical Action Buttons */
     .action-buttons {
       display: flex;
       flex-direction: column;
@@ -136,7 +135,13 @@
       fill: currentColor;
     }
 
-    /* Fancy Links */
+    /* Fancy Links Section */
+    .links-container {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
     .fancy-link {
       display: inline-flex;
       align-items: center;
@@ -146,7 +151,6 @@
       border-radius: 6px;
       text-decoration: none;
       color: var(--blue);
-      margin: 2px 0;
       font-size: 0.9rem;
     }
     .fancy-link:hover { text-decoration: underline; }
@@ -156,7 +160,6 @@
       border-radius: 2px;
     }
 
-    /* Show More Button */
     #showMoreBtn {
       display: block;
       width: 100%;
@@ -172,7 +175,6 @@
     }
     #showMoreBtn:hover { opacity: 0.9; }
 
-    /* Desktop layout adjustments */
     @media (min-width: 768px) {
       .controls { flex-wrap: nowrap; }
       .package { flex-direction: row; }
@@ -224,7 +226,27 @@
     const resultsContainer = document.getElementById('results');
     const showMoreBtn = document.getElementById('showMoreBtn');
 
-    // Fetch and prepare data
+    // --- Event Listeners ---
+    searchInput.addEventListener('input', () => {
+      clearTimeout(debounceTimeout);
+      debounceTimeout = setTimeout(triggerFilter, 300);
+    });
+
+    [listSelect, removalSelect].forEach(el => {
+      el.addEventListener('change', triggerFilter); // Use 'change' for immediate selection
+    });
+    
+    showMoreBtn.addEventListener('click', () => {
+        currentPage++;
+        renderResultsPage();
+    });
+
+    function triggerFilter() {
+      currentPage = 1; // Reset to first page on new filter
+      applyFilters();
+    }
+
+    // --- Data Fetching and Processing ---
     fetch(DATA_URL)
       .then(res => res.json())
       .then(data => {
@@ -236,22 +258,6 @@
         resultsContainer.innerHTML = '<p>Error fetching data. Please try again later.</p>';
         console.error('Error fetching data:', err)
       });
-
-    // Add event listeners
-    [searchInput, listSelect, removalSelect].forEach(el =>
-      el.addEventListener('input', () => {
-        clearTimeout(debounceTimeout);
-        debounceTimeout = setTimeout(() => {
-          currentPage = 1; // Reset to first page on new filter
-          applyFilters();
-        }, 300);
-      })
-    );
-
-    showMoreBtn.addEventListener('click', () => {
-        currentPage++;
-        renderResultsPage();
-    });
 
     function applyFilters() {
       const q = searchInput.value.trim().toLowerCase();
@@ -282,34 +288,35 @@
         resultsContainer.appendChild(createPackageElement(entry));
       });
       
-      // Toggle "Show More" button
-      if (endIndex < filteredEntries.length) {
-        showMoreBtn.style.display = 'block';
-      } else {
-        showMoreBtn.style.display = 'none';
-      }
+      showMoreBtn.style.display = (endIndex < filteredEntries.length) ? 'block' : 'none';
     }
     
     function createPackageElement({ pkg, removal, list, dependencies, neededBy, labels, description }) {
       const div = document.createElement('div');
       div.className = 'package';
       
-      const descriptionHTML = description
-        ? description.split('\\n').map(line => 
-            line.replace(/(https?:\/\/[^\s]+)/g, (url) => {
-              try {
-                const hostname = new URL(url).hostname;
-                return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="fancy-link">
-                          <img src="https://www.google.com/s2/favicons?domain=${hostname}&sz=32" alt="favicon">
-                          <span>${hostname}</span>
-                        </a>`;
-              } catch (e) {
-                return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`; // Fallback for invalid URLs
-              }
-            })
-          ).join('<br>')
-        : 'No description available.';
+      const textDescription = description || 'No description available.';
+      const urlRegex = /(https?:\/\/[^\s()<>]+(?:\([\w\d]+\)|[^.,!?"'\]\s]))/g;
+      
+      const urls = [...textDescription.matchAll(urlRegex)].map(match => match[0]);
+      const cleanDescription = textDescription.replace(urlRegex, '').trim();
 
+      let linksContainerHTML = '';
+      if (urls.length > 0) {
+        const uniqueUrls = [...new Set(urls)]; // Avoid duplicate links
+        linksContainerHTML = `<div class="links-container">
+          ${uniqueUrls.map(url => {
+            try {
+              const hostname = new URL(url).hostname;
+              return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="fancy-link">
+                        <img src="https://www.google.com/s2/favicons?domain=${hostname}&sz=32" alt="favicon">
+                        <span>${hostname}</span>
+                      </a>`;
+            } catch (e) { return ''; }
+          }).join('')}
+        </div>`;
+      }
+      
       div.innerHTML = `
         <div class="package-main">
           <div class="package-header">
@@ -319,8 +326,10 @@
           ${labels?.length ? `<div class="info"><strong>Labels:</strong> ${labels.join(', ')}</div>` : ''}
           ${dependencies?.length ? `<div class="info"><strong>Dependencies:</strong> ${dependencies.join(', ')}</div>` : ''}
           ${neededBy?.length ? `<div class="info"><strong>Needed by:</strong> ${neededBy.join(', ')}</div>` : ''}
-          <div class="info">${descriptionHTML}</div>
+          <div class="info">${cleanDescription.split('\\n').join('<br>')}</div>
           
+          ${linksContainerHTML}
+
           <div class="cmd-block">
             <code>adb shell pm uninstall -k --user 0 ${pkg}</code>
             <button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">Copy</button>
@@ -347,7 +356,6 @@
       `;
       return div;
     }
-
   </script>
 </body>
 </html>
