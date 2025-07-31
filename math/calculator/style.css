@@ -1,0 +1,452 @@
+/* --- Material You Inspired Theme --- */
+:root {
+    --bg-color: #29262f;
+    --surface-color: #3b3843;
+    --primary-accent: #d7cfdc;
+    --secondary-accent: #D7BDE2;
+    --action-accent: #d7cfdc;
+    --text-primary: #E0E0E0;
+    --text-secondary: #B0B0B0;
+    --btn-bg-number: #3b3843;
+    --btn-bg-operator: #564662;
+    --btn-bg-action: #6a578f;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+    --border-radius: 24px;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease-in-out;
+}
+
+/* --- View Switcher Notch --- */
+.view-switcher {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    padding: 8px;
+    background-color: var(--surface-color);
+    border-bottom-left-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+    gap: 8px;
+}
+.nav-btn {
+    background: none; border: none; color: var(--text-secondary);
+    padding: 8px; border-radius: 12px; cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, display 0s;
+}
+.nav-btn svg { pointer-events: none; }
+.nav-btn:hover { background-color: #585067; }
+.nav-btn.active {
+    color: var(--primary-accent);
+    background-color: #6a578f;
+}
+
+/* --- Content & Views --- */
+.content-container { flex-grow: 1; position: relative; }
+.view {
+    display: none; height: 100%; width: 100%; position: absolute;
+    top: 0; left: 0; padding: 16px; box-sizing: border-box;
+    flex-direction: column;
+}
+.view.active { display: flex; }
+#calculator-view { gap: 16px; }
+
+/* --- Display --- */
+.display {
+    text-align: right; display: flex; flex-direction: column;
+    justify-content: flex-end; flex-shrink: 0; padding: 0 8px; min-height: 80px;
+}
+#equation-display {
+    background: none; border: none; color: var(--text-primary);
+    font-size: 36px; font-weight: 500; width: 100%; text-align: right;
+    padding: 0; margin-bottom: 8px; font-family: 'Inter', sans-serif;
+    box-sizing: border-box;
+}
+#equation-display:focus { outline: none; }
+#result-display {
+    color: var(--text-secondary); font-size: 20px;
+    min-height: 24px; word-wrap: break-word;
+}
+
+/* --- Calculator Body & Buttons --- */
+.calculator-body { display: flex; flex-grow: 1; gap: 12px; }
+.buttons { display: grid; gap: 12px; flex-grow: 1; }
+.main-buttons {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: 0.7fr repeat(5, 1fr);
+}
+.btn {
+    border: none; border-radius: var(--border-radius); font-size: 1.3em;
+    color: var(--text-primary); cursor: pointer; display: flex;
+    justify-content: center; align-items: center;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    user-select: none;
+}
+.btn:active { transform: scale(0.95); }
+.half-height { font-size: 1.1em; }
+
+/* Button Color Categories */
+.btn-number { background-color: var(--btn-bg-number); }
+.btn-number:hover { background-color: #483f52; }
+.btn-operator { background-color: var(--btn-bg-operator); color: var(--primary-accent); }
+.btn-operator:hover { background-color: #5d4d69; }
+.btn-action { background-color: var(--btn-bg-action); color: var(--action-accent); }
+.btn-action:hover { background-color: #6e5d93; }
+
+/* --- Scientific Mode --- */
+#scientific-buttons {
+    display: none; /* Hidden by default */
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    flex-grow: 0;
+    flex-basis: 172px;
+}
+
+/* This class will be added by JS when the mode is active */
+body.scientific-mode-active #scientific-buttons {
+    display: grid;
+}
+
+/* --- History & Settings Panels --- */
+#history-view, #settings-view, #converter-view {
+    background-color: var(--bg-color); color: var(--text-primary); gap: 16px;
+}
+.history-header {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-shrink: 0;
+}
+.history-header h3, #settings-view h3 { margin: 0; }
+#clear-history-btn {
+    background: none; border: 1px solid var(--btn-bg-operator);
+    color: var(--text-secondary); border-radius: 8px;
+    padding: 4px 12px; cursor: pointer; transition: background-color 0.2s ease;
+}
+#clear-history-btn:hover { background-color: var(--btn-bg-operator); color: var(--text-primary); }
+#history-list { list-style: none; padding: 0; margin: 0; flex-grow: 1; overflow-y: auto; }
+#history-list li {
+    padding: 12px 8px; border-bottom: 1px solid var(--surface-color);
+    cursor: pointer; border-radius: 8px; transition: background-color 0.2s ease;
+}
+#history-list li:hover { background-color: var(--surface-color); }
+#history-list .history-equation { display: block; font-size: 14px; color: var(--text-secondary); margin-bottom: 4px; }
+#history-list .history-result { display: block; font-size: 18px; color: var(--text-primary); font-weight: 500; }
+
+/* --- Converter Styles --- */
+#converter-input {
+    background: none; border: none; color: var(--text-primary);
+    font-size: 36px; font-weight: 500; width: 100%; text-align: right;
+    padding: 0; font-family: 'Inter', sans-serif; box-sizing: border-box;
+}
+.converter-controls { display: flex; gap: 16px; }
+.styled-select {
+    flex-grow: 1; background-color: var(--surface-color); border: 1px solid var(--btn-bg-number);
+    color: var(--text-primary); border-radius: 12px; padding: 10px; font-size: 16px;
+}
+.converter-results-list {
+    list-style: none; padding: 0; margin: 0; flex-grow: 1; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 8px;
+}
+.converter-results-list li {
+    display: flex; justify-content: space-between; align-items: center;
+    background-color: var(--surface-color); padding: 12px; border-radius: 12px;
+}
+.converter-results-list .result-text { display: flex; flex-direction: column; }
+.converter-results-list .result-value { font-size: 1.1em; font-weight: 500; }
+.converter-results-list .result-unit { font-size: 0.9em; color: var(--text-secondary); }
+.copy-btn {
+    background-color: var(--btn-bg-operator); color: var(--primary-accent); border: none;
+    padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: background-color 0.2s ease;
+}
+.copy-btn:hover { background-color: #404145; }
+
+/* --- Settings Styles --- */
+.settings-content { display: flex; flex-direction: column; gap: 24px; }
+.setting-item { display: flex; justify-content: space-between; align-items: center; }
+.toggle-switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: var(--btn-bg-operator); transition: .4s; border-radius: 28px;
+}
+.slider:before {
+    position: absolute; content: ""; height: 20px; width: 20px;
+    left: 4px; bottom: 4px; background-color: var(--text-secondary);
+    transition: .4s; border-radius: 50%;
+}
+input:checked + .slider { background-color: var(--primary-accent); }
+input:checked + .slider:before {
+    transform: translateX(22px);
+    background-color: var(--surface-color);
+}
+
+/* --- Geometry Styles --- */
+#geometry-view h4 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+.geometry-tool {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+.geo-inputs {
+    display: flex;
+    justify-content: space-around;
+    gap: 16px;
+}
+.geo-point {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+}
+.geo-point span {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+.geo-point input {
+    width: 80px;
+    text-align: center;
+    background-color: var(--surface-color);
+    border: 1px solid var(--btn-bg-number);
+    color: var(--text-primary);
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 16px;
+}
+.geo-results {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: var(--surface-color);
+    padding: 16px;
+    border-radius: var(--border-radius);
+}
+.geo-result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1em;
+}
+.geo-result-item span {
+    color: var(--text-secondary);
+}
+.geo-result-item code {
+    font-family: 'Inter', monospace;
+    font-weight: 500;
+    color: var(--primary-accent);
+    background-color: var(--btn-bg-operator);
+    padding: 4px 8px;
+    border-radius: 8px;
+}
+
+/* --- Proofs Tool Styles --- */
+.proof-tool-container {
+    display: flex;
+    gap: 16px;
+    height: 100%;
+}
+.proof-reference {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 200px;
+}
+.proof-builder {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+}
+#proof-search {
+    width: 100%;
+    box-sizing: border-box;
+    background-color: var(--surface-color);
+    border: 1px solid var(--btn-bg-number);
+    color: var(--text-primary);
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 14px;
+}
+#proof-results-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+    overflow-y: auto;
+    background-color: var(--surface-color);
+    border-radius: 12px;
+}
+#proof-results-list li {
+    padding: 10px;
+    border-bottom: 1px solid var(--bg-color);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+#proof-results-list li:hover {
+    background-color: var(--btn-bg-number);
+}
+#proof-results-list li strong {
+    color: var(--primary-accent);
+    display: block;
+    margin-bottom: 4px;
+}
+#proof-results-list li p {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    margin: 0;
+}
+#proof-table {
+    width: 100%;
+    border-collapse: collapse;
+    flex-grow: 1;
+}
+#proof-table th, #proof-table td {
+    padding: 8px;
+    border: 1px solid var(--btn-bg-operator);
+}
+#proof-table th {
+    background-color: var(--btn-bg-operator);
+    color: var(--text-secondary);
+}
+#proof-table input[type="text"] {
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1em;
+    padding: 4px;
+}
+#proof-table input[type="text"]:focus {
+    outline: none;
+    background-color: rgba(174, 203, 250, 0.1);
+}
+/* Math Tools Styles */
+.math-tools-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.math-tools-tabs {
+    display: flex;
+    overflow-x: auto;
+    background-color: var(--surface-color);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px;
+    gap: 8px;
+}
+
+.math-tool-tab {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background-color: var(--btn-bg-number);
+    color: white;
+    cursor: pointer;
+    min-width: 100px;
+    max-width: 200px;
+    transition: background-color 0.2s;
+}
+
+.math-tool-tab:hover {
+    background-color: var(--btn-bg-operator);
+}
+
+.math-tool-tab.active {
+    background-color: var(--primary-accent);
+    color: var(--surface-color);
+}
+
+.tool-icon {
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.tool-name {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tool-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.tool-actions button {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.tool-actions button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.math-tools-content {
+    flex-grow: 1;
+    position: relative;
+}
+
+#math-tools-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-color: white;
+}
+.add-row-btn {
+    margin-top: 12px;
+    padding: 8px;
+    border: none;
+    background-color: var(--btn-bg-operator);
+    color: var(--primary-accent);
+    border-radius: 8px;
+    cursor: pointer;
+    align-self: flex-end;
+}
+.remove-row-btn {
+    background: none;
+    border: none;
+    color: var(--action-accent);
+    font-size: 1.2em;
+    cursor: pointer;
+}
+.result-with-copy {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.geo-inputs-wide {
+    display: flex;
+    gap: 16px;
+}
+.geo-inputs-wide input {
+    flex-grow: 1;
+    text-align: center;
+    background-color: var(--surface-color);
+    border: 1px solid var(--btn-bg-number);
+    color: var(--text-primary);
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 14px;
+}

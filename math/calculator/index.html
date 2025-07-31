@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Material Calculator</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- View Switcher Notch -->
+<div class="view-switcher">
+    <button class="nav-btn active" data-view="calculator">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="8" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="16" y2="21"></line><line x1="3" y1="8" x2="21" y2="8"></line><line x1="3" y1="16" x2="21" y2="16"></line></svg>
+    </button>
+    <button class="nav-btn" data-view="converter">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+    </button>
+    <button class="nav-btn" data-view="history">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M12 8v4l2 2"/></svg>
+    </button>
+    <button class="nav-btn" data-view="settings">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+    </button>
+    <button class="nav-btn" data-view="geometry">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+    </button>
+    <button class="nav-btn" data-view="proofs">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+    </button>
+</div>
+
+<div class="content-container">
+    <!-- Calculator Panel -->
+    <div id="calculator-view" class="view active">
+        <div class="display">
+            <input type="text" id="equation-display" readonly>
+            <div id="result-display"></div>
+        </div>
+        <div class="calculator-body">
+            <div id="scientific-buttons" class="buttons">
+                <button class="btn btn-operator" data-value="sin-inv">sin⁻¹</button>
+                <button class="btn btn-operator" data-value="cos-inv">cos⁻¹</button>
+                <button class="btn btn-operator" data-value="tan-inv">tan⁻¹</button>
+                <button class="btn btn-operator" data-value="abs">|x|</button>
+                <button class="btn btn-operator" data-value="e-power">eˣ</button>
+                <button class="btn btn-operator" data-value="i">i</button>
+                <button class="btn btn-operator" data-value="sin">sin</button>
+                <button class="btn btn-operator" data-value="cos">cos</button>
+                <button class="btn btn-operator" data-value="tan">tan</button>
+                <button class="btn btn-operator" data-value="log">log</button>
+                <button class="btn btn-operator" data-value="ln">ln</button>
+                <button class="btn btn-operator" data-value="e">e</button>
+            </div>
+            <div class="buttons main-buttons">
+                <button class="btn btn-operator half-height" data-value="sqrt">√</button>
+                <button class="btn btn-operator half-height" data-value="π">π</button>
+                <button class="btn btn-operator half-height" data-value="^">^</button>
+                <button class="btn btn-operator half-height" data-value="!">n!</button>
+                <button class="btn btn-operator" data-value="C">C</button>
+                <button class="btn btn-operator" data-value="()">()</button>
+                <button class="btn btn-operator" data-value="%">%</button>
+                <button class="btn btn-operator" data-value="/">÷</button>
+                <button class="btn btn-number" data-value="7">7</button>
+                <button class="btn btn-number" data-value="8">8</button>
+                <button class="btn btn-number" data-value="9">9</button>
+                <button class="btn btn-operator" data-value="*">×</button>
+                <button class="btn btn-number" data-value="4">4</button>
+                <button class="btn btn-number" data-value="5">5</button>
+                <button class="btn btn-number" data-value="6">6</button>
+                <button class="btn btn-operator" data-value="-">−</button>
+                <button class="btn btn-number" data-value="1">1</button>
+                <button class="btn btn-number" data-value="2">2</button>
+                <button class="btn btn-number" data-value="3">3</button>
+                <button class="btn btn-operator" data-value="+">+</button>
+                <button class="btn btn-number" data-value="0">0</button>
+                <button class="btn btn-number" data-value=".">.</button>
+                <button class="btn btn-action" data-value="Backspace">⌫</button>
+                <button class="btn btn-action" data-value="=">=</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Converter Panel -->
+    <div id="converter-view" class="view">
+        <div class="display converter-display">
+            <input type="text" id="converter-input" value="1">
+        </div>
+        <div class="converter-controls">
+            <select id="quantity-select" class="styled-select"></select>
+            <select id="from-unit-select" class="styled-select"></select>
+        </div>
+        <ul id="converter-results" class="converter-results-list"></ul>
+    </div>
+
+    <!-- History Panel -->
+    <div id="history-view" class="view">
+        <div class="history-header">
+            <h3>History</h3>
+            <button id="clear-history-btn">Clear</button>
+        </div>
+        <ul id="history-list"></ul>
+    </div>
+
+    <!-- Settings Panel -->
+    <div id="settings-view" class="view">
+        <h3>Settings</h3>
+        <div class="settings-content">
+            <div class="setting-item">
+                <label for="toggle-converter">Show Converter Tab</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-converter" data-setting="converter" data-view="converter">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label for="toggle-history">Show History Tab</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-history" data-setting="history" data-view="history">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label for="toggle-geometry">Show Geometry Tab</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-geometry" data-view="geometry" data-setting="geometry" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label for="toggle-proofs">Show Proofs Tab</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-proofs" data-view="proofs" data-setting="proofs" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label for="toggle-math-tools">Show Math Tools Tab</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-math-tools" data-view="math-tools" data-setting="mathTools" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label for="toggle-scientific">Scientific Mode (must reload)</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-scientific" data-setting="scientific" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label for="theme-color-picker">Theme Color</label>
+                <input type="color" id="theme-color-picker" value="#AECBFA">
+            </div>
+        </div>
+    </div>
+
+    <div id="geometry-view" class="view">
+        <div class="geometry-tool">
+            <h4>Coordinate Geometry</h4>
+            <div class="geo-inputs">
+                <div class="geo-point">
+                    <span>Point 1 (x₁, y₁)</span>
+                    <input type="number" id="x1" placeholder="x₁" value="-2">
+                    <input type="number" id="y1" placeholder="y₁" value="-1">
+                </div>
+                <div class="geo-point">
+                    <span>Point 2 (x₂, y₂)</span>
+                    <input type="number" id="x2" placeholder="x₂" value="4">
+                    <input type="number" id="y2" placeholder="y₂" value="3">
+                </div>
+            </div>
+            <div class="geo-results">
+                <div class="geo-result-item">
+                    <span>Distance:</span>
+                    <div class="result-with-copy">
+                        <code id="geo-distance"></code>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                </div>
+                <div class="geo-result-item">
+                    <span>Midpoint:</span>
+                    <div class="result-with-copy">
+                        <code id="geo-midpoint"></code>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                </div>
+                <div class="geo-result-item">
+                    <span>Equation:</span>
+                    <div class="result-with-copy">
+                        <code id="geo-equation"></code>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Line Relationship Tool -->
+        <div class="geometry-tool">
+            <h4>Line Relationship</h4>
+            <div class="geo-inputs-wide">
+                <input type="text" id="line1-eq" placeholder="y = m₁x + b₁" value="y = 2x + 3">
+                <input type="text" id="line2-eq" placeholder="y = m₂x + b₂" value="y = 2x - 1">
+            </div>
+            <div class="geo-results">
+                <div class="geo-result-item">
+                    <span>Relationship:</span>
+                    <div class="result-with-copy">
+                        <code id="geo-relationship"></code>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Line Generator Tool -->
+        <div class="geometry-tool">
+            <h4>New Lines from Point & Line</h4>
+            <div class="geo-inputs-wide">
+                <input type="text" id="point-input" placeholder="(x, y)" value="(2, 5)">
+                <input type="text" id="line-eq-input" placeholder="y = mx + b" value="y = -3x + 1">
+            </div>
+            <div class="geo-results">
+                <div class="geo-result-item">
+                    <span>Parallel Line:</span>
+                    <div class="result-with-copy">
+                        <code id="geo-parallel-eq"></code>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                </div>
+                <div class="geo-result-item">
+                    <span>Perpendicular Line:</span>
+                    <div class="result-with-copy">
+                        <code id="geo-perp-eq"></code>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="proofs-view" class="view">
+        <div class="proof-tool-container">
+            <!-- Left Side: Theorem Reference -->
+            <div class="proof-reference">
+                <h4>Reasons Reference</h4>
+                <input type="search" id="proof-search" placeholder="Search theorems...">
+                <ul id="proof-results-list"></ul>
+            </div>
+            <!-- Right Side: Two-Column Proof Builder -->
+            <div class="proof-builder">
+                <h4>Two-Column Proof</h4>
+                <table id="proof-table">
+                    <thead>
+                    <tr>
+                        <th>Statements</th>
+                        <th>Reasons</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Proof rows will be added here by JS -->
+                    </tbody>
+                </table>
+                <button id="add-proof-row-btn" class="add-row-btn">Add Step</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="math-tools-view" class="view">
+        <div class="math-tools-container">
+            <div class="math-tools-tabs">
+                <!-- Tab buttons will be generated here -->
+            </div>
+            <div class="math-tools-content">
+                <iframe id="math-tools-iframe" title="Math Tool"></iframe>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="scientific.js"></script>
+<script src="converter.js"></script>
+<script src="geometry.js"></script>
+<script src="script.js"></script>
+<script src="proofs.js"></script>
+</body>
+</html>

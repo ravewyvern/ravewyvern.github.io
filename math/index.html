@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Tools Desktop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Use Inter font as the default */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #4B79A1;  /* fallback for old browsers */
+            background: -webkit-linear-gradient(to right, #283E51, #4B79A1);  /* Chrome 10-25, Safari 5.1-6 */
+            background: linear-gradient(to right, #283E51, #4B79A1); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+            overflow: hidden; /* Prevent scrolling of the main body */
+        }
+
+        /* --- Custom styles for Winbox --- */
+        .winbox {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden; /* Ensures content respects the border-radius */
+        }
+        .wb-body {
+            background: #ffffff;
+            /* The border-radius is handled by the parent .winbox now */
+        }
+        .wb-title {
+            font-weight: 500 !important;
+        }
+        /* Style for the custom control button */
+        .wb-open-new {
+            position: relative;
+            width: 18px;
+            height: 18px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-external-link'%3E%3Cpath d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'%3E%3C/path%3E%3Cpolyline points='15 3 21 3 21 9'%3E%3C/polyline%3E%3Cline x1='10' y1='14' x2='21' y2='3'%3E%3C/line%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        /* --- Taskbar Styles --- */
+        .task-button.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+        }
+
+        /* --- App Launcher Animation --- */
+        #app-launcher-menu {
+            transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+            transform-origin: bottom left;
+        }
+        #app-launcher-menu.hidden {
+            transform: scale(0.95) translateY(10px);
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen">
+
+<!-- This div is where WinBox will mount the windows -->
+<div id="desktop"></div>
+
+<!-- Taskbar -->
+<div id="taskbar" class="fixed bottom-0 left-0 right-0 h-12 bg-black bg-opacity-40 backdrop-blur-md text-white flex items-center px-2 shadow-lg">
+    <!-- App Launcher Button -->
+    <button id="app-launcher-button" class="h-10 w-10 flex-shrink-0 flex items-center justify-center rounded-md hover:bg-white hover:bg-opacity-20 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+    </button>
+
+    <!-- Open Windows List -->
+    <div id="open-windows-list" class="flex-grow h-full flex items-center space-x-2 px-2 overflow-x-auto">
+        <!-- Taskbar buttons for open windows will be injected here -->
+    </div>
+
+    <!-- Close All Button -->
+    <button id="close-all-button" title="Close All Windows" class="h-10 w-10 flex-shrink-0 flex items-center justify-center rounded-md hover:bg-red-500 hover:bg-opacity-80 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+
+    <!-- Clock -->
+    <div id="clock" class="text-sm px-4 flex-shrink-0"></div>
+</div>
+
+<!-- App Launcher Menu -->
+<div id="app-launcher-menu" class="hidden absolute bottom-14 left-2 bg-black bg-opacity-60 backdrop-blur-lg p-4 rounded-lg shadow-2xl w-80">
+    <h3 class="text-white text-lg font-semibold mb-3 px-2">Math Tools</h3>
+    <div id="app-grid" class="grid grid-cols-3 gap-4">
+        <!-- App buttons will be injected here from apps.json -->
+    </div>
+</div>
+
+<!-- Winbox.js Script -->
+<script src="winbox.bundle.min.js"></script>
+
+<script type="module">
+    // --- DOM Element References ---
+    const appLauncherButton = document.getElementById('app-launcher-button');
+    const appLauncherMenu = document.getElementById('app-launcher-menu');
+    const appGrid = document.getElementById('app-grid');
+    const openWindowsList = document.getElementById('open-windows-list');
+    const clockElement = document.getElementById('clock');
+    const closeAllButton = document.getElementById('close-all-button');
+
+    // --- State Management ---
+    let openWindows = {}; // Store references to open WinBox instances
+
+    // --- Core Functions ---
+
+    /**
+     * Fetches app data from apps.json and populates the app launcher.
+     */
+    async function initializeApps() {
+        try {
+            const response = await fetch('apps.json');
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const apps = await response.json();
+
+            appGrid.innerHTML = ''; // Clear existing apps
+            apps.forEach(app => {
+                const button = document.createElement('button');
+                button.className = 'flex flex-col items-center justify-center text-center text-white p-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors';
+                button.innerHTML = `
+                        <div class="text-3xl mb-1">${app.icon}</div>
+                        <span class="text-xs font-medium">${app.name}</span>
+                    `;
+                button.onclick = () => openApp(app);
+                appGrid.appendChild(button);
+            });
+        } catch (error) {
+            console.error("Could not load apps.json:", error);
+            appGrid.innerHTML = `<p class="text-red-400 col-span-3">Error loading apps. Make sure apps.json is present and correctly formatted.</p>`;
+        }
+    }
+
+    /**
+     * Creates a new WinBox window for a given app.
+     * @param {object} app - The application object from apps.json.
+     */
+    function openApp(app) {
+        // Close the launcher menu
+        appLauncherMenu.classList.add('hidden');
+
+        // MODIFICATION: Generate a unique ID every time to allow multiple instances
+        const windowId = `winbox-${Date.now()}`;
+
+        // Create a new window
+        const winbox = new WinBox({
+            id: windowId,
+            title: app.name,
+            url: app.source,
+            x: 'center',
+            y: 'center',
+            width: '60%',
+            height: '70%',
+            background: '#007bff', // Loading indicator color
+
+            // MODIFICATION: Add custom control for "Open in New Tab"
+            controls: {
+                'open-new': {
+                    class: 'wb-open-new',
+                    title: 'Open in New Tab',
+                    click: function(event, winbox) {
+                        window.open(winbox.url, '_blank');
+                    }
+                },
+                // We also need to re-declare the default controls
+                min: true,
+                max: true,
+                close: true,
+            },
+
+            // --- Event Handlers for Taskbar Integration ---
+            oncreate: function(options) {
+                createTaskbarButton(this);
+            },
+            onclose: function(force) {
+                removeTaskbarButton(this);
+                delete openWindows[this.id];
+                return false;
+            },
+            onfocus: function() {
+                updateTaskbarFocus(this.id, true);
+            },
+            onblur: function() {
+                updateTaskbarFocus(this.id, false);
+            },
+        });
+
+        // Store the new window instance
+        openWindows[windowId] = winbox;
+    }
+
+    /**
+     * Creates a button on the taskbar for a new window.
+     * @param {WinBox} winboxInstance - The instance of the created window.
+     */
+    function createTaskbarButton(winboxInstance) {
+        const button = document.createElement('button');
+        button.className = 'task-button h-9 px-4 text-sm font-medium rounded-md flex items-center bg-white bg-opacity-10 hover:bg-opacity-20 transition-colors truncate';
+        button.textContent = winboxInstance.title;
+        button.dataset.windowId = winboxInstance.id;
+
+        button.onclick = () => {
+            const win = openWindows[winboxInstance.id];
+            if (win) {
+                if(win.min || !win.isFocused()){
+                    win.focus().restore();
+                } else {
+                    win.minimize();
+                }
+            }
+        };
+
+        openWindowsList.appendChild(button);
+        updateTaskbarFocus(winboxInstance.id, true); // Set focus on create
+    }
+
+    /**
+     * Removes the corresponding button from the taskbar when a window is closed.
+     * @param {WinBox} winboxInstance - The instance of the closed window.
+     */
+    function removeTaskbarButton(winboxInstance) {
+        const button = openWindowsList.querySelector(`[data-window-id="${winboxInstance.id}"]`);
+        if (button) button.remove();
+    }
+
+    /**
+     * Updates the visual focus state of a taskbar button.
+     * @param {string} windowId - The ID of the window to update.
+     * @param {boolean} isFocused - Whether the window is gaining or losing focus.
+     */
+    function updateTaskbarFocus(windowId, isFocused) {
+        document.querySelectorAll('.task-button').forEach(btn => btn.classList.remove('active'));
+        if (isFocused) {
+            const button = openWindowsList.querySelector(`[data-window-id="${windowId}"]`);
+            if (button) button.classList.add('active');
+        }
+    }
+
+    /**
+     * Toggles the visibility of the app launcher menu.
+     */
+    function toggleLauncher() {
+        appLauncherMenu.classList.toggle('hidden');
+    }
+
+    /**
+     * Updates the clock every second.
+     */
+    function updateClock() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        clockElement.textContent = timeString;
+    }
+
+    /**
+     * Closes all open WinBox windows.
+     */
+    function closeAllWindows() {
+        // Iterate over a copy of the keys, as the original object is modified during the loop
+        Object.keys(openWindows).forEach(id => {
+            if (openWindows[id]) {
+                openWindows[id].close(true); // 'true' forces close without onclose prompt
+            }
+        });
+    }
+
+
+    // --- Event Listeners ---
+
+    appLauncherButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleLauncher();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!appLauncherMenu.classList.contains('hidden') && !appLauncherMenu.contains(e.target)) {
+            appLauncherMenu.classList.add('hidden');
+        }
+    });
+
+    closeAllButton.addEventListener('click', closeAllWindows);
+
+
+    // --- Initialization ---
+    initializeApps();
+    updateClock();
+    setInterval(updateClock, 1000);
+</script>
+</body>
+</html>

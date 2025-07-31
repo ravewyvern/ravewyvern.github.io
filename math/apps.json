@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Calculator",
+    "icon": "\uD83E\uDDEE",
+    "source": "./calculator"
+  },
+  {
+    "name": "Graphing Calculator",
+    "icon": "📈",
+    "source": "https://www.desmos.com/calculator"
+  },
+  {
+    "name": "Draw Lines",
+    "icon": "✏",
+    "source": "./geom"
+  },
+  {
+    "name": "Geometry",
+    "icon": "\uD83D\uDEA9",
+    "source": "https://www.geogebra.org/classic"
+  },
+  {
+    "name": "Algebra Help",
+    "icon": "\uD83D\uDCCF",
+    "source": "https://www.mathway.com/Algebra"
+  },
+  {
+    "name": "Draw",
+    "icon": "\uD83C\uDFA8",
+    "source": "https://excalidraw.com/"
+  },
+  {
+    "name": "Notepad",
+    "icon": "\uD83D\uDCD2",
+    "source": "https://stackedit.io/app#"
+  }
+]

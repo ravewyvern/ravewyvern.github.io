@@ -8,5 +8,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="codemirror" level="application" />
+    <orderEntry type="library" name="katex" level="application" />
+    <orderEntry type="library" name="mathjs" level="application" />
   </component>
 </module>
