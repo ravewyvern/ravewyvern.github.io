@@ -15,6 +15,11 @@
     "source": "./geom"
   },
   {
+    "name": "Triangle Solver",
+    "icon": "\uD83D\uDD3C",
+    "source": "./solver"
+  },
+  {
     "name": "Geometry",
     "icon": "\uD83D\uDEA9",
     "source": "https://www.geogebra.org/classic"

@@ -317,24 +317,21 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const saveSettings = () => {
-        // First get existing settings to avoid overwriting other settings
-        browser.storage.local.get('calculatorSettings').then(data => {
-            const settings = data.calculatorSettings || {};
+        // Read existing settings (or use empty object)
+        const raw = localStorage.getItem('calculatorSettings');
+        const settings = raw ? JSON.parse(raw) : {};
 
-            // Update with current toggle values
-            settingsToggles.forEach(toggle => {
-                const settingName = toggle.dataset.setting;
-                if (settingName) { // Only save if we have a valid setting name
-                    settings[settingName] = toggle.checked;
-                }
-            });
-
-            // Save updated settings
-            browser.storage.local.set({ calculatorSettings: settings });
-
-            // Apply changes immediately
-            applySettings(settings);
+        // Update with current toggles
+        settingsToggles.forEach(toggle => {
+            const name = toggle.dataset.setting;
+            if (name) {
+                settings[name] = toggle.checked;
+            }
         });
+
+        // Persist and apply
+        localStorage.setItem('calculatorSettings', JSON.stringify(settings));
+        applySettings(settings);
     };
 
     settingsToggles.forEach(toggle => {
@@ -379,14 +376,16 @@ document.addEventListener('DOMContentLoaded', () => {
         saveHistory();
         renderHistory();
     };
-    const saveHistory = () => browser.storage.local.set({ calculatorHistory: history });
+    const saveHistory = () => {
+        localStorage.setItem('calculatorHistory', JSON.stringify(history));
+    };
+
     const loadHistory = () => {
-        browser.storage.local.get('calculatorHistory').then(data => {
-            if (data.calculatorHistory) {
-                history = data.calculatorHistory;
-                renderHistory();
-            }
-        });
+        const raw = localStorage.getItem('calculatorHistory');
+        if (raw) {
+            history = JSON.parse(raw);
+            renderHistory();
+        }
     };
     const clearHistory = () => {
         history = [];
@@ -514,23 +513,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Save the selected color to storage
     const saveColorTheme = (color) => {
-        browser.storage.local.get('calculatorSettings').then(data => {
-            const settings = data.calculatorSettings || {};
-            settings.themeColor = color;
-            browser.storage.local.set({ calculatorSettings: settings });
-        });
+        const raw = localStorage.getItem('calculatorSettings');
+        const settings = raw ? JSON.parse(raw) : {};
+        settings.themeColor = color;
+        localStorage.setItem('calculatorSettings', JSON.stringify(settings));
     };
 
+// ——— Load Settings on Startup ———
     const loadSettings = () => {
-        browser.storage.local.get('calculatorSettings').then(data => {
-            const settings = data.calculatorSettings || {};
-            applySettings(settings);
-            // Extra functionality from second version
-            if (settings.themeColor) {
-                themeColorPicker.value = settings.themeColor;
-                applyColorTheme(settings.themeColor);
-            }
-        });
+        const raw = localStorage.getItem('calculatorSettings');
+        const settings = raw ? JSON.parse(raw) : {};
+
+        applySettings(settings);
+
+        if (settings.themeColor) {
+            themeColorPicker.value = settings.themeColor;
+            applyColorTheme(settings.themeColor);
+        }
     };
 
 // Add event listener for color picker

@@ -65,7 +65,7 @@
 <div id="desktop"></div>
 
 <!-- Taskbar -->
-<div id="taskbar" class="fixed bottom-0 left-0 right-0 h-12 bg-black bg-opacity-40 backdrop-blur-md text-white flex items-center px-2 shadow-lg">
+<div id="taskbar" class="fixed bottom-0 left-0 right-0 h-12 bg-black bg-opacity-40 backdrop-blur-md text-white flex items-center px-2 shadow-lg" style="z-index: 47483647">
     <!-- App Launcher Button -->
     <button id="app-launcher-button" class="h-10 w-10 flex-shrink-0 flex items-center justify-center rounded-md hover:bg-white hover:bg-opacity-20 transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
@@ -86,7 +86,7 @@
 </div>
 
 <!-- App Launcher Menu -->
-<div id="app-launcher-menu" class="hidden absolute bottom-14 left-2 bg-black bg-opacity-60 backdrop-blur-lg p-4 rounded-lg shadow-2xl w-80">
+<div id="app-launcher-menu" class="hidden absolute bottom-14 left-2 bg-black bg-opacity-60 backdrop-blur-lg p-4 rounded-lg shadow-2xl w-80" style="z-index: 47483648">
     <h3 class="text-white text-lg font-semibold mb-3 px-2">Math Tools</h3>
     <div id="app-grid" class="grid grid-cols-3 gap-4">
         <!-- App buttons will be injected here from apps.json -->
@@ -157,21 +157,6 @@
             width: '60%',
             height: '70%',
             background: '#007bff', // Loading indicator color
-
-            // MODIFICATION: Add custom control for "Open in New Tab"
-            controls: {
-                'open-new': {
-                    class: 'wb-open-new',
-                    title: 'Open in New Tab',
-                    click: function(event, winbox) {
-                        window.open(winbox.url, '_blank');
-                    }
-                },
-                // We also need to re-declare the default controls
-                min: true,
-                max: true,
-                close: true,
-            },
 
             // --- Event Handlers for Taskbar Integration ---
             oncreate: function(options) {

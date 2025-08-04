@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Triangle Solver</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .input-label {
+            font-weight: 500;
+            text-align: right;
+        }
+        .calculated {
+            background-color: #e0f2fe; /* light blue */
+            font-weight: 600;
+            color: #0c4a6e; /* dark blue */
+        }
+        .error-msg {
+            color: #ef4444; /* red-500 */
+            background-color: #fee2e2; /* red-100 */
+            border-left: 4px solid #ef4444;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0.25rem;
+        }
+        .info-msg {
+            color: #059669; /* emerald-600 */
+            background-color: #d1fae5; /* emerald-100 */
+            border-left: 4px solid #059669;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0.25rem;
+        }
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            max-width: 90%;
+            width: 500px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            cursor: pointer;
+            color: #6b7280; /* gray-500 */
+        }
+        .modal-close-btn:hover {
+            color: #111827; /* gray-900 */
+        }
+        .solution-step {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .solution-step:hover {
+            color: #2563eb; /* blue-600 */
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+<div class="container mx-auto p-4 md:p-8 max-w-4xl">
+    <header class="text-center mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-slate-900">Interactive Triangle Solver</h1>
+        <p class="text-slate-600 mt-2">Enter any 3 values (at least one side) to calculate the rest.</p>
+    </header>
+
+    <main class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Input and Controls Column -->
+        <div class="bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-xl font-semibold mb-4 border-b pb-2">Triangle Properties</h2>
+
+            <!-- Input Fields -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+                <div>
+                    <h3 class="font-semibold text-slate-700 mb-2">Sides</h3>
+                    <div class="space-y-3">
+                        <div class="input-group">
+                            <label for="sideA" class="input-label">Side a:</label>
+                            <input type="number" id="sideA" placeholder="e.g., 5" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        </div>
+                        <div class="input-group">
+                            <label for="sideB" class="input-label">Side b:</label>
+                            <input type="number" id="sideB" placeholder="e.g., 6" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        </div>
+                        <div class="input-group">
+                            <label for="sideC" class="input-label">Side c:</label>
+                            <input type="number" id="sideC" placeholder="e.g., 7" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-slate-700 mb-2">Angles (in degrees)</h3>
+                    <div class="space-y-3">
+                        <div class="input-group">
+                            <label for="angleA" class="input-label">Angle A:</label>
+                            <input type="number" id="angleA" placeholder="e.g., 45" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        </div>
+                        <div class="input-group">
+                            <label for="angleB" class="input-label">Angle B:</label>
+                            <input type="number" id="angleB" placeholder="e.g., 60" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        </div>
+                        <div class="input-group">
+                            <label for="angleC" class="input-label">Angle C:</label>
+                            <input type="number" id="angleC" placeholder="e.g., 75" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-3 gap-4 mt-6">
+                <button id="solveBtn" class="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105">
+                    Solve
+                </button>
+                <button id="exampleBtn" class="w-full bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 transition">
+                    Example
+                </button>
+                <button id="clearBtn" class="w-full bg-slate-200 text-slate-800 font-semibold py-2 px-4 rounded-lg hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400 transition">
+                    Clear
+                </button>
+            </div>
+
+            <!-- Solution Steps -->
+            <div id="solutionSteps" class="mt-6"></div>
+            <div id="messageArea" class="mt-4"></div>
+        </div>
+
+        <!-- Visualization Column -->
+        <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center justify-center min-h-[300px] md:min-h-full">
+            <h2 class="text-xl font-semibold mb-4 w-full text-center border-b pb-2">Visual Representation</h2>
+            <canvas id="triangleCanvas" width="400" height="350" class="w-full h-auto"></canvas>
+        </div>
+    </main>
+</div>
+
+<!-- Explanation Modal -->
+<div id="explanationModal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <div id="modalCloseBtn" class="modal-close-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </div>
+        <h3 id="modalTitle" class="text-xl font-bold mb-4 text-slate-800"></h3>
+        <div id="modalBody" class="text-slate-600 space-y-3"></div>
+    </div>
+</div>
+
+
+<script>
+    // DOM Elements
+    const inputs = {
+        a: document.getElementById('sideA'), b: document.getElementById('sideB'), c: document.getElementById('sideC'),
+        A: document.getElementById('angleA'), B: document.getElementById('angleB'), C: document.getElementById('angleC'),
+    };
+    const solveBtn = document.getElementById('solveBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const exampleBtn = document.getElementById('exampleBtn');
+    const canvas = document.getElementById('triangleCanvas');
+    const ctx = canvas.getContext('2d');
+    const solutionStepsEl = document.getElementById('solutionSteps');
+    const messageAreaEl = document.getElementById('messageArea');
+    const modal = document.getElementById('explanationModal');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+
+    // Utility Functions
+    const toRad = (deg) => deg * Math.PI / 180;
+    const toDeg = (rad) => rad * 180 / Math.PI;
+    const EPSILON = 1e-10;
+
+    // --- Main Solve Function ---
+    function solveTriangle() {
+        resetUI();
+        let state = getInitialState();
+
+        // Initial Validation
+        const { sides, angles, total } = countInputs(state);
+        if (total < 3) { displayMessage('error', 'Please provide at least 3 values.'); return; }
+        if (sides === 0) { displayMessage('error', 'You must provide at least one side length.'); return; }
+        if (state.A + state.B + state.C >= 180) { displayMessage('error', 'The sum of angles cannot be 180° or more.'); return; }
+
+        let solutionLog = [];
+
+        // Iterative Solving Loop
+        let changedInLoop = true;
+        let iterations = 0;
+        while (changedInLoop && iterations < 10) {
+            changedInLoop = false;
+            if (countInputs(state).total === 6) break;
+
+            // Rule 1: Sum of angles
+            if (countInputs(state).angles === 2) {
+                const oldState = { ...state };
+                let newState = { ...state };
+                if (newState.A === null) newState.A = 180 - newState.B - newState.C;
+                else if (newState.B === null) newState.B = 180 - newState.A - newState.C;
+                else if (newState.C === null) newState.C = 180 - newState.A - newState.B;
+                if (JSON.stringify(oldState) !== JSON.stringify(newState)) {
+                    solutionLog.push({ text: 'Calculated third angle using Angle Sum Rule.', rule: 'ANGLE_SUM', before: oldState, after: newState });
+                    state = newState; changedInLoop = true; continue;
+                }
+            }
+
+            // Rule 2: Law of Sines
+            let sinePair = findSinePair(state);
+            if (sinePair) {
+                const oldState = { ...state };
+                const { sideVal, angleVal, sideKey, angleKey } = sinePair;
+                const ratio = sideVal / Math.sin(toRad(angleVal));
+
+                // Find missing sides
+                if (state.a === null && state.A !== null) { state.a = ratio * Math.sin(toRad(state.A)); changedInLoop = true; solutionLog.push({ text: 'Found side a using Law of Sines.', rule: 'LOS_SIDE', target: 'a', pair: sinePair, knownAngle: state.A }); }
+                if (state.b === null && state.B !== null) { state.b = ratio * Math.sin(toRad(state.B)); changedInLoop = true; solutionLog.push({ text: 'Found side b using Law of Sines.', rule: 'LOS_SIDE', target: 'b', pair: sinePair, knownAngle: state.B }); }
+                if (state.c === null && state.C !== null) { state.c = ratio * Math.sin(toRad(state.C)); changedInLoop = true; solutionLog.push({ text: 'Found side c using Law of Sines.', rule: 'LOS_SIDE', target: 'c', pair: sinePair, knownAngle: state.C }); }
+
+                // Find missing angles
+                if (state.A === null && state.a !== null) {
+                    const sinA = state.a / ratio;
+                    if (sinA > 1 + EPSILON) { displayMessage('error', 'Impossible triangle: Side a is too long.'); return; }
+                    state.A = toDeg(Math.asin(Math.min(sinA, 1))); changedInLoop = true;
+                    solutionLog.push({ text: 'Found angle A using Law of Sines.', rule: 'LOS_ANGLE', target: 'A', pair: sinePair, knownSide: state.a });
+                    if (detectSSA(oldState)) displayMessage('info', 'Note: This is an SSA case. This solver provides one valid solution.');
+                }
+                if (state.B === null && state.b !== null) {
+                    const sinB = state.b / ratio;
+                    if (sinB > 1 + EPSILON) { displayMessage('error', 'Impossible triangle: Side b is too long.'); return; }
+                    state.B = toDeg(Math.asin(Math.min(sinB, 1))); changedInLoop = true;
+                    solutionLog.push({ text: 'Found angle B using Law of Sines.', rule: 'LOS_ANGLE', target: 'B', pair: sinePair, knownSide: state.b });
+                    if (detectSSA(oldState)) displayMessage('info', 'Note: This is an SSA case. This solver provides one valid solution.');
+                }
+                if (state.C === null && state.c !== null) {
+                    const sinC = state.c / ratio;
+                    if (sinC > 1 + EPSILON) { displayMessage('error', 'Impossible triangle: Side c is too long.'); return; }
+                    state.C = toDeg(Math.asin(Math.min(sinC, 1))); changedInLoop = true;
+                    solutionLog.push({ text: 'Found angle C using Law of Sines.', rule: 'LOS_ANGLE', target: 'C', pair: sinePair, knownSide: state.c });
+                    if (detectSSA(oldState)) displayMessage('info', 'Note: This is an SSA case. This solver provides one valid solution.');
+                }
+                if (changedInLoop) continue;
+            }
+
+            // Rule 3: Law of Cosines
+            // Find a side (SAS)
+            if (state.a === null && state.b !== null && state.c !== null && state.A !== null) { state.a = Math.sqrt(state.b**2 + state.c**2 - 2 * state.b * state.c * Math.cos(toRad(state.A))); changedInLoop = true; solutionLog.push({text: 'Found side a using Law of Cosines.', rule: 'LOC_SIDE', target: 'a', knowns: {b:state.b, c:state.c, A:state.A}}); continue; }
+            if (state.b === null && state.a !== null && state.c !== null && state.B !== null) { state.b = Math.sqrt(state.a**2 + state.c**2 - 2 * state.a * state.c * Math.cos(toRad(state.B))); changedInLoop = true; solutionLog.push({text: 'Found side b using Law of Cosines.', rule: 'LOC_SIDE', target: 'b', knowns: {a:state.a, c:state.c, B:state.B}}); continue; }
+            if (state.c === null && state.a !== null && state.b !== null && state.C !== null) { state.c = Math.sqrt(state.a**2 + state.b**2 - 2 * state.a * state.b * Math.cos(toRad(state.C))); changedInLoop = true; solutionLog.push({text: 'Found side c using Law of Cosines.', rule: 'LOC_SIDE', target: 'c', knowns: {a:state.a, b:state.b, C:state.C}}); continue; }
+
+            // Find an angle (SSS)
+            if (state.A === null && state.a !== null && state.b !== null && state.c !== null) { const cosA = (state.b**2 + state.c**2 - state.a**2) / (2 * state.b * state.c); if (cosA > 1 || cosA < -1) { displayMessage('error', 'Impossible triangle: Sides do not satisfy triangle inequality.'); return; } state.A = toDeg(Math.acos(cosA)); changedInLoop = true; solutionLog.push({text: 'Found angle A using Law of Cosines.', rule: 'LOC_ANGLE', target: 'A', knowns: {a:state.a, b:state.b, c:state.c}}); continue; }
+            if (state.B === null && state.a !== null && state.b !== null && state.c !== null) { const cosB = (state.a**2 + state.c**2 - state.b**2) / (2 * state.a * state.c); if (cosB > 1 || cosB < -1) { displayMessage('error', 'Impossible triangle: Sides do not satisfy triangle inequality.'); return; } state.B = toDeg(Math.acos(cosB)); changedInLoop = true; solutionLog.push({text: 'Found angle B using Law of Cosines.', rule: 'LOC_ANGLE', target: 'B', knowns: {a:state.a, b:state.b, c:state.c}}); continue; }
+            if (state.C === null && state.a !== null && state.b !== null && state.c !== null) { const cosC = (state.a**2 + state.b**2 - state.c**2) / (2 * state.a * state.b); if (cosC > 1 || cosC < -1) { displayMessage('error', 'Impossible triangle: Sides do not satisfy triangle inequality.'); return; } state.C = toDeg(Math.acos(cosC)); changedInLoop = true; solutionLog.push({text: 'Found angle C using Law of Cosines.', rule: 'LOC_ANGLE', target: 'C', knowns: {a:state.a, b:state.b, c:state.c}}); continue; }
+
+            iterations++;
+        }
+
+        // Final Validation & Display
+        if (countInputs(state).total < 6) { displayMessage('error', 'Could not solve the triangle. Inputs may be underdetermined or invalid.'); return; }
+        if (!isValidTriangle(state)) { displayMessage('error', 'Invalid triangle geometry (e.g., a + b > c).'); return; }
+
+        updateUI(state);
+        displaySolutionLog(solutionLog);
+        drawTriangle(state);
+    }
+
+    // --- Helper and UI Functions ---
+    function getInitialState() {
+        const state = {};
+        for (const key in inputs) {
+            const val = parseFloat(inputs[key].value);
+            state[key] = isNaN(val) || val <= 0 ? null : val;
+        }
+        return state;
+    }
+
+    function countInputs(state) {
+        let sides = 0, angles = 0;
+        if (state.a !== null) sides++; if (state.b !== null) sides++; if (state.c !== null) sides++;
+        if (state.A !== null) angles++; if (state.B !== null) angles++; if (state.C !== null) angles++;
+        return { sides, angles, total: sides + angles };
+    }
+
+    function findSinePair(state) {
+        if (state.a !== null && state.A !== null) return { sideVal: state.a, angleVal: state.A, sideKey: 'a', angleKey: 'A' };
+        if (state.b !== null && state.B !== null) return { sideVal: state.b, angleVal: state.B, sideKey: 'b', angleKey: 'B' };
+        if (state.c !== null && state.C !== null) return { sideVal: state.c, angleVal: state.C, sideKey: 'c', angleKey: 'C' };
+        return null;
+    }
+
+    function detectSSA(state) {
+        const { sides, angles } = countInputs(state);
+        return sides === 2 && angles === 1 && !findSinePair(state);
+    }
+
+    function isValidTriangle(state) {
+        if (state.a + state.b <= state.c + EPSILON || state.a + state.c <= state.b + EPSILON || state.b + state.c <= state.a + EPSILON) return false;
+        if (Math.abs(state.A + state.B + state.C - 180) > EPSILON) return false;
+        return true;
+    }
+
+    function updateUI(state) {
+        const initial = getInitialState();
+        for (const key in state) {
+            if (state[key] !== null) {
+                inputs[key].value = state[key].toFixed(4);
+                if (initial[key] === null) inputs[key].classList.add('calculated');
+            }
+        }
+    }
+
+    function resetUI() {
+        Object.values(inputs).forEach(input => input.classList.remove('calculated'));
+        solutionStepsEl.innerHTML = '';
+        messageAreaEl.innerHTML = '';
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function clearAll() {
+        Object.values(inputs).forEach(input => input.value = '');
+        resetUI();
+    }
+
+    function loadExample() {
+        clearAll();
+        inputs.b.value = 10;
+        inputs.c.value = 12;
+        inputs.A.value = 50;
+    }
+
+    function displayMessage(type, message) {
+        const msgClass = type === 'error' ? 'error-msg' : 'info-msg';
+        messageAreaEl.innerHTML = `<div class="${msgClass}">${message}</div>`;
+    }
+
+    function displaySolutionLog(log) {
+        if (log.length === 0) return;
+        let html = '<h3 class="font-semibold text-slate-700 mb-2">Solution Steps:</h3><ul class="list-disc list-inside space-y-1 text-sm text-slate-600">';
+        log.forEach((step, index) => {
+            html += `<li class="solution-step" data-step-index="${index}">${step.text}</li>`;
+        });
+        html += '</ul>';
+        solutionStepsEl.innerHTML = html;
+
+        solutionStepsEl.querySelectorAll('.solution-step').forEach(li => {
+            li.addEventListener('click', () => {
+                const stepData = log[li.dataset.stepIndex];
+                showExplanation(stepData);
+            });
+        });
+    }
+
+    function showExplanation(stepData) {
+        const { rule, text } = stepData;
+        modalTitle.textContent = text;
+        let bodyHtml = '';
+
+        switch(rule) {
+            case 'ANGLE_SUM':
+                const {A, B, C} = stepData.before;
+                if (A === null) bodyHtml = `<p>The sum of angles in a triangle is always 180°. To find the missing angle A, we use:</p><p class="font-mono bg-slate-100 p-2 rounded">A = 180° - B - C</p><p>A = 180° - ${B.toFixed(2)}° - ${C.toFixed(2)}° = <strong>${stepData.after.A.toFixed(2)}°</strong></p>`;
+                if (B === null) bodyHtml = `<p>The sum of angles in a triangle is always 180°. To find the missing angle B, we use:</p><p class="font-mono bg-slate-100 p-2 rounded">B = 180° - A - C</p><p>B = 180° - ${A.toFixed(2)}° - ${C.toFixed(2)}° = <strong>${stepData.after.B.toFixed(2)}°</strong></p>`;
+                if (C === null) bodyHtml = `<p>The sum of angles in a triangle is always 180°. To find the missing angle C, we use:</p><p class="font-mono bg-slate-100 p-2 rounded">C = 180° - A - B</p><p>C = 180° - ${A.toFixed(2)}° - ${B.toFixed(2)}° = <strong>${stepData.after.C.toFixed(2)}°</strong></p>`;
+                break;
+            case 'LOS_SIDE':
+                const { target, pair, knownAngle } = stepData;
+                const targetAngle = target.toUpperCase();
+                bodyHtml = `<p>Using the Law of Sines, we set up a ratio with a known side-angle pair:</p><p class="font-mono bg-slate-100 p-2 rounded">${target} / sin(${targetAngle}) = ${pair.sideKey} / sin(${pair.angleKey})</p><p>Solving for side ${target}:</p><p class="font-mono bg-slate-100 p-2 rounded">${target} = (${pair.sideKey} / sin(${pair.angleKey})) * sin(${targetAngle})</p><p>${target} = (${pair.sideVal.toFixed(2)} / sin(${pair.angleVal.toFixed(2)}°)) * sin(${knownAngle.toFixed(2)}°) = <strong>${inputs[target].value}</strong></p>`;
+                break;
+            case 'LOS_ANGLE':
+                const { target: targetAng, pair: pairAng, knownSide } = stepData;
+                const targetSide = targetAng.toLowerCase();
+                bodyHtml = `<p>Using the Law of Sines, we set up a ratio with a known side-angle pair:</p><p class="font-mono bg-slate-100 p-2 rounded">sin(${targetAng}) / ${targetSide} = sin(${pairAng.angleKey}) / ${pairAng.sideKey}</p><p>Solving for angle ${targetAng}:</p><p class="font-mono bg-slate-100 p-2 rounded">sin(${targetAng}) = (sin(${pairAng.angleKey}) / ${pairAng.sideKey}) * ${targetSide}</p><p>sin(${targetAng}) = (sin(${pairAng.angleVal.toFixed(2)}°) / ${pairAng.sideVal.toFixed(2)}) * ${knownSide.toFixed(2)}</p><p>${targetAng} = arcsin(...) = <strong>${inputs[targetAng].value}°</strong></p>`;
+                break;
+            case 'LOC_SIDE':
+                const { target: tSide, knowns: kSide } = stepData;
+                const tAngle = tSide.toUpperCase();
+                const otherSides = Object.keys(kSide).filter(k => k.length === 1);
+                bodyHtml = `<p>With two sides and the included angle known (SAS), we use the Law of Cosines to find the opposite side:</p><p class="font-mono bg-slate-100 p-2 rounded">${tSide}² = ${otherSides[0]}² + ${otherSides[1]}² - 2 * ${otherSides[0]} * ${otherSides[1]} * cos(${tAngle})</p><p>${tSide}² = ${kSide[otherSides[0]].toFixed(2)}² + ${kSide[otherSides[1]].toFixed(2)}² - 2 * ${kSide[otherSides[0]].toFixed(2)} * ${kSide[otherSides[1]].toFixed(2)} * cos(${kSide[tAngle].toFixed(2)}°)</p><p>${tSide} = sqrt(...) = <strong>${inputs[tSide].value}</strong></p>`;
+                break;
+            case 'LOC_ANGLE':
+                const { target: tAng, knowns: kAng } = stepData;
+                const tSideAng = tAng.toLowerCase();
+                const otherSidesAng = Object.keys(kAng).filter(k => k !== tSideAng);
+                bodyHtml = `<p>With all three sides known (SSS), we use the Law of Cosines to find an angle:</p><p class="font-mono bg-slate-100 p-2 rounded">cos(${tAng}) = (${otherSidesAng[0]}² + ${otherSidesAng[1]}² - ${tSideAng}²) / (2 * ${otherSidesAng[0]} * ${otherSidesAng[1]})</p><p>cos(${tAng}) = (${kAng[otherSidesAng[0]].toFixed(2)}² + ${kAng[otherSidesAng[1]].toFixed(2)}² - ${kAng[tSideAng].toFixed(2)}²) / (2 * ${kAng[otherSidesAng[0]].toFixed(2)} * ${kAng[otherSidesAng[1]].toFixed(2)})</p><p>${tAng} = arccos(...) = <strong>${inputs[tAng].value}°</strong></p>`;
+                break;
+        }
+        modalBody.innerHTML = bodyHtml;
+        modal.classList.remove('hidden');
+    }
+
+    function drawTriangle(state) {
+        const { a, b, c, A, B, C } = state;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const padding = 40;
+        const availableWidth = canvas.width - 2 * padding;
+        const availableHeight = canvas.height - 2 * padding;
+
+        let scale = availableWidth / c; // Use side c as base
+
+        const pA = { x: padding, y: canvas.height - padding };
+        const pB = { x: padding + c * scale, y: canvas.height - padding };
+        const pC = { x: padding + b * scale * Math.cos(toRad(A)), y: canvas.height - padding - b * scale * Math.sin(toRad(A)) };
+
+        const minY = Math.min(pA.y, pB.y, pC.y);
+        if (minY < padding) {
+            const height = b * scale * Math.sin(toRad(A));
+            scale = availableHeight / height;
+            pB.x = padding + c * scale;
+            pC.x = padding + b * scale * Math.cos(toRad(A));
+            pC.y = canvas.height - padding - b * scale * Math.sin(toRad(A));
+        }
+
+        // Drawing
+        ctx.beginPath();
+        ctx.moveTo(pA.x, pA.y);
+        ctx.lineTo(pB.x, pB.y);
+        ctx.lineTo(pC.x, pC.y);
+        ctx.closePath();
+        ctx.strokeStyle = '#0284c7'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = 'rgba(14, 165, 233, 0.1)'; ctx.fill();
+
+        // Labeling
+        ctx.fillStyle = '#1e293b'; ctx.font = 'bold 14px Inter';
+        ctx.fillText(`A (${A.toFixed(1)}°)`, pA.x - 40, pA.y - 5);
+        ctx.fillText(`B (${B.toFixed(1)}°)`, pB.x + 5, pB.y - 5);
+        ctx.fillText(`C (${C.toFixed(1)}°)`, pC.x + (pC.x > (pA.x+pB.x)/2 ? 10 : -40), pC.y + (pC.y < canvas.height/2 ? 20 : -10));
+
+        ctx.font = '14px Inter'; ctx.fillStyle = '#475569';
+        const midAB = { x: (pA.x + pB.x) / 2, y: (pA.y + pB.y) / 2 };
+        const midBC = { x: (pB.x + pC.x) / 2, y: (pB.y + pC.y) / 2 };
+        const midCA = { x: (pC.x + pA.x) / 2, y: (pC.y + pA.y) / 2 };
+
+        ctx.fillText(`c = ${c.toFixed(2)}`, midAB.x - 20, midAB.y + 20);
+
+        ctx.save(); ctx.translate(midBC.x, midBC.y); ctx.rotate(Math.atan2(pC.y - pB.y, pC.x - pB.x)); ctx.fillText(`a = ${a.toFixed(2)}`, -15, -8); ctx.restore();
+        ctx.save(); ctx.translate(midCA.x, midCA.y); ctx.rotate(Math.atan2(pA.y - pC.y, pA.x - pC.x)); ctx.fillText(`b = ${b.toFixed(2)}`, -15, -8); ctx.restore();
+    }
+
+    // --- Event Listeners ---
+    solveBtn.addEventListener('click', solveTriangle);
+    clearBtn.addEventListener('click', clearAll);
+    exampleBtn.addEventListener('click', loadExample);
+    modalCloseBtn.addEventListener('click', () => modal.classList.add('hidden'));
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.add('hidden'); });
+    document.addEventListener('keydown', (e) => { if (e.key === "Escape") modal.classList.add('hidden'); });
+</script>
+
+</body>
+</html>
