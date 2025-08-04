@@ -60,7 +60,11 @@
     </style>
 </head>
 <body class="h-screen w-screen">
-
+<div id="context-menu" class="hidden absolute bg-white/90 backdrop-blur-md rounded-md shadow-lg py-2 text-sm z-50" style="z-index: 47483649">
+    <button data-action="window" class="w-full text-left px-4 py-1.5 hover:bg-blue-500 hover:text-white">Open in Window</button>
+    <button data-action="tab" class="w-full text-left px-4 py-1.5 hover:bg-blue-500 hover:text-white">Open in New Tab</button>
+    <button data-action="popup" class="w-full text-left px-4 py-1.5 hover:bg-blue-500 hover:text-white">Open in Separate Window</button>
+</div>
 <!-- This div is where WinBox will mount the windows -->
 <div id="desktop"></div>
 
@@ -87,7 +91,18 @@
 
 <!-- App Launcher Menu -->
 <div id="app-launcher-menu" class="hidden absolute bottom-14 left-2 bg-black bg-opacity-60 backdrop-blur-lg p-4 rounded-lg shadow-2xl w-80" style="z-index: 47483648">
-    <h3 class="text-white text-lg font-semibold mb-3 px-2">Math Tools</h3>
+
+    <div class="flex items-center justify-between mb-3 px-2">
+        <h3 class="text-white text-lg font-semibold">App launcher</h3>
+        <div class="flex items-center gap-x-2">
+            <button id="view-toggle-button" title="Toggle View" class="h-8 w-8 flex items-center justify-center rounded-md hover:bg-white/20">
+            </button>
+        </div>
+    </div>
+    <div class="px-2 mb-4">
+        <input type="search" id="search-input" placeholder="Search apps..." class="w-full bg-white/10 text-white placeholder-gray-400 rounded-md border-0 p-2 text-sm focus:ring-2 focus:ring-blue-500">
+    </div>
+
     <div id="app-grid" class="grid grid-cols-3 gap-4">
         <!-- App buttons will be injected here from apps.json -->
     </div>
@@ -107,47 +122,110 @@
 
     // --- State Management ---
     let openWindows = {}; // Store references to open WinBox instances
-
-    // --- Core Functions ---
+    let allApps = []; // Master list of all available apps
+    let currentViewMode = 'grid'; // Can be 'grid' or 'list'
+    const contextMenu = document.getElementById('context-menu');
+    let contextApp = null; // The app that was right-clicked
+    const ICONS = {
+        grid: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>`,
+        list: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>`
+    };
 
     /**
-     * Fetches app data from apps.json and populates the app launcher.
+     * Fetches app data, filters for unique IDs, and triggers the initial render.
      */
     async function initializeApps() {
+        const appGrid = document.getElementById('app-grid');
         try {
             const response = await fetch('apps.json');
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const apps = await response.json();
 
-            appGrid.innerHTML = ''; // Clear existing apps
-            apps.forEach(app => {
-                const button = document.createElement('button');
-                button.className = 'flex flex-col items-center justify-center text-center text-white p-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors';
-                button.innerHTML = `
-                        <div class="text-3xl mb-1">${app.icon}</div>
-                        <span class="text-xs font-medium">${app.name}</span>
-                    `;
-                button.onclick = () => openApp(app);
-                appGrid.appendChild(button);
+            // Filter out apps with duplicate IDs
+            const seenIds = new Set();
+            allApps = apps.filter(app => {
+                if (seenIds.has(app.id)) {
+                    console.warn(`Duplicate app ID found and ignored: ${app.id}`);
+                    return false;
+                }
+                seenIds.add(app.id);
+                return true;
             });
+
+            renderApps(allApps); // Initial render
         } catch (error) {
             console.error("Could not load apps.json:", error);
-            appGrid.innerHTML = `<p class="text-red-400 col-span-3">Error loading apps. Make sure apps.json is present and correctly formatted.</p>`;
+            appGrid.innerHTML = `<p class="text-red-400 col-span-3">Error loading apps.</p>`;
         }
     }
+
+    /**
+     * Renders the app icons in the launcher based on the current view mode and search query.
+     * @param {Array} appsToRender - The array of app objects to display.
+     */
+    function renderApps(appsToRender) {
+        const appGrid = document.getElementById('app-grid');
+        appGrid.innerHTML = ''; // Clear previous content
+
+        // Adjust grid/list container styles
+        if (currentViewMode === 'grid') {
+            appGrid.className = 'grid grid-cols-3 gap-4';
+        } else {
+            appGrid.className = 'flex flex-col gap-y-2';
+        }
+
+        if (appsToRender.length === 0) {
+            appGrid.innerHTML = `<p class="text-gray-400 col-span-full text-center">No apps found.</p>`;
+            return;
+        }
+
+        appsToRender.forEach(app => {
+            const appElement = document.createElement('button');
+
+            // Different styling for grid vs. list view
+            const baseClasses = 'p-2 rounded-lg hover:bg-white/10 transition-colors text-white text-left';
+            if (currentViewMode === 'grid') {
+                appElement.className = `${baseClasses} flex flex-col items-center text-center`;
+                appElement.innerHTML = `
+                <img src="${app.icon}" alt="${app.name}" class="w-12 h-12 mb-2 rounded-lg">
+                <div class="w-full truncate">
+                    <span class="text-xs font-medium">${app.name}</span>
+                    <p class="text-xs text-gray-400 truncate">by ${app.author}</p>
+                </div>
+            `;
+            } else {
+                appElement.className = `${baseClasses} flex items-center gap-x-3`;
+                appElement.innerHTML = `
+                <img src="${app.icon}" alt="${app.name}" class="w-10 h-10 flex-shrink-0 rounded-lg">
+                <div class="flex-grow truncate">
+                    <span class="font-medium">${app.name}</span>
+                    <p class="text-sm text-gray-400 truncate">by ${app.author}</p>
+                </div>
+            `;
+            }
+
+            // Left-click to open in a window
+            appElement.onclick = () => openApp(app);
+
+            // Right-click to show context menu
+            appElement.oncontextmenu = (e) => {
+                e.preventDefault();
+                showContextMenu(e, app);
+            };
+
+            appGrid.appendChild(appElement);
+        });
+    }
+
 
     /**
      * Creates a new WinBox window for a given app.
      * @param {object} app - The application object from apps.json.
      */
     function openApp(app) {
-        // Close the launcher menu
-        appLauncherMenu.classList.add('hidden');
-
-        // MODIFICATION: Generate a unique ID every time to allow multiple instances
+        appLauncherMenu.classList.add('hidden'); // Close the launcher menu
         const windowId = `winbox-${Date.now()}`;
 
-        // Create a new window
         const winbox = new WinBox({
             id: windowId,
             title: app.name,
@@ -156,29 +234,59 @@
             y: 'center',
             width: '60%',
             height: '70%',
-            background: '#007bff', // Loading indicator color
-
-            // --- Event Handlers for Taskbar Integration ---
-            oncreate: function(options) {
-                createTaskbarButton(this);
-            },
-            onclose: function(force) {
-                removeTaskbarButton(this);
-                delete openWindows[this.id];
-                return false;
-            },
-            onfocus: function() {
-                updateTaskbarFocus(this.id, true);
-            },
-            onblur: function() {
-                updateTaskbarFocus(this.id, false);
-            },
+            minwidth: app.min_width,
+            minheight: app.min_height,
+            background: '#007bff',
+            // Event handlers remain the same
+            oncreate: function() { createTaskbarButton(this); },
+            onclose: function() { removeTaskbarButton(this); delete openWindows[this.id]; return false; },
+            onfocus: function() { updateTaskbarFocus(this.id, true); },
+            onblur: function() { updateTaskbarFocus(this.id, false); },
         });
 
-        // Store the new window instance
+        // Add custom controls CORRECTLY after window creation
+        addWindowControls(winbox, app);
+
         openWindows[windowId] = winbox;
     }
 
+    /**
+     * Adds custom control buttons to a WinBox instance.
+     * @param {WinBox} winbox - The WinBox instance.
+     * @param {object} app - The app object associated with the window.
+     */
+    function addWindowControls(winbox, app) {
+        // Button to open the app's source in a new browser tab
+        winbox.addControl({
+            index: 0, // Prepend to the left of default controls
+            class: "wb-like", // Custom class for an SVG icon
+            title: "Open in New Tab",
+            image: "../icons/open_in_new_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg",
+            click: (event, wb) => {
+                // The iframe is the direct child of the wb-body div
+                const iframe = wb.body.firstChild;
+                if (iframe && iframe.src) {
+                    window.open(iframe.src, '_blank');
+                }
+            }
+        });
+
+        // Button to open the app's source in a separate, minimal browser window (popup)
+        winbox.addControl({
+            index: 1,
+            class: "wb-like", // You'll need to style this class with an icon
+            title: "Open in Separate Window",
+            image: "../icons/open_jam_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.png",
+            click: (event, wb) => {
+                const iframe = wb.body.firstChild;
+                if (iframe && iframe.src) {
+                    const w = window.innerWidth * 0.7;
+                    const h = window.innerHeight * 0.8;
+                    window.open(iframe.src, '_blank', `popup=yes,width=${w},height=${h}`);
+                }
+            }
+        });
+    }
     /**
      * Creates a button on the taskbar for a new window.
      * @param {WinBox} winboxInstance - The instance of the created window.
@@ -270,6 +378,69 @@
 
     closeAllButton.addEventListener('click', closeAllWindows);
 
+    /**
+     * Shows the custom context menu for a right-clicked app.
+     * @param {MouseEvent} event - The `contextmenu` event.
+     * @param {object} app - The app object to show the menu for.
+     */
+    function showContextMenu(event, app) {
+        contextApp = app; // Store the app object
+        contextMenu.style.top = `${event.clientY}px`;
+        contextMenu.style.left = `${event.clientX}px`;
+        contextMenu.classList.remove('hidden');
+    }
+
+    // --- Event Listeners for New Features ---
+
+    const searchInput = document.getElementById('search-input');
+    const viewToggleButton = document.getElementById('view-toggle-button');
+
+    // Search functionality
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const filteredApps = allApps.filter(app =>
+            app.name.toLowerCase().includes(searchTerm) ||
+            app.author.toLowerCase().includes(searchTerm)
+        );
+        renderApps(filteredApps);
+    });
+
+    // View toggle functionality
+    viewToggleButton.addEventListener('click', () => {
+        currentViewMode = currentViewMode === 'grid' ? 'list' : 'grid';
+        // Update button icon
+        viewToggleButton.innerHTML = currentViewMode === 'grid' ? ICONS.list : ICONS.grid;
+        // Re-render apps with the current search term
+        searchInput.dispatchEvent(new Event('input'));
+    });
+
+    // Context menu action handler
+    contextMenu.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON' && contextApp) {
+            const action = e.target.dataset.action;
+            if (action === 'window') {
+                openApp(contextApp);
+            } else if (action === 'tab') {
+                window.open(contextApp.source, '_blank');
+            } else if (action === 'popup') {
+                const w = window.innerWidth * 0.7;
+                const h = window.innerHeight * 0.8;
+                window.open(contextApp.source, '_blank', `popup=yes,width=${w},height=${h}`);
+            }
+        }
+        contextMenu.classList.add('hidden'); // Hide after action
+    });
+
+    // Global click listener to hide the context menu
+    document.addEventListener('click', () => {
+        if (!contextMenu.classList.contains('hidden')) {
+            contextMenu.classList.add('hidden');
+        }
+    });
+
+    // --- Final Initialization ---
+    // Initialize view toggle button icon
+    viewToggleButton.innerHTML = ICONS.list;
 
     // --- Initialization ---
     initializeApps();

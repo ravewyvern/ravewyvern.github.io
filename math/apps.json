@@ -1,42 +1,101 @@
 [
   {
     "name": "Calculator",
-    "icon": "\uD83E\uDDEE",
-    "source": "./calculator"
+    "icon": "../icons/mypfp.png",
+    "source": "./calculator",
+    "id": "com.math.calculator",
+    "author": "ravewyvern",
+    "version": "1.0",
+    "type": "system",
+    "min_width": "650px",
+    "min_height": "550px"
+  },
+  {
+    "name": "Scientific calculator",
+    "icon": "https://www.desmos.com/assets/img/apps/scientific/favicon.ico",
+    "source": "https://www.desmos.com/scientific",
+    "id": "com.desmos.scientific",
+    "author": "desmos",
+    "version": "1.0",
+    "type": "preinstalled",
+    "min_width": "650px",
+    "min_height": "550px"
   },
   {
     "name": "Graphing Calculator",
-    "icon": "📈",
-    "source": "https://www.desmos.com/calculator"
+    "icon": "https://www.desmos.com/assets/img/apps/graphing/favicon.ico",
+    "source": "https://www.desmos.com/calculator",
+    "id": "com.desmos.graphing",
+    "author": "desmos",
+    "version": "1.0",
+    "type": "preinstalled",
+    "min_width": "650px",
+    "min_height": "550px"
   },
   {
     "name": "Draw Lines",
-    "icon": "✏",
-    "source": "./geom"
+    "icon": "../icons/mypfp.png",
+    "source": "./geom",
+    "id": "com.math.graphing",
+    "author": "ravewyvern",
+    "version": "1.0",
+    "type": "preinstalled",
+    "min_width": "650px",
+    "min_height": "550px"
   },
   {
     "name": "Triangle Solver",
-    "icon": "\uD83D\uDD3C",
-    "source": "./solver"
+    "icon": "../icons/mypfp.png",
+    "source": "./solver",
+    "id": "com.math.solver",
+    "author": "ravewyvern",
+    "version": "1.0",
+    "type": "preinstalled",
+    "min_width": "650px",
+    "min_height": "550px"
   },
   {
     "name": "Geometry",
-    "icon": "\uD83D\uDEA9",
-    "source": "https://www.geogebra.org/classic"
+    "icon": "https://www.geogebra.org/apps/icons/geogebra.ico",
+    "source": "https://www.geogebra.org/classic",
+    "id": "com.geogebra.graphing.classic",
+    "author": "ravewyvern",
+    "version": "1.0",
+    "type": "preinstalled",
+    "min_width": "650px",
+    "min_height": "550px"
   },
   {
     "name": "Algebra Help",
-    "icon": "\uD83D\uDCCF",
-    "source": "https://www.mathway.com/Algebra"
+    "icon": "https://www.mathway.com/favicon.ico",
+    "source": "https://www.mathway.com/Algebra",
+    "id": "com.mathway.algebra",
+    "author": "chegg",
+    "version": "1.0",
+    "type": "preinstalled",
+    "min_width": "650px",
+    "min_height": "550px"
   },
   {
     "name": "Draw",
-    "icon": "\uD83C\uDFA8",
-    "source": "https://excalidraw.com/"
+    "icon": "https://excalidraw.com/favicon-32x32.png",
+    "source": "https://excalidraw.com/",
+    "id": "com.excalidraw",
+    "author": "excalidraw",
+    "version": "1.0",
+    "type": "preinstalled",
+    "min_width": "650px",
+    "min_height": "550px"
   },
   {
     "name": "Notepad",
-    "icon": "\uD83D\uDCD2",
-    "source": "https://stackedit.io/app#"
+    "icon": "https://stackedit.io/icons-c75a9472175cc17394ba6428d867fbcf/favicon-32x32.png",
+    "source": "https://stackedit.io/app#",
+    "id": "com.stackedit.app",
+    "author": "stackedit",
+    "version": "1.0",
+    "type": "preinstalled",
+    "min_width": "650px",
+    "min_height": "550px"
   }
 ]
