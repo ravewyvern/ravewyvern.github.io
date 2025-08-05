@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notepad</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .note-item.active, .folder-item.active {
+            background-color: #e0f2fe;
+        }
+        .folder-item .fa-chevron-right {
+            transition: transform 0.2s ease-in-out;
+        }
+        .folder-item.open .fa-chevron-right {
+            transform: rotate(90deg);
+        }
+        .drag-over {
+            border: 2px dashed #3b82f6;
+            background-color: #eff6ff;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar (Note List) -->
+        <div id="sidebar" class="bg-white w-full md:w-1/3 lg:w-1/4 p-4 border-r border-gray-200 flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="text-2xl font-bold text-gray-800">My Notes</h1>
+                <div class="flex items-center space-x-2">
+                     <button id="new-folder-btn" title="New Folder" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-folder-plus text-xl"></i>
+                    </button>
+                    <button id="new-note-btn" title="New Note" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-plus-circle text-xl"></i>
+                    </button>
+                    <button id="view-switch-btn" title="Switch View" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="sidebar-content" class="flex-grow overflow-y-auto">
+                <!-- Folders and Notes will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <!-- Main Content (Note Editor) -->
+        <div id="main-content" class="w-full md:w-2/3 lg:w-3/4 p-6 hidden md:block flex flex-col">
+             <div class="flex items-center mb-2">
+                <button id="back-btn" class="md:hidden text-gray-600 hover:text-gray-800 mr-4">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </button>
+                <input id="note-title-input" type="text" class="text-3xl font-bold text-gray-800 bg-transparent w-full focus:outline-none" placeholder="Note Title">
+            </div>
+            <div id="tags-container" class="flex items-center flex-wrap gap-2 mb-4">
+                <!-- Tags will be dynamically inserted here -->
+            </div>
+            <textarea id="note-content-input" class="w-full flex-grow bg-transparent text-gray-700 text-lg resize-none focus:outline-none" placeholder="Start writing..."></textarea>
+        </div>
+    </div>
+
+    <!-- Modal Structure -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
+        <div class="bg-white rounded-lg p-6 w-full max-w-sm">
+            <h3 id="modal-title" class="text-lg font-medium mb-4">Modal Title</h3>
+            <div id="modal-content"></div>
+            <div class="flex justify-end space-x-2 mt-4">
+                <button id="modal-cancel" class="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">Cancel</button>
+                <button id="modal-confirm" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM Elements
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const newNoteBtn = document.getElementById('new-note-btn');
+            const newFolderBtn = document.getElementById('new-folder-btn');
+            const viewSwitchBtn = document.getElementById('view-switch-btn');
+            const sidebarContent = document.getElementById('sidebar-content');
+            const backBtn = document.getElementById('back-btn');
+            const noteTitleInput = document.getElementById('note-title-input');
+            const noteContentInput = document.getElementById('note-content-input');
+            const tagsContainer = document.getElementById('tags-container');
+
+            // Modal Elements
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalContent = document.getElementById('modal-content');
+            const modalCancel = document.getElementById('modal-cancel');
+            const modalConfirm = document.getElementById('modal-confirm');
+
+            // App State
+            let notes = [];
+            let folders = [];
+            let currentView = 'list'; // 'list' or 'grid'
+            let activeNoteId = null;
+            let openFolders = new Set();
+
+            // --- Data Persistence ---
+            function saveData() {
+                localStorage.setItem('notepad_notes', JSON.stringify(notes));
+                localStorage.setItem('notepad_folders', JSON.stringify(folders));
+            }
+
+            function loadData() {
+                const savedNotes = localStorage.getItem('notepad_notes');
+                const savedFolders = localStorage.getItem('notepad_folders');
+
+                if (savedNotes) {
+                    notes = JSON.parse(savedNotes);
+                } else {
+                    // Default data if nothing is saved
+                    notes = [
+                        { id: 1, folderId: null, title: 'Welcome Note', content: 'This is your first note. Feel free to edit it!', tags: ['getting started'] },
+                        { id: 2, folderId: null, title: 'Meeting Notes', content: 'Discussed Q3 roadmap.', tags: ['work', 'meetings'] },
+                        { id: 3, folderId: null, title: 'Grocery List', content: '- Milk\n- Bread\n- Cheese', tags: ['personal', 'shopping'] }
+                    ];
+                }
+
+                if (savedFolders) {
+                    folders = JSON.parse(savedFolders);
+                } else {
+                    folders = [{id: 1, name: 'Project X'}];
+                    notes.push({id: 4, folderId: 1, title: 'Initial Plan', content: 'Draft of the project plan.', tags: ['project']})
+                }
+            }
+
+            // --- Rendering ---
+            function renderSidebar() {
+                sidebarContent.innerHTML = '';
+                
+                // Render folders
+                folders.forEach(folder => {
+                    const isFolderOpen = openFolders.has(folder.id);
+                    const folderElement = document.createElement('div');
+                    folderElement.className = `folder-item p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors ${isFolderOpen ? 'open' : ''}`;
+                    folderElement.dataset.id = folder.id;
+                    folderElement.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fas fa-chevron-right text-gray-400 mr-2"></i>
+                                <i class="fas fa-folder text-yellow-500 mr-3"></i>
+                                <span class="font-medium text-gray-800">${folder.name}</span>
+                            </div>
+                            <div class="text-gray-400 hover:text-gray-600 three-dots-folder">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </div>
+                        </div>
+                    `;
+                    sidebarContent.appendChild(folderElement);
+                    
+                    // Render notes inside folder if open
+                    if (isFolderOpen) {
+                        const notesInFolder = notes.filter(n => n.folderId === folder.id);
+                        const notesContainer = document.createElement('div');
+                        notesContainer.className = 'pl-6 pt-2';
+                        notesContainer.innerHTML = notesInFolder.map(note => renderNoteItem(note)).join('');
+                        sidebarContent.appendChild(notesContainer);
+                    }
+                });
+
+                // Render notes not in any folder
+                const rootNotes = notes.filter(n => n.folderId === null);
+                const rootNotesContainer = document.createElement('div');
+                rootNotesContainer.className = currentView === 'grid' ? 'grid grid-cols-2 gap-4 mt-4' : 'space-y-2 mt-4';
+                rootNotesContainer.innerHTML = rootNotes.map(note => renderNoteItem(note)).join('');
+                sidebarContent.appendChild(rootNotesContainer);
+
+                attachSidebarEventListeners();
+            }
+
+            function renderNoteItem(note) {
+                const isActive = note.id === activeNoteId;
+                if (currentView === 'list') {
+                    return `
+                        <div class="note-item p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors ${isActive ? 'active' : ''}" data-id="${note.id}" draggable="true">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-file-alt text-gray-500 mr-3"></i>
+                                    <span class="font-medium text-gray-800">${note.title}</span>
+                                </div>
+                                <div class="text-gray-400 hover:text-gray-600 three-dots-note">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </div>
+                            </div>
+                        </div>`;
+                } else { // Grid view
+                    return `
+                        <div class="note-item flex flex-col h-32 p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors ${isActive ? 'active' : ''}" data-id="${note.id}" draggable="true">
+                            <span class="font-medium text-gray-800 mb-2">${note.title}</span>
+                            <p class="text-sm text-gray-600 overflow-hidden flex-grow">${note.content.substring(0, 100)}...</p>
+                        </div>`;
+                }
+            }
+            
+            function renderTags(noteId) {
+                tagsContainer.innerHTML = '';
+                const note = notes.find(n => n.id === noteId);
+                if (!note) return;
+
+                note.tags.forEach(tag => {
+                    const tagEl = document.createElement('span');
+                    tagEl.className = 'bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center';
+                    tagEl.innerHTML = `${tag} <button data-tag="${tag}" class="ml-2 text-blue-500 hover:text-blue-700">&times;</button>`;
+                    tagsContainer.appendChild(tagEl);
+                });
+
+                const tagInput = document.createElement('input');
+                tagInput.type = 'text';
+                tagInput.placeholder = '+ Add tag';
+                tagInput.className = 'bg-transparent text-sm focus:outline-none';
+                tagsContainer.appendChild(tagInput);
+
+                // Event listeners for tags
+                tagInput.addEventListener('keydown', e => {
+                    if (e.key === 'Enter' && tagInput.value.trim() !== '') {
+                        e.preventDefault();
+                        const newTag = tagInput.value.trim();
+                        if (!note.tags.includes(newTag)) {
+                            note.tags.push(newTag);
+                            saveAndRenderAll();
+                        }
+                        tagInput.value = '';
+                    }
+                });
+
+                tagsContainer.querySelectorAll('button[data-tag]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const tagToRemove = button.dataset.tag;
+                        note.tags = note.tags.filter(t => t !== tagToRemove);
+                        saveAndRenderAll();
+                    });
+                });
+            }
+
+            // --- Event Handling ---
+            function attachSidebarEventListeners() {
+                // Note click
+                document.querySelectorAll('.note-item').forEach(item => {
+                    item.addEventListener('click', () => openNote(parseInt(item.dataset.id)));
+                    item.addEventListener('dragstart', e => {
+                        e.dataTransfer.setData('text/plain', item.dataset.id);
+                    });
+                });
+                
+                // Folder click
+                document.querySelectorAll('.folder-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        if (e.target.closest('.three-dots-folder')) return;
+                        const folderId = parseInt(item.dataset.id);
+                        if (openFolders.has(folderId)) {
+                            openFolders.delete(folderId);
+                        } else {
+                            openFolders.add(folderId);
+                        }
+                        renderSidebar();
+                    });
+
+                    // Drag and drop for folders
+                    item.addEventListener('dragover', e => {
+                        e.preventDefault();
+                        item.classList.add('drag-over');
+                    });
+                    item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
+                    item.addEventListener('drop', e => {
+                        e.preventDefault();
+                        item.classList.remove('drag-over');
+                        const noteId = parseInt(e.dataTransfer.getData('text/plain'));
+                        const folderId = parseInt(item.dataset.id);
+                        const note = notes.find(n => n.id === noteId);
+                        if (note) {
+                            note.folderId = folderId;
+                            saveAndRenderAll();
+                        }
+                    });
+                });
+
+                // Context Menus
+                document.querySelectorAll('.three-dots-note').forEach(dots => {
+                    dots.addEventListener('click', e => {
+                        e.stopPropagation();
+                        const noteId = parseInt(dots.closest('.note-item').dataset.id);
+                        showContextMenu(e.pageX, e.pageY, 'note', noteId);
+                    });
+                });
+                document.querySelectorAll('.three-dots-folder').forEach(dots => {
+                    dots.addEventListener('click', e => {
+                        e.stopPropagation();
+                        const folderId = parseInt(dots.closest('.folder-item').dataset.id);
+                        showContextMenu(e.pageX, e.pageY, 'folder', folderId);
+                    });
+                });
+            }
+
+            function showContextMenu(x, y, type, id) {
+                const existingMenu = document.querySelector('.context-menu');
+                if (existingMenu) existingMenu.remove();
+
+                const menu = document.createElement('div');
+                menu.className = 'context-menu absolute bg-white border border-gray-200 rounded-md shadow-lg py-1 z-10';
+                menu.style.left = `${x}px`;
+                menu.style.top = `${y}px`;
+                
+                let menuItems = `
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-action="rename">Rename</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-red-700 hover:bg-red-50" data-action="delete">Delete</a>
+                `;
+                if (type === 'note') {
+                    menuItems += `<a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-action="download">Download</a>`;
+                }
+                
+                menu.innerHTML = menuItems;
+                document.body.appendChild(menu);
+
+                menu.addEventListener('click', e => {
+                    e.preventDefault();
+                    const action = e.target.dataset.action;
+                    handleAction(action, type, id);
+                    menu.remove();
+                });
+
+                document.addEventListener('click', () => menu.remove(), { once: true });
+            }
+
+            function handleAction(action, type, id) {
+                const item = type === 'note' ? notes.find(n => n.id === id) : folders.find(f => f.id === id);
+                if (!item) return;
+
+                switch(action) {
+                    case 'rename':
+                        showModal(`Rename ${type}`, `<input id="rename-input" class="w-full border rounded px-2 py-1" value="${item.name || item.title}">`, (modalEl) => {
+                            const newName = modalEl.querySelector('#rename-input').value;
+                            if (newName) {
+                                if (type === 'note') item.title = newName;
+                                else item.name = newName;
+                                saveAndRenderAll();
+                                if(type === 'note' && activeNoteId === id) {
+                                   noteTitleInput.value = newName;
+                                }
+                            }
+                        });
+                        break;
+                    case 'delete':
+                        showModal(`Delete ${type}`, `<p>Are you sure you want to delete "${item.name || item.title}"?</p>`, () => {
+                            if (type === 'note') {
+                                notes = notes.filter(n => n.id !== id);
+                                if (activeNoteId === id) clearEditor();
+                            } else { // Deleting a folder
+                                folders = folders.filter(f => f.id !== id);
+                                // Move notes from deleted folder to root
+                                notes.forEach(n => {
+                                    if (n.folderId === id) n.folderId = null;
+                                });
+                            }
+                            saveAndRenderAll();
+                        });
+                        break;
+                    case 'download':
+                        const blob = new Blob([item.content], { type: 'text/plain' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${item.title}.txt`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        break;
+                }
+            }
+
+            // --- Core Logic ---
+            function openNote(id) {
+                activeNoteId = id;
+                const note = notes.find(n => n.id === id);
+                if (note) {
+                    noteTitleInput.value = note.title;
+                    noteContentInput.value = note.content;
+                    renderTags(id);
+                    if (window.innerWidth < 768) {
+                        showMainContent();
+                    }
+                }
+                renderSidebar(); // To update active state
+            }
+            
+            function clearEditor() {
+                activeNoteId = null;
+                noteTitleInput.value = '';
+                noteContentInput.value = '';
+                tagsContainer.innerHTML = '';
+                if (window.innerWidth < 768) {
+                    showSidebar();
+                }
+            }
+
+            function saveCurrentNote() {
+                if (activeNoteId) {
+                    const note = notes.find(n => n.id === activeNoteId);
+                    if (note) {
+                        note.title = noteTitleInput.value;
+                        note.content = noteContentInput.value;
+                        saveData();
+                    }
+                }
+            }
+            
+            function saveAndRenderAll() {
+                saveData();
+                renderSidebar();
+                if (activeNoteId) {
+                    renderTags(activeNoteId);
+                }
+            }
+
+            // --- UI/Layout ---
+            function showSidebar() {
+                sidebar.classList.remove('hidden');
+                mainContent.classList.add('hidden');
+            }
+
+            function showMainContent() {
+                sidebar.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                mainContent.classList.add('w-full');
+                sidebar.classList.add('w-0');
+            }
+            
+            function resetLayout() {
+                sidebar.classList.remove('hidden', 'w-0');
+                sidebar.classList.add('w-full', 'md:w-1/3', 'lg:w-1/4');
+                mainContent.classList.remove('w-full');
+                mainContent.classList.add('md:w-2/3', 'lg:w-3/4');
+
+                if (window.innerWidth >= 768) {
+                     mainContent.classList.remove('hidden');
+                } else {
+                    if (activeNoteId) showMainContent();
+                    else showSidebar();
+                }
+            }
+            
+            // --- Modal ---
+            function showModal(title, content, onConfirm) {
+                modalTitle.textContent = title;
+                modalContent.innerHTML = content;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+
+                const confirmHandler = () => {
+                    onConfirm(modalContent);
+                    hideModal();
+                };
+
+                const cancelHandler = () => hideModal();
+                const hideModal = () => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    modalConfirm.removeEventListener('click', confirmHandler);
+                    modalCancel.removeEventListener('click', cancelHandler);
+                };
+
+                modalConfirm.addEventListener('click', confirmHandler);
+                modalCancel.addEventListener('click', cancelHandler);
+            }
+
+            // --- Initial Event Listeners ---
+            newNoteBtn.addEventListener('click', () => {
+                const newNote = {
+                    id: Date.now(),
+                    folderId: null,
+                    title: 'New Note',
+                    content: '',
+                    tags: []
+                };
+                notes.unshift(newNote);
+                saveAndRenderAll();
+                openNote(newNote.id);
+            });
+
+            newFolderBtn.addEventListener('click', () => {
+                showModal('New Folder', '<input id="folder-name-input" class="w-full border rounded px-2 py-1" placeholder="Folder Name">', (modalEl) => {
+                    const name = modalEl.querySelector('#folder-name-input').value;
+                    if (name) {
+                        folders.push({ id: Date.now(), name: name });
+                        saveAndRenderAll();
+                    }
+                });
+            });
+
+            viewSwitchBtn.addEventListener('click', () => {
+                currentView = currentView === 'list' ? 'grid' : 'list';
+                viewSwitchBtn.innerHTML = currentView === 'list' ? '<i class="fas fa-th-large"></i>' : '<i class="fas fa-list"></i>';
+                renderSidebar();
+            });
+
+            backBtn.addEventListener('click', () => {
+                clearEditor();
+                resetLayout();
+                renderSidebar();
+            });
+            
+            noteTitleInput.addEventListener('input', () => {
+                saveCurrentNote();
+                // Debounce render so it doesn't fire on every keystroke
+                setTimeout(renderSidebar, 500);
+            });
+            noteContentInput.addEventListener('input', saveCurrentNote);
+            
+            window.addEventListener('resize', resetLayout);
+
+            // --- Initial Load ---
+            loadData();
+            renderSidebar();
+            if (notes.length > 0) {
+                openNote(notes.find(n => !n.folderId)?.id || notes[0].id);
+            }
+            resetLayout();
+        });
+    </script>
+</body>
+</html>

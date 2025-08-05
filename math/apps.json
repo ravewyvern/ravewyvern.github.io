@@ -11,6 +11,17 @@
     "min_height": "550px"
   },
   {
+    "name": "Notepad",
+    "icon": "../icons/mypfp.png",
+    "source": "./notes",
+    "id": "com.math.note",
+    "author": "ravewyvern",
+    "version": "1.0",
+    "type": "preinstalled",
+    "min_width": "650px",
+    "min_height": "550px"
+  },
+  {
     "name": "Scientific calculator",
     "icon": "https://www.desmos.com/assets/img/apps/scientific/favicon.ico",
     "source": "https://www.desmos.com/scientific",
@@ -88,7 +99,7 @@
     "min_height": "550px"
   },
   {
-    "name": "Notepad",
+    "name": "Markdown Notes",
     "icon": "https://stackedit.io/icons-c75a9472175cc17394ba6428d867fbcf/favicon-32x32.png",
     "source": "https://stackedit.io/app#",
     "id": "com.stackedit.app",
