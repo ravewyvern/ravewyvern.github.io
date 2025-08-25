@@ -1,1 +1,0 @@
-let graphData={graphOptions:{attractionForce:1,linkLength:10,repulsionForce:150,centralForce:3,edgePruning:100,minNodeRadius:3,maxNodeRadius:7},isInitialized:!0,paths:["index.html","novascript-editor.html","novascript-lang.html"],nodeCount:3,linkSources:[0,0],linkTargets:[2,1],labels:["index","NovaScript Editor","NovaScript Lang"],radii:[7,6.4375,6.4375],linkCount:2}

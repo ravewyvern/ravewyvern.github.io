@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Locked</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main id="login">
+  <div class="card">
+    <header class="card-header">
+      <h1 class="title">This page is locked</h1>
+      <p class="subtitle">Please log in to continue</p>
+    </header>
+
+    <div class="form-row">
+      <label for="password" class="sr-only">Password</label>
+      <input id="password" type="password" placeholder="Enter password" autocomplete="current-password" />
+    </div>
+
+    <div class="stay-row">
+      <label class="stay-label">
+        <input id="stay" type="checkbox" />
+        <span>Stay logged in</span>
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button id="loginBtn" type="button" aria-label="Log in">Unlock</button>
+      <p id="status" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+</main>
+
+<script src="login.js"></script>
+</body>
+</html>
