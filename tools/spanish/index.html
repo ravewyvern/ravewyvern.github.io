@@ -161,6 +161,17 @@
         .suggestion:hover {
             background-color: #555;
         }
+
+        /* Import second font from local file */
+        @font-face {
+            font-family: "CustomFont";
+            src: url("halflife2.ttf") format("truetype");
+        }
+
+        /* Class applied when custom font is active */
+        .custom-font {
+            font-family: "CustomFont", sans-serif;
+        }
     </style>
 </head>
 <body>
@@ -176,6 +187,9 @@
 
     <h2>Character Keybinds</h2>
     <div id="character-list"></div>
+    <label>
+        <input type="checkbox" id="fontToggle"> halflife mode
+    </label>
 </div>
 
 <script>
@@ -340,6 +354,17 @@
                 suggestionsPopup.classList.add('hidden');
             }
         };
+    });
+    const checkbox = document.getElementById("fontToggle");
+    checkbox.addEventListener("change", () => {
+        const textareas = document.querySelectorAll("textarea");
+        textareas.forEach(ta => {
+            if (checkbox.checked) {
+                ta.classList.add("custom-font");
+            } else {
+                ta.classList.remove("custom-font");
+            }
+        });
     });
 </script>
 </body>

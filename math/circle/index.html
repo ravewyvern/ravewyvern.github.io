@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Angle Circle Visualizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        canvas {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            cursor: crosshair;
+        }
+
+        .side-panel {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 24px;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .panel-section {
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .panel-section:last-child {
+            border-bottom: none;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .control-group {
+            margin-bottom: 12px;
+        }
+
+        .control-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 4px 0;
+            transition: all 0.2s;
+        }
+
+        .control-label:hover {
+            color: #667eea;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        input[type="number"] {
+            width: 60px;
+            padding: 6px 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .context-menu {
+            position: absolute;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 8px 0;
+            min-width: 180px;
+            z-index: 1000;
+            display: none;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .menu-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .menu-item:hover {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .menu-divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 4px 0;
+        }
+
+        .modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            display: none;
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -45%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
+            display: none;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .info-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 500;
+            display: none;
+            white-space: nowrap;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .color-option {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+            border-color: #333;
+        }
+
+        .color-option.selected {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .coterminal-display {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            position: absolute;
+            z-index: 600;
+            display: none;
+            min-width: 200px;
+            line-height: 1.6;
+        }
+
+        .coterminal-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ffd700;
+        }
+
+        .coterminal-value {
+            margin: 4px 0;
+            padding-left: 12px;
+        }
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <canvas id="canvas"></canvas>
+
+    <div class="context-menu" id="contextMenu"></div>
+
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal" id="modal"></div>
+
+    <div class="info-tooltip" id="tooltip"></div>
+    <div class="coterminal-display" id="coterminalDisplay"></div>
+</div>
+
+<div class="side-panel">
+    <div class="panel-section">
+        <h2 class="panel-title">🎯 Display Options</h2>
+        <div class="control-group">
+            <label class="control-label">
+                <input type="checkbox" id="showCircle" checked>
+                <span>Show Circle</span>
+            </label>
+        </div>
+        <div class="control-group">
+            <label class="control-label">
+                <input type="checkbox" id="showAxes" checked>
+                <span>Show Axes</span>
+            </label>
+        </div>
+    </div>
+
+    <div class="panel-section">
+        <h2 class="panel-title">📐 Angle Units</h2>
+        <div class="control-group">
+            <label class="control-label">
+                <input type="checkbox" id="showDegrees" checked>
+                <span>Degrees (°)</span>
+            </label>
+        </div>
+        <div class="control-group">
+            <label class="control-label">
+                <input type="checkbox" id="showRadiansPi" checked>
+                <span>Radians (π fraction)</span>
+            </label>
+        </div>
+        <div class="control-group">
+            <label class="control-label">
+                <input type="checkbox" id="showRadiansDecimal" checked>
+                <span>Radians (decimal)</span>
+            </label>
+        </div>
+    </div>
+
+    <div class="panel-section">
+        <h2 class="panel-title">🔄 Coterminal Angles</h2>
+        <div class="control-group">
+            <label class="control-label">
+                <span>Number to show:</span>
+                <input type="number" id="coterminalCount" min="0" max="5" value="2">
+            </label>
+        </div>
+    </div>
+
+    <div class="panel-section">
+        <h2 class="panel-title">📊 Statistics</h2>
+        <div id="stats">
+            <p>Lines: <span id="lineCount">0</span></p>
+            <p>Measurements: <span id="arcCount">0</span></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('tooltip');
+    const coterminalDisplay = document.getElementById('coterminalDisplay');
+
+    // Canvas setup
+    canvas.width = 700;
+    canvas.height = 700;
+
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = 250;
+
+    // State
+    let lines = [];
+    let arcs = [];
+    let selectedLine = null;
+    let hoveredLine = null;
+    let measureMode = false;
+    let measureStartLine = null;
+    let isDragging = false;
+    let draggedLine = null;
+
+    // Display options
+    let showCircle = true;
+    let showAxes = true;
+    let showDegrees = true;
+    let showRadiansPi = true;
+    let showRadiansDecimal = true;
+    let coterminalCount = 2;
+
+    // Colors
+    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#FFD700', '#FF69B4', '#00CED1'];
+
+    class Line {
+        constructor(angle = 0, color = '#FF6B6B') {
+            this.angle = angle;
+            this.color = color;
+            this.id = Date.now() + Math.random();
+        }
+
+        draw() {
+            const endX = centerX + radius * Math.cos(this.angle);
+            const endY = centerY - radius * Math.sin(this.angle);
+
+            ctx.strokeStyle = this.color;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+
+            // Draw arrow
+            const arrowLength = 15;
+            const arrowAngle = 0.4;
+
+            ctx.beginPath();
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(
+                endX - arrowLength * Math.cos(this.angle - arrowAngle),
+                endY + arrowLength * Math.sin(this.angle - arrowAngle)
+            );
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(
+                endX - arrowLength * Math.cos(this.angle + arrowAngle),
+                endY + arrowLength * Math.sin(this.angle + arrowAngle)
+            );
+            ctx.stroke();
+
+            // Draw angle label
+            const labelDistance = radius + 30;
+            const labelX = centerX + labelDistance * Math.cos(this.angle);
+            const labelY = centerY - labelDistance * Math.sin(this.angle);
+
+            ctx.fillStyle = this.color;
+            ctx.font = 'bold 12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const labels = [];
+            const degrees = (this.angle * 180 / Math.PI) % 360;
+            const normalizedDegrees = degrees < 0 ? degrees + 360 : degrees;
+
+            if (showDegrees) labels.push(`${normalizedDegrees.toFixed(1)}°`);
+            if (showRadiansPi) labels.push(this.getRadiansPi());
+            if (showRadiansDecimal) labels.push(`${this.angle.toFixed(3)} rad`);
+
+            labels.forEach((label, i) => {
+                ctx.fillText(label, labelX, labelY + i * 14);
+            });
+        }
+
+        getRadiansPi() {
+            const pi = Math.PI;
+            const angle = this.angle;
+            const ratio = angle / pi;
+
+            if (Math.abs(ratio) < 0.001) return '0';
+            if (Math.abs(ratio - 1) < 0.001) return 'π';
+            if (Math.abs(ratio + 1) < 0.001) return '-π';
+            if (Math.abs(ratio - 0.5) < 0.001) return 'π/2';
+            if (Math.abs(ratio + 0.5) < 0.001) return '-π/2';
+            if (Math.abs(ratio - 0.25) < 0.001) return 'π/4';
+            if (Math.abs(ratio - 0.75) < 0.001) return '3π/4';
+            if (Math.abs(ratio - 1.5) < 0.001) return '3π/2';
+
+            const numerator = Math.round(ratio * 12);
+            const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+            const divisor = gcd(Math.abs(numerator), 12);
+
+            if (divisor === 12) return `${numerator/12}π`;
+            return `${numerator/divisor}π/${12/divisor}`;
+        }
+
+        getCoterminalAngles() {
+            const angles = [];
+            const baseDegrees = this.angle * 180 / Math.PI;
+
+            for (let i = 1; i <= coterminalCount; i++) {
+                angles.push({
+                    positive: baseDegrees + 360 * i,
+                    negative: baseDegrees - 360 * i
+                });
+            }
+
+            return angles;
+        }
+
+        isPointNear(x, y) {
+            const endX = centerX + radius * Math.cos(this.angle);
+            const endY = centerY - radius * Math.sin(this.angle);
+
+            const dist = this.distanceToLineSegment(x, y, centerX, centerY, endX, endY);
+            return dist < 10;
+        }
+
+        distanceToLineSegment(px, py, x1, y1, x2, y2) {
+            const A = px - x1;
+            const B = py - y1;
+            const C = x2 - x1;
+            const D = y2 - y1;
+
+            const dot = A * C + B * D;
+            const lenSq = C * C + D * D;
+            let param = -1;
+
+            if (lenSq !== 0) param = dot / lenSq;
+
+            let xx, yy;
+
+            if (param < 0) {
+                xx = x1;
+                yy = y1;
+            } else if (param > 1) {
+                xx = x2;
+                yy = y2;
+            } else {
+                xx = x1 + param * C;
+                yy = y1 + param * D;
+            }
+
+            const dx = px - xx;
+            const dy = py - yy;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+    }
+
+    class Arc {
+        constructor(startAngle, endAngle, color = '#4169E1') {
+            this.startAngle = startAngle;
+            this.endAngle = endAngle;
+            this.color = color;
+            this.id = Date.now() + Math.random();
+        }
+
+        draw() {
+            const arcRadius = radius * 0.3;
+
+            ctx.strokeStyle = this.color;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, arcRadius, -this.endAngle, -this.startAngle);
+            ctx.stroke();
+
+            // Draw measurement
+            const midAngle = (this.startAngle + this.endAngle) / 2;
+            const labelDistance = arcRadius + 20;
+            const labelX = centerX + labelDistance * Math.cos(midAngle);
+            const labelY = centerY - labelDistance * Math.sin(midAngle);
+
+            ctx.fillStyle = this.color;
+            ctx.font = 'bold 14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const angleDiff = Math.abs(this.endAngle - this.startAngle);
+            const labels = [];
+
+            if (showDegrees) labels.push(`${(angleDiff * 180 / Math.PI).toFixed(1)}°`);
+            if (showRadiansPi) labels.push(this.getRadiansPi(angleDiff));
+            if (showRadiansDecimal) labels.push(`${angleDiff.toFixed(3)} rad`);
+
+            labels.forEach((label, i) => {
+                ctx.fillText(label, labelX, labelY + i * 14);
+            });
+        }
+
+        getRadiansPi(angle) {
+            const ratio = angle / Math.PI;
+
+            if (Math.abs(ratio) < 0.001) return '0';
+            if (Math.abs(ratio - 1) < 0.001) return 'π';
+            if (Math.abs(ratio - 0.5) < 0.001) return 'π/2';
+            if (Math.abs(ratio - 0.25) < 0.001) return 'π/4';
+
+            const numerator = Math.round(ratio * 12);
+            const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+            const divisor = gcd(Math.abs(numerator), 12);
+
+            if (divisor === 12) return `${numerator/12}π`;
+            return `${numerator/divisor}π/${12/divisor}`;
+        }
+
+        isPointNear(x, y) {
+            const arcRadius = radius * 0.3;
+            const dist = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
+
+            if (Math.abs(dist - arcRadius) > 10) return false;
+
+            const angle = Math.atan2(centerY - y, x - centerX);
+            const normalizedAngle = angle < 0 ? angle + 2 * Math.PI : angle;
+            const start = Math.min(this.startAngle, this.endAngle);
+            const end = Math.max(this.startAngle, this.endAngle);
+
+            return normalizedAngle >= start && normalizedAngle <= end;
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw axes
+        if (showAxes) {
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+
+            // X-axis
+            ctx.beginPath();
+            ctx.moveTo(centerX - radius - 50, centerY);
+            ctx.lineTo(centerX + radius + 50, centerY);
+            ctx.stroke();
+
+            // Y-axis
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY - radius - 50);
+            ctx.lineTo(centerX, centerY + radius + 50);
+            ctx.stroke();
+
+            // Axis labels
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 14px sans-serif';
+            ctx.fillText('x', centerX + radius + 60, centerY + 5);
+            ctx.fillText('y', centerX - 5, centerY - radius - 60);
+        }
+
+        // Draw circle
+        if (showCircle) {
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.stroke();
+        }
+
+        // Draw center point
+        ctx.fillStyle = '#333';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 6, 0, 2 * Math.PI);
+        ctx.fill();
+
+        // Draw arcs
+        arcs.forEach(arc => arc.draw());
+
+        // Draw lines
+        lines.forEach(line => line.draw());
+
+        updateStats();
+    }
+
+    function updateStats() {
+        document.getElementById('lineCount').textContent = lines.length;
+        document.getElementById('arcCount').textContent = arcs.length;
+    }
+
+    function showContextMenu(x, y, items) {
+        const menu = document.getElementById('contextMenu');
+        menu.innerHTML = '';
+
+        items.forEach((item, index) => {
+            if (item.divider) {
+                const divider = document.createElement('div');
+                divider.className = 'menu-divider';
+                menu.appendChild(divider);
+            } else {
+                const menuItem = document.createElement('div');
+                menuItem.className = 'menu-item';
+                menuItem.textContent = item.label;
+                menuItem.onclick = () => {
+                    hideContextMenu();
+                    item.action();
+                };
+                menu.appendChild(menuItem);
+            }
+        });
+
+        menu.style.display = 'block';
+        menu.style.left = `${x}px`;
+        menu.style.top = `${y}px`;
+    }
+
+    function hideContextMenu() {
+        document.getElementById('contextMenu').style.display = 'none';
+    }
+
+    function showModal(title, callback, type = 'angle') {
+        const modal = document.getElementById('modal');
+        const overlay = document.getElementById('modalOverlay');
+
+        let content = `<h3 class="modal-title">${title}</h3>`;
+
+        if (type === 'angle') {
+            content += `
+                    <input type="number" class="modal-input" id="angleInput" placeholder="Degrees (e.g., 45)">
+                    <input type="text" class="modal-input" id="radiansInput" placeholder="Radians (e.g., π/4 or 0.785)">
+                `;
+        } else if (type === 'color') {
+            content += `<div class="color-picker">`;
+            colors.forEach(color => {
+                content += `<div class="color-option" style="background: ${color}" data-color="${color}"></div>`;
+            });
+            content += `</div>`;
+        }
+
+        content += `
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="hideModal()">Cancel</button>
+                    <button class="btn btn-primary" id="modalConfirm">Confirm</button>
+                </div>
+            `;
+
+        modal.innerHTML = content;
+        modal.style.display = 'block';
+        overlay.style.display = 'block';
+
+        if (type === 'color') {
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.onclick = function() {
+                    document.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                };
+            });
+        }
+
+        document.getElementById('modalConfirm').onclick = () => {
+            if (type === 'angle') {
+                const degInput = document.getElementById('angleInput').value;
+                const radInput = document.getElementById('radiansInput').value;
+
+                let angle = null;
+                if (degInput) {
+                    angle = parseFloat(degInput) * Math.PI / 180;
+                } else if (radInput) {
+                    angle = parseRadians(radInput);
+                }
+
+                if (angle !== null) {
+                    callback(angle);
+                    hideModal();
+                }
+            } else if (type === 'color') {
+                const selected = document.querySelector('.color-option.selected');
+                if (selected) {
+                    callback(selected.dataset.color);
+                    hideModal();
+                }
+            }
+        };
+    }
+
+    function hideModal() {
+        document.getElementById('modal').style.display = 'none';
+        document.getElementById('modalOverlay').style.display = 'none';
+    }
+
+    function parseRadians(input) {
+        input = input.trim();
+
+        if (input.includes('π') || input.includes('pi')) {
+            input = input.replace('pi', 'π');
+
+            if (input === 'π') return Math.PI;
+            if (input === '-π') return -Math.PI;
+
+            const match = input.match(/(-?\d*\.?\d*)?\s*π?\s*\/?\s*(\d+)?/);
+            if (match) {
+                let numerator = match[1] ? parseFloat(match[1]) : 1;
+                let denominator = match[2] ? parseFloat(match[2]) : 1;
+                return (numerator * Math.PI) / denominator;
+            }
+        }
+
+        return parseFloat(input);
+    }
+
+    function isNearCenter(x, y) {
+        const dist = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
+        return dist < 15;
+    }
+
+    function getMouseAngle(x, y) {
+        return Math.atan2(centerY - y, x - centerX);
+    }
+
+    function showCoterminalAngles(line, x, y) {
+        const display = document.getElementById('coterminalDisplay');
+        const angles = line.getCoterminalAngles();
+
+        let content = '<div class="coterminal-title">Coterminal Angles</div>';
+        content += `<div class="coterminal-value">Current: ${(line.angle * 180 / Math.PI).toFixed(1)}°</div>`;
+
+        angles.forEach((angle, i) => {
+            content += `<div class="coterminal-value">+${angle.positive.toFixed(1)}°</div>`;
+            content += `<div class="coterminal-value">${angle.negative.toFixed(1)}°</div>`;
+        });
+
+        display.innerHTML = content;
+        display.style.display = 'block';
+        display.style.left = `${x + 10}px`;
+        display.style.top = `${y - 50}px`;
+    }
+
+    function hideCoterminalAngles() {
+        document.getElementById('coterminalDisplay').style.display = 'none';
+    }
+
+    // Event listeners
+    canvas.addEventListener('mousedown', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        if (e.button === 0) { // Left click
+            // Check if clicking on a line
+            for (let line of lines) {
+                if (line.isPointNear(x, y)) {
+                    if (measureMode && measureStartLine) {
+                        // Create arc measurement
+                        const arc = new Arc(measureStartLine.angle, line.angle);
+                        arcs.push(arc);
+                        measureMode = false;
+                        measureStartLine = null;
+                        draw();
+                        return;
+                    } else {
+                        // Start dragging
+                        isDragging = true;
+                        draggedLine = line;
+                        return;
+                    }
+                }
+            }
+
+            // Check if clicking center
+            if (isNearCenter(x, y)) {
+                showContextMenu(e.clientX, e.clientY, [
+                    {
+                        label: '➕ Add New Line', action: () => {
+                            const line = new Line(0, colors[lines.length % colors.length]);
+                            lines.push(line);
+                            draw();
+                        }
+                    }
+                ]);
+            }
+        }
