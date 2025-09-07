@@ -54,7 +54,7 @@ PACMAN_PACKAGES=(
     sddm wayland kitty tree
 
     # File Managers & Editors
-    neovim kate dolphin superfile
+    neovim kate dolphin superfile ollama
 
     # System Utilities & Monitoring
     flatpak fastfetch cava earlyoom
