@@ -58,7 +58,7 @@ PACMAN_PACKAGES=(
 
     # System Utilities & Monitoring
     flatpak fastfetch cava earlyoom
-
+    nodejs npm python python-pip
     # GNOME Applications
     gnome-clocks gnome-calendar gnome-maps evince
     gnome-logs gnome-contacts gnome-boxes gnome-software
