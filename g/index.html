@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Spanish Cheatsheet — Searchable</title>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --accent:#7dd3fc; --muted:#94a3b8; --glass:rgba(255,255,255,0.03);
+      --text:#e6eef8;
+    }
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:linear-gradient(180deg,#071026 0%, #07142a 100%);
+      color:var(--text);
+      padding:28px;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    header{
+      display:flex;
+      gap:16px;
+      align-items:center;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+    h1{margin:0;font-size:20px;letter-spacing:0.2px}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+    .searchbox{
+      margin-left:auto;
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .searchbox input{
+      min-width:220px;
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.06);
+      background:var(--glass);
+      color:var(--text);
+      outline:none;
+      box-shadow:0 6px 18px rgba(2,6,23,0.5);
+    }
+    .searchbox button{
+      padding:10px 12px;
+      border-radius:10px;
+      border:0;
+      background:var(--accent);
+      color:#032026;
+      font-weight:600;
+      cursor:pointer;
+    }
+    main{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap:14px;
+      margin-top:18px;
+    }
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:12px;
+      padding:12px;
+      box-shadow: 0 8px 24px rgba(2,6,23,0.6);
+      border:1px solid rgba(255,255,255,0.03);
+      overflow:auto;
+      max-height:72vh;
+    }
+    .card h2{margin:.1rem 0 .6rem 0;font-size:15px}
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+      table-layout:fixed;
+      word-wrap:break-word;
+    }
+    th,td{
+      padding:8px 10px;
+      text-align:left;
+      vertical-align:top;
+      border-bottom:1px dashed rgba(255,255,255,0.03);
+    }
+    th{color:var(--accent);font-weight:700;font-size:13px}
+    td em{color:var(--muted);font-style:normal}
+    .muted{color:var(--muted);font-size:13px}
+    mark{
+      background:linear-gradient(90deg,#ffe3b3,#ffd08a);
+      color:#111;
+      padding:0 2px;
+      border-radius:2px;
+    }
+    .controls{display:flex;gap:8px;align-items:center;margin-top:10px}
+    .small{font-size:12px;color:var(--muted)}
+    footer{margin-top:16px;color:var(--muted);font-size:13px}
+    /* responsive for smaller screens */
+    @media (max-width:640px){
+      header{gap:12px}
+      .searchbox{width:100%;margin-left:0;justify-content:stretch}
+      .searchbox input{flex:1}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Spanish Cheatsheet</h1>
+      <p class="lead">Common greetings, conjugations, alphabet, numbers, questions, and classroom phrases.</p>
+    </div>
+
+    <div class="searchbox" role="search" aria-label="Search the cheatsheet">
+      <input id="search" type="search" placeholder="Search (try: 'hola', 'tener', 'veintiuno')">
+      <button id="clear">Clear</button>
+    </div>
+  </header>
+
+  <main id="content">
+    <!-- Each 'card' is a searchable block -->
+    <section class="card" data-title="Accents & Gender notes">
+      <h2>Accents & Gender notes</h2>
+      <p class="muted">Special characters &amp; brief gender notes</p>
+      <p>á é í ó ú Á É Í Ó Ú ü Ü ñ Ñ ¿ ¡</p>
+      <p><strong>O</strong> = masculine<br>
+      <strong>A</strong> = feminine<br>
+      <strong>E</strong> = neutral</p>
+      <p><em>ending agrees with <strong>the speaker’s gender</strong>, not the listener’s</em></p>
+    </section>
+
+    <section class="card" data-title="Class vocabulary">
+      <h2>En la clase / In class</h2>
+      <table>
+        <thead><tr><th>En la clase</th><th>In class</th></tr></thead>
+        <tbody>
+          <tr><td><strong>la clase</strong></td><td><em>class</em></td></tr>
+          <tr><td><strong>el/la estudiante</strong></td><td><em>student (male/female)</em></td></tr>
+          <tr><td><strong>el/la profesor/a</strong></td><td><em>professor (male/female)</em></td></tr>
+          <tr><td><strong>la tarea</strong></td><td><em>homework</em></td></tr>
+          <tr><td><strong>la universidad</strong></td><td><em>university</em></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" data-title="Greetings">
+      <h2>Saludos / Greetings</h2>
+      <table>
+        <thead><tr><th>Spanish</th><th>English</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Buenos días.</strong></td><td><em>Good morning.</em></td></tr>
+          <tr><td><strong>Buenas noches.</strong></td><td><em>Good evening.</em></td></tr>
+          <tr><td><strong>Buenas tardes.</strong></td><td><em>Good afternoon.</em></td></tr>
+          <tr><td><strong>¿Cómo está usted?</strong></td><td><em>How are you? (for.)</em></td></tr>
+          <tr><td><strong>¿Cómo estás?</strong></td><td><em>How are you? (inf.)</em></td></tr>
+          <tr><td><strong>Hola.</strong></td><td><em>Hello, Hi.</em></td></tr>
+          <tr><td><strong>¿Qué pasa?</strong></td><td><em>What's happening? What's up? (inf.)</em></td></tr>
+          <tr><td><strong>¿Qué tal?</strong></td><td><em>What's up? (inf.)</em></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" data-title="Responses">
+      <h2>Respuestas / Responses</h2>
+      <table>
+        <thead><tr><th>Spanish</th><th>English</th></tr></thead>
+        <tbody>
+          <tr><td><strong>De nada.</strong></td><td><em>You're welcome.</em></td></tr>
+          <tr><td><strong>¿De verdad?</strong></td><td><em>Really?</em></td></tr>
+          <tr><td><strong>Encantado/a.</strong></td><td><em>Pleased to meet you.</em></td></tr>
+          <tr><td><strong>Gracias.</strong></td><td><em>Thank you.</em></td></tr>
+          <tr><td><strong>Igualmente.</strong></td><td><em>Likewise.</em></td></tr>
+          <tr><td><strong>Lo siento.</strong></td><td><em>I'm sorry.</em></td></tr>
+          <tr><td><strong>Más o menos.</strong></td><td><em>So-so. (lit. More or less.)</em></td></tr>
+          <tr><td><strong>Mucho gusto.</strong></td><td><em>Nice to meet you.</em></td></tr>
+          <tr><td><strong>(Muy) Bien.</strong></td><td><em>(Very) Well.</em></td></tr>
+          <tr><td><strong>(Muy) Mal.</strong></td><td><em>(Very) Bad.</em></td></tr>
+          <tr><td><strong>Todo bien.</strong></td><td><em>All's well.</em></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" data-title="Introductions">
+      <h2>Presentaciones / Introductions</h2>
+      <table>
+        <thead><tr><th>Spanish</th><th>English</th></tr></thead>
+        <tbody>
+          <tr><td><strong>¿Cómo se llama usted?</strong></td><td><em>What's your name? (for.)</em></td></tr>
+          <tr><td><strong>¿Cómo te llamas (tú)?</strong></td><td><em>What's your name? (inf.)</em></td></tr>
+          <tr><td><strong>Me llamo…</strong></td><td><em>My name is… (lit. I call myself…)</em></td></tr>
+          <tr><td><strong>Mi nombre es…</strong></td><td><em>My name is…</em></td></tr>
+          <tr><td><strong>Soy… (ser)</strong></td><td><em>I am… (to be)</em></td></tr>
+          <tr><td><strong>¿Y tú?</strong></td><td><em>And you?</em></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" data-title="Farewells">
+      <h2>Despedidas / Farewells</h2>
+      <table>
+        <thead><tr><th>Spanish</th><th>English</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Adiós.</strong></td><td><em>Good-bye.</em></td></tr>
+          <tr><td><strong>Hasta luego.</strong></td><td><em>See you later.</em></td></tr>
+          <tr><td><strong>Hasta mañana.</strong></td><td><em>See you tomorrow.</em></td></tr>
+          <tr><td><strong>Hasta pronto.</strong></td><td><em>See you soon.</em></td></tr>
+          <tr><td><strong>Nos vemos.</strong></td><td><em>See you.</em></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" data-title="Titles">
+      <h2>Títulos / Titles</h2>
+      <table>
+        <thead><tr><th>Spanish</th><th>English</th></tr></thead>
+        <tbody>
+          <tr><td><strong>el señor (Sr.)</strong></td><td><em>Mr.</em></td></tr>
+          <tr><td><strong>la señora (Sra.)</strong></td><td><em>Mrs., Ms.</em></td></tr>
+          <tr><td><strong>la señorita (Srta.)</strong></td><td><em>Miss</em></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" data-title="Alphabet">
+      <h2>Letra (Letter) — Alphabet & Pronunciation</h2>
+      <table>
+        <thead><tr><th>Letter</th><th>Name</th><th>Examples</th><th>Pronunciation Notes</th></tr></thead>
+        <tbody>
+          <tr><td>a</td><td>a</td><td>Ana</td><td></td></tr>
+          <tr><td>b</td><td>be</td><td>Bárbara</td><td>The letters b and v are pronounced exactly alike, as a b.</td></tr>
+          <tr><td>c</td><td>ce</td><td>Carlos, Cuba, Cecilia</td><td>Before a, o, u: like English k. In Latin America, before e or i: like English s. In most of Spain, before e or i, and z: like th in <em>thanks</em>.</td></tr>
+          <tr><td>d</td><td>de</td><td>Dios, Pedro</td><td></td></tr>
+          <tr><td>e</td><td>e</td><td>Ernesto</td><td></td></tr>
+          <tr><td>f</td><td>efe</td><td>Fernando</td><td></td></tr>
+          <tr><td>g</td><td>ge</td><td>gato, gusto, gitano</td><td>Before a, o, u: like English g in <em>gate</em>. Before e or i: like Spanish j (hard English h).</td></tr>
+          <tr><td>h</td><td>hache</td><td>Hernán, hola, hotel</td><td>Always silent.</td></tr>
+          <tr><td>i</td><td>i</td><td>Inés</td><td></td></tr>
+          <tr><td>j</td><td>jota</td><td>José</td><td>Like a hard English h sound.</td></tr>
+          <tr><td>k</td><td>ka</td><td>kilómetro, karate</td><td>Not common; usually in borrowed words.</td></tr>
+          <tr><td>l</td><td>ele</td><td>Luis</td><td></td></tr>
+          <tr><td>m</td><td>eme</td><td>María</td><td></td></tr>
+          <tr><td>n</td><td>ene</td><td>Nora, nachos</td><td></td></tr>
+          <tr><td>ñ</td><td>eñe</td><td>niño</td><td>Sounds like <em>ny</em> in <em>canyon</em>.</td></tr>
+          <tr><td>o</td><td>o</td><td>Óscar</td><td></td></tr>
+          <tr><td>p</td><td>pe</td><td>Pepe</td><td></td></tr>
+          <tr><td>q</td><td>cu</td><td>Quique, química</td><td></td></tr>
+          <tr><td>r</td><td>ere</td><td>Laura, Rosa</td><td>At the beginning of a word, r is always pronounced like a trilled rr.</td></tr>
+          <tr><td>s</td><td>ese</td><td>Sara</td><td></td></tr>
+          <tr><td>t</td><td>te</td><td>Tomás</td><td></td></tr>
+          <tr><td>u</td><td>u</td><td>usted, Úrsula</td><td></td></tr>
+          <tr><td>v</td><td>uve or ve</td><td>Venus, vamos</td><td>The letters b and v are pronounced exactly alike, as a b.</td></tr>
+          <tr><td>w</td><td>doble uve / doble v</td><td>Washington, windsurf</td><td>Not common; usually in borrowed words.</td></tr>
+          <tr><td>x</td><td>equis</td><td>excelente, México</td><td>Usually like ks, but sometimes like Spanish j.</td></tr>
+          <tr><td>y</td><td>ye</td><td>soy, Yolanda, maya</td><td>Pronounced as in <em>toy</em> or <em>yard</em>.</td></tr>
+          <tr><td>z</td><td>zeta</td><td>zorro, lápiz</td><td>In Latin America: like English s. In most of Spain: like th in <em>thanks</em>.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" data-title="Numbers">
+      <h2>Numbers / Ranges</h2>
+      <table>
+        <thead><tr><th>Range</th><th>Spanish Numbers</th></tr></thead>
+        <tbody>
+          <tr><td>0-9</td><td>cero, uno, dos, tres, cuatro, cinco, seis, siete, ocho, nueve</td></tr>
+          <tr><td>10-19</td><td>diez, once, doce, trece, catorce, quince, dieciséis, diecisiete, dieciocho, diecinueve</td></tr>
+          <tr><td>20-29</td><td>veinte, veintiuno, veintidós, veintitrés, veinticuatro, veinticinco, veintiséis, veintisiete, veintiocho, veintinueve</td></tr>
+          <tr><td>30-39</td><td>treinta, treinta y uno, treinta y dos, ... treinta y nueve</td></tr>
+          <tr><td>40-49</td><td>cuarenta, cuarenta y uno, cuarenta y dos, ...</td></tr>
+          <tr><td>50-59</td><td>cincuenta, cincuenta y uno, ...</td></tr>
+          <tr><td>60-69</td><td>sesenta, sesenta y uno, ...</td></tr>
+          <tr><td>70-79</td><td>setenta, setenta y uno, ...</td></tr>
+          <tr><td>80-89</td><td>ochenta, ochenta y uno, ...</td></tr>
+          <tr><td>90-99</td><td>noventa, noventa y uno, ...</td></tr>
+          <tr><td>100-109</td><td>cien, ciento uno, ciento dos, ciento tres...</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" data-title="Pronouns and conjugations">
+      <h2>Pronouns & Present Tense</h2>
+      <table>
+        <thead><tr><th>Person</th><th>Singular</th><th>Plural</th></tr></thead>
+        <tbody>
+          <tr><td>1st</td><td>yo — I</td><td>nosotros / nosotras — we (m/f)</td></tr>
+          <tr><td>2nd</td><td>tú — you (informal) / usted (Ud.) — you (formal)</td><td>vosotros / vosotras — you (informal, Spain) / ustedes (Uds.) — you (formal, plural)</td></tr>
+          <tr><td>3rd</td><td>él, ella — he, she</td><td>ellos, ellas — they (m/f)</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:10px">Present tense: <em>tener</em> (to have)</h3>
+      <table>
+        <thead><tr><th>Person</th><th>Conjugation</th></tr></thead>
+        <tbody>
+          <tr><td>1st</td><td>yo tengo</td></tr>
+          <tr><td>2nd</td><td>tú tienes</td></tr>
+          <tr><td>3rd</td><td>Ud./él/ella tiene</td></tr>
+          <tr><td>plural</td><td>nosotros/as tenemos / Uds./ellos/as tienen</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:10px">Present tense: <em>-ar</em> verbs — <em>hablar</em></h3>
+      <table>
+        <thead><tr><th>Person</th><th>Conjugation</th></tr></thead>
+        <tbody>
+          <tr><td>yo</td><td>hablo</td></tr>
+          <tr><td>tú</td><td>hablas</td></tr>
+          <tr><td>Ud./él/ella</td><td>habla</td></tr>
+          <tr><td>nosotros/as</td><td>hablamos</td></tr>
+          <tr><td>vosotros/as</td><td>habláis</td></tr>
+          <tr><td>Uds./ellos/as</td><td>hablan</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:10px">Present tense of regular -er and -ir verbs (comer / vivir)</h3>
+      <table>
+        <thead><tr><th>Subject</th><th>comer</th><th>vivir</th></tr></thead>
+        <tbody>
+          <tr><td>yo</td><td>como</td><td>vivo</td></tr>
+          <tr><td>tú</td><td>comes</td><td>vives</td></tr>
+          <tr><td>Ud./él/ella</td><td>come</td><td>vive</td></tr>
+          <tr><td>nosotros/as</td><td>comemos</td><td>vivimos</td></tr>
+          <tr><td>vosotros/as</td><td>coméis</td><td>vivís</td></tr>
+          <tr><td>Uds./ellos/as</td><td>comen</td><td>viven</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:10px">Present tense of <em>ver</em> (to see/watch)</h3>
+      <table>
+        <thead><tr><th>Subject</th><th>Conjugation</th></tr></thead>
+        <tbody>
+          <tr><td>yo</td><td>veo</td></tr>
+          <tr><td>tú</td><td>ves</td></tr>
+          <tr><td>Ud./él/ella</td><td>ve</td></tr>
+          <tr><td>nosotros/as</td><td>vemos</td></tr>
+          <tr><td>vosotros/as</td><td>veis</td></tr>
+          <tr><td>Uds./ellos/as</td><td>ven</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" data-title="Classroom expressions">
+      <h2>Expresiones para la clase</h2>
+      <table>
+        <thead><tr><th>Spanish</th><th>English</th></tr></thead>
+        <tbody>
+          <tr><td><strong>¿Cómo se dice…?</strong></td><td><em>How do you say…?</em></td></tr>
+          <tr><td><strong>¿Cómo se escribe…?</strong></td><td><em>How do you write…?</em></td></tr>
+          <tr><td><strong>¿Qué significa…?</strong></td><td><em>What does… mean?</em></td></tr>
+          <tr><td><strong>Otra vez, por favor.</strong></td><td><em>Again, please.</em></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" data-title="Dates and days">
+      <h2>Dates / Seasons / Days</h2>
+      <table>
+        <thead><tr><th>English</th><th>Spanish</th></tr></thead>
+        <tbody>
+          <tr><td>Spring</td><td>primavera</td></tr>
+          <tr><td>Summer</td><td>verano</td></tr>
+          <tr><td>Autumn / Fall</td><td>otoño</td></tr>
+          <tr><td>Winter</td><td>invierno</td></tr>
+          <tr><td>January</td><td>enero</td></tr>
+          <tr><td>February</td><td>febrero</td></tr>
+          <tr><td>March</td><td>marzo</td></tr>
+          <tr><td>April</td><td>abril</td></tr>
+          <tr><td>May</td><td>mayo</td></tr>
+          <tr><td>June</td><td>junio</td></tr>
+          <tr><td>July</td><td>julio</td></tr>
+          <tr><td>August</td><td>agosto</td></tr>
+          <tr><td>September</td><td>septiembre</td></tr>
+          <tr><td>October</td><td>octubre</td></tr>
+          <tr><td>November</td><td>noviembre</td></tr>
+          <tr><td>December</td><td>diciembre</td></tr>
+          <tr><td>Monday</td><td>lunes</td></tr>
+          <tr><td>Tuesday</td><td>martes</td></tr>
+          <tr><td>Wednesday</td><td>miércoles</td></tr>
+          <tr><td>Thursday</td><td>jueves</td></tr>
+          <tr><td>Friday</td><td>viernes</td></tr>
+          <tr><td>Saturday</td><td>sábado</td></tr>
+          <tr><td>Sunday</td><td>domingo</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" data-title="Question words">
+      <h2>Palabras interrogativas / Question words</h2>
+      <table>
+        <thead><tr><th>Spanish</th><th>Examples</th><th>English</th></tr></thead>
+        <tbody>
+          <tr><td><strong>¿Cómo...?</strong></td><td>¿Cómo estás? ¿Cómo eres?</td><td>How...? How are you? What are you like?</td></tr>
+          <tr><td><strong>¿Cuál(es)...?</strong></td><td>¿Cuál es tu libro?</td><td>Which (one/ones)?</td></tr>
+          <tr><td><strong>¿Cuándo...?</strong></td><td>¿Cuándo es tu clase de español?</td><td>When...? When is your Spanish class?</td></tr>
+          <tr><td><strong>¿Cuánto/a(s)?</strong></td><td>¿Cuántos estudiantes hay?</td><td>How much (many)?</td></tr>
+          <tr><td><strong>¿Dónde...?</strong></td><td>¿Dónde hay una silla?</td><td>Where...?</td></tr>
+          <tr><td><strong>¿De dónde...?</strong></td><td>¿De dónde es Almodóvar?</td><td>From where...?</td></tr>
+          <tr><td><strong>¿Adónde...?</strong></td><td>¿Adónde vas?</td><td>(To) Where...?</td></tr>
+          <tr><td><strong>¿Por qué...?</strong></td><td>¿Por qué no hay clase mañana?</td><td>Why...?</td></tr>
+          <tr><td><strong>¿Qué...?</strong></td><td>¿Qué estudias?</td><td>What...?</td></tr>
+          <tr><td><strong>¿Quién(es)...?</strong></td><td>¿Quién es ella?</td><td>Who...?</td></tr>
+          <tr><td><strong>¿De quién(es)...?</strong></td><td>¿De quién es el bolígrafo?</td><td>Whose...?</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" data-title="Notes on examples & answers">
+      <h2>Example Q/A notes</h2>
+      <p class="muted">Corrections / answers</p>
+      <ol>
+        <li>Currently contains: <em>No, no son colombianos.</em></li>
+        <li>The question is “Are they Colombian?” The correct response is “No, they are not Colombian” hence “d. No, no son colombianos.”</li>
+        <li>The question is “Is he from Colombia?” The correct response is “Yes, he is Colombian” hence “a. Sí, es colombiano.”</li>
+        <li>The question is “Are you (plural) Colombian?” The correct response is “Yes, we are Colombian” hence “b. Sí, somos colombianos.”</li>
+      </ol>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="small">Built for quick study — search filters sections and highlights matches. (UTF-8 encoding supports accents.)</div>
+  </footer>
+
+  <script>
+    // Simple live search that filters "card" sections and highlights matches
+    (function(){
+      const searchInput = document.getElementById('search');
+      const clearBtn = document.getElementById('clear');
+      const cards = Array.from(document.querySelectorAll('.card'));
+
+      // Utility: escape regex
+      function regexEscape(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+      // Remove previous highlights
+      function removeHighlights(root){
+        const marks = root.querySelectorAll('mark');
+        marks.forEach(m => {
+          const txt = document.createTextNode(m.textContent);
+          m.parentNode.replaceChild(txt, m);
+        });
+      }
+
+      // Highlight text in an element
+      function highlightElement(el, term){
+        removeHighlights(el);
+        if(!term) return;
+        const re = new RegExp(regexEscape(term), 'ig');
+
+        // walk text nodes and replace matches with <mark>
+        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
+        const toReplace = [];
+        while(walker.nextNode()){
+          const node = walker.currentNode;
+          if(node.parentNode && node.parentNode.closest('mark')) continue; // skip inside marks
+          if(re.test(node.nodeValue)){
+            toReplace.push(node);
+          }
+        }
+        toReplace.forEach(node => {
+          const frag = document.createDocumentFragment();
+          let lastIndex = 0;
+          const text = node.nodeValue;
+          let match;
+          re.lastIndex = 0;
+          while((match = re.exec(text)) !== null){
+            const before = text.slice(lastIndex, match.index);
+            if(before) frag.appendChild(document.createTextNode(before));
+            const mk = document.createElement('mark');
+            mk.textContent = match[0];
+            frag.appendChild(mk);
+            lastIndex = match.index + match[0].length;
+          }
+          const after = text.slice(lastIndex);
+          if(after) frag.appendChild(document.createTextNode(after));
+          node.parentNode.replaceChild(frag, node);
+        });
+      }
+
+      // Do search & filter
+      function doSearch(){
+        const q = searchInput.value.trim();
+        const terms = q.split(/\s+/).filter(Boolean);
+        cards.forEach(card=>{
+          // aggregate searchable text (title + content)
+          const txt = card.innerText || card.textContent || '';
+          if(!q){
+            card.style.display = '';
+            removeHighlights(card);
+            return;
+          }
+          // decide visibility: all terms must be present (AND)
+          const visible = terms.every(t => txt.toLowerCase().includes(t.toLowerCase()));
+          card.style.display = visible ? '' : 'none';
+          // highlight first term only (to avoid visual overload)
+          if(visible){
+            highlightElement(card, terms[0]);
+          } else {
+            removeHighlights(card);
+          }
+        });
+      }
+
+      searchInput.addEventListener('input', doSearch);
+      clearBtn.addEventListener('click', ()=>{
+        searchInput.value = '';
+        searchInput.focus();
+        doSearch();
+      });
+
+      // Keyboard: ESC clears
+      document.addEventListener('keydown', (e)=>{
+        if(e.key === 'Escape') { searchInput.value = ''; doSearch(); }
+      });
+
+      // Initial (no query)
+      doSearch();
+    })();
+  </script>
+</body>
+</html>
