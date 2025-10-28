@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NovaLang v0.1</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="title">NovaLang — v0.1</div>
+    <div class="controls">
+      <button id="runBtn">Run</button>
+      <button id="clearBtn">Clear Output</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="editor">
+      <textarea id="code" spellcheck="false">
+// Example program for NovaLang v0.1
+var int a = 4
+var b = 9
+var string s = "test <a>"
+
+print(<a> + <b>)
+println("hello " ++ <s>)
+print(<a> + 1)
+println("combined: " ++ <a> ++ " and " ++ <b>)
+print("Will error: " ++ true) // should concatenate to 'truetrue' or show error depending usage
+      </textarea>
+    </section>
+
+    <section class="output">
+      <div id="outputBox" class="outputBox"></div>
+    </section>
+  </main>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

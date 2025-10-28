@@ -1,0 +1,12 @@
+* { box-sizing: border-box; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+body { margin: 0; height: 100vh; display:flex; flex-direction:column; }
+.topbar { background:#0f172a; color:#fff; padding:10px 16px; display:flex; align-items:center; justify-content:space-between; }
+.title { font-weight:600; }
+.controls button { margin-left:8px; padding:6px 12px; border-radius:6px; border:none; cursor:pointer; background:#2563eb; color:white; }
+.main { display:flex; flex:1; gap:12px; padding:12px; background:#0b1220; }
+.editor { flex:1; }
+.editor textarea { width:100%; height:100%; min-height:400px; background:#071127; color:#e6eef8; border-radius:8px; padding:12px; border:none; resize:none; font-family:monospace; font-size:13px; }
+.output { width:420px; max-width:45%; display:flex; flex-direction:column; }
+.outputBox { background:#01040a; color:#e6eef8; padding:12px; border-radius:8px; flex:1; overflow:auto; font-family:monospace; font-size:13px; white-space:pre-wrap; }
+.output .error { color:#ff8b8b; }
+.note { font-size:12px; color:#9aa7c7; padding:6px 0 0 0; }
